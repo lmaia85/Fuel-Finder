@@ -80,28 +80,15 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 .mark{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.02em;
   text-transform:uppercase;color:var(--ink);text-decoration:none}
 .mark span{color:var(--me)}
-.nav{display:flex;gap:20px;margin-left:auto;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  position:relative}
+.nav{display:flex;gap:20px;margin-left:auto;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
 .nav a{color:var(--faint);text-decoration:none;display:block;padding:19px 0}
 .nav a.on{color:var(--ink)}
 
-/* Shared backdrop behind whichever dropdown (Gels/Drink mixes/Electrolytes)
-   is open — one element, JS-positioned to match the active .dd's real
-   bounding box (not hardcoded offsets, so it stays correct regardless of
-   label width or nav order), animated with a CSS transition so moving
-   between items glides the panel across instead of an instant swap. The
-   .dd itself carries no background/border of its own — this backdrop is
-   what the reader actually sees as the panel. */
-.nav-backdrop{position:absolute;top:100%;z-index:39;background:var(--panel);border:1px solid var(--rule-2);
-  opacity:0;pointer-events:none;
-  transition:left .2s ease,top .2s ease,width .2s ease,height .2s ease,opacity .15s ease}
-.nav-backdrop.show{opacity:1}
-
 /* two-level menu: Gels > brand > product */
 .nv{position:relative}
-.dd{position:absolute;left:-14px;top:100%;min-width:210px;z-index:40;padding:5px 0;
-  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease}
-.nv:hover .dd,.nv:focus-within .dd,.nv.open .dd{opacity:1;visibility:visible;pointer-events:auto}
+.dd{display:none;position:absolute;left:-14px;top:100%;min-width:210px;z-index:40;
+  background:var(--panel);border:1px solid var(--rule-2);padding:5px 0}
+.nv:hover .dd,.nv:focus-within .dd,.nv.open .dd{display:block}
 .br{position:relative}
 /* A real button, not a span: the product list below is display:none until the
    brand row is hovered/focused/open, and display:none content is skipped by
@@ -416,7 +403,6 @@ footer b{color:var(--dim);font-weight:500}
 <header class="bar"><div class="bar-in">
   <a class="mark" href="#" id="home-link">Fuel <span>Finder</span></a>
   <nav class="nav">
-    <div class="nav-backdrop" id="navBackdrop"></div>
     <div class="nv"><a href="#" data-cat="gel" aria-haspopup="true" aria-expanded="false">Gels</a><div class="dd" id="dd-gel"></div></div>
     <div class="nv"><a href="#" data-cat="drink" aria-haspopup="true" aria-expanded="false">Drink mixes</a><div class="dd" id="dd-drink"></div></div>
     <div class="nv"><a href="#" data-cat="electrolyte" aria-haspopup="true" aria-expanded="false">Electrolytes</a><div class="dd" id="dd-electrolyte"></div></div>
@@ -994,46 +980,11 @@ function select(i){
   render(p);
 }
 
-function positionNavBackdrop(nv){
-  const dd = nv.querySelector(".dd");
-  const backdrop = document.getElementById("navBackdrop");
-  if(!dd) return;
-  /* First open from a fully-closed nav: snap position/size instantly rather
-     than animating in from whatever the backdrop's last (or default zero)
-     box was — otherwise the box visibly grows into place while the dd's
-     own content is already fully rendered, same mismatch this whole fix
-     is for. Moving between two already-open items keeps the glide. */
-  const wasShown = backdrop.classList.contains("show");
-  if(!wasShown) backdrop.style.transition = "none";
-  const navRect = document.querySelector(".nav").getBoundingClientRect();
-  const ddRect = dd.getBoundingClientRect();
-  backdrop.style.left = (ddRect.left - navRect.left) + "px";
-  backdrop.style.width = ddRect.width + "px";
-  backdrop.style.height = ddRect.height + "px";
-  backdrop.classList.add("show");
-  if(!wasShown){
-    backdrop.offsetHeight; /* force reflow so the instant position/size actually applies before... */
-    backdrop.style.transition = ""; /* ...transitions are re-enabled for the next move */
-  }
-}
-function hideNavBackdrop(){
-  document.getElementById("navBackdrop").classList.remove("show");
-}
-
 function closeMenu(){
   document.querySelectorAll(".nv.open").forEach(x => x.classList.remove("open"));
   document.querySelectorAll(".br.open").forEach(br => br.classList.remove("open"));
   document.querySelectorAll(".nav [aria-expanded]").forEach(el => el.setAttribute("aria-expanded", "false"));
-  hideNavBackdrop();
 }
-
-document.querySelectorAll(".nav > .nv").forEach(nv => {
-  nv.addEventListener("mouseenter", () => positionNavBackdrop(nv));
-  nv.addEventListener("focusin", () => positionNavBackdrop(nv));
-});
-document.querySelector(".nav").addEventListener("mouseleave", () => {
-  if(!document.querySelector(".nv.open")) hideNavBackdrop();
-});
 
 document.querySelectorAll(".nv > a").forEach(link => {
   link.addEventListener("click", e => {
@@ -1043,7 +994,6 @@ document.querySelectorAll(".nv > a").forEach(link => {
     closeMenu();
     nv.classList.toggle("open", !wasOpen);
     link.setAttribute("aria-expanded", String(!wasOpen));
-    if(!wasOpen) positionNavBackdrop(nv);
   });
 });
 
