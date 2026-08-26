@@ -405,7 +405,7 @@ footer b{color:var(--dim);font-weight:500}
     <div class="nv"><a href="#" data-cat="gel" aria-haspopup="true" aria-expanded="false">Gels</a><div class="dd" id="dd-gel"></div></div>
     <div class="nv"><a href="#" data-cat="drink" aria-haspopup="true" aria-expanded="false">Drink mixes</a><div class="dd" id="dd-drink"></div></div>
     <div class="nv"><a href="#" data-cat="electrolyte" aria-haspopup="true" aria-expanded="false">Electrolytes</a><div class="dd" id="dd-electrolyte"></div></div>
-    <a href="#find" id="find-link">Find My Gel</a>
+    <a href="#find" id="find-link">Find Your Fuel</a>
     <a href="#calculator" id="calc-link">Calculator</a>
   </nav>
 </div></header>
@@ -1059,7 +1059,7 @@ page.addEventListener("click", e => {
   if(e.target.closest("#adminUnlock")){ checkAdminPassword(); return; }
 
   const go = e.target.closest(".home-go");
-  if(go){ select(+go.dataset.i); return; }
+  if(go && go.dataset.i !== undefined){ select(+go.dataset.i); return; }
 
   const result = e.target.closest(".site-search-results button[data-i]");
   if(result){ select(+result.dataset.i); return; }
@@ -1381,9 +1381,7 @@ function categoryCardsHTML(){
         <h2>${label[0].toUpperCase()+label.slice(1)}</h2>
         <p>${items.length} reviewed</p>
         ${items.length
-          ? cat === "gel"
-            ? `<a href="#find" class="home-go">Browse ${label}</a>`
-            : `<button class="home-go" data-i="${PRODUCTS.indexOf(items[0])}">Browse ${label}</button>`
+          ? `<a href="#find/${cat}" class="home-go">Browse ${label}</a>`
           : `<p class="home-soon">Coming soon</p>`}
       </div>`;
     }).join("")}
@@ -1511,6 +1509,8 @@ function routeFromHash(){
   const h = location.hash.slice(1);
   if(h === "requests"){ renderRequestsAdmin(); return; }
   if(h === "find"){ renderFinder(); return; }
+  const fm = h.match(/^find\/([a-z]+)$/);
+  if(fm){ renderFinder(fm[1]); return; }
   if(h === "calculator"){ renderCalculator(); return; }
   const m = h.match(/^([a-z]+)\/(.+)$/);
   if(m){
