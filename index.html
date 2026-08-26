@@ -1174,6 +1174,9 @@ function finderQuizHTML(){
 }
 
 function finderResultsHTML(){
+  if(Object.values(finderAnswers).every(v => v === null)){
+    return `<p class="buy-empty">Answer a question above to see your matches.</p>`;
+  }
   const matches = findMatches(finderAnswers);
   return `<div class="fr-grid">${matches.map((m,i) => { const p = m.p; return `
     <div class="fr-card">
