@@ -351,7 +351,7 @@ footer b{color:var(--dim);font-weight:500}
 .home-cat p{font-family:var(--body);font-size:13px;color:var(--dim);margin:0}
 .home-go{align-self:flex-start;margin-top:10px;appearance:none;background:none;cursor:pointer;
   border:1px solid var(--rule-2);color:var(--me);font-family:var(--mono);font-size:10px;
-  letter-spacing:.12em;text-transform:uppercase;padding:10px 16px}
+  letter-spacing:.12em;text-transform:uppercase;padding:10px 16px;text-decoration:none;display:inline-block}
 .home-go:hover{border-color:var(--me)}
 .home-soon{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--faint);margin-top:10px}
@@ -1313,7 +1313,9 @@ function categoryCardsHTML(){
         <h2>${label[0].toUpperCase()+label.slice(1)}</h2>
         <p>${items.length} reviewed</p>
         ${items.length
-          ? `<button class="home-go" data-i="${PRODUCTS.indexOf(items[0])}">Browse ${label}</button>`
+          ? cat === "gel"
+            ? `<a href="#find" class="home-go">Browse ${label}</a>`
+            : `<button class="home-go" data-i="${PRODUCTS.indexOf(items[0])}">Browse ${label}</button>`
           : `<p class="home-soon">Coming soon</p>`}
       </div>`;
     }).join("")}
