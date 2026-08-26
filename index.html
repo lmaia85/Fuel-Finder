@@ -99,8 +99,9 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 
 /* two-level menu: Gels > brand > product */
 .nv{position:relative}
-.dd{display:none;position:absolute;left:-14px;top:100%;min-width:210px;z-index:40;padding:5px 0}
-.nv:hover .dd,.nv:focus-within .dd,.nv.open .dd{display:block}
+.dd{position:absolute;left:-14px;top:100%;min-width:210px;z-index:40;padding:5px 0;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease}
+.nv:hover .dd,.nv:focus-within .dd,.nv.open .dd{opacity:1;visibility:visible;pointer-events:auto}
 .br{position:relative}
 /* A real button, not a span: the product list below is display:none until the
    brand row is hovered/focused/open, and display:none content is skipped by
@@ -997,12 +998,23 @@ function positionNavBackdrop(nv){
   const dd = nv.querySelector(".dd");
   const backdrop = document.getElementById("navBackdrop");
   if(!dd) return;
+  /* First open from a fully-closed nav: snap position/size instantly rather
+     than animating in from whatever the backdrop's last (or default zero)
+     box was — otherwise the box visibly grows into place while the dd's
+     own content is already fully rendered, same mismatch this whole fix
+     is for. Moving between two already-open items keeps the glide. */
+  const wasShown = backdrop.classList.contains("show");
+  if(!wasShown) backdrop.style.transition = "none";
   const navRect = document.querySelector(".nav").getBoundingClientRect();
   const ddRect = dd.getBoundingClientRect();
   backdrop.style.left = (ddRect.left - navRect.left) + "px";
   backdrop.style.width = ddRect.width + "px";
   backdrop.style.height = ddRect.height + "px";
   backdrop.classList.add("show");
+  if(!wasShown){
+    backdrop.offsetHeight; /* force reflow so the instant position/size actually applies before... */
+    backdrop.style.transition = ""; /* ...transitions are re-enabled for the next move */
+  }
 }
 function hideNavBackdrop(){
   document.getElementById("navBackdrop").classList.remove("show");
