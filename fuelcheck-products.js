@@ -1,7 +1,7 @@
 /* Fuel Finder — product catalog.
    Every field is taken directly from a product's declared nutrition or
    supplement panel (or left null when a product doesn't declare it) —
-   never estimated. Loaded by fuelcheck-gels.html via <script src>, kept
+   never estimated. Loaded by index.html via <script src>, kept
    as its own file now that the catalog spans multiple categories.
    category is one of: "gel", "drink", "electrolyte". */
 
