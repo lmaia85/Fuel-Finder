@@ -1073,6 +1073,9 @@ page.addEventListener("click", e => {
   const clearAll = e.target.closest("#clearAllRequests");
   if(clearAll){ RequestLog.clear(); renderRequestsAdmin(); return; }
 
+  const fc = e.target.closest("[data-fc]");
+  if(fc){ renderFinder(fc.dataset.fc); return; }
+
   const fq = e.target.closest("[data-fq]");
   if(fq){ const key = fq.dataset.fq, val = fq.dataset.fv;
           finderAnswers[key] = finderAnswers[key] === val ? null : val;
@@ -1113,39 +1116,86 @@ page.addEventListener("keydown", e => {
   else renderWaiting(q);
 });
 
-/* Gel finder: a short quiz that scores gels against the reader's answers
-   using the same min-max-against-peers approach as overallScore, just with
-   weights driven by what was picked instead of a fixed dimension list.
-   Caffeine is a hard filter (it's a binary yes/no on the panel); everything
-   else is a soft preference so an unusual combination of answers never
-   produces zero results. */
-let finderAnswers = {duration:null, sensitivity:null, caffeine:null, electrolytes:null};
+/* Gel/drink/electrolyte finder: a short per-category quiz that scores
+   products against the reader's answers using the same min-max-against-
+   peers approach as overallScore, with weights driven by what was picked
+   instead of a fixed dimension list. Each category gets its own question
+   set — the gel questions don't all translate (drink mixes have no gut-
+   comfort data and are all caffeine-free; electrolytes aren't a duration-
+   scaled carb fuel at all) — but they share one mechanism and one visual
+   language. Caffeine is a hard filter for gels (binary yes/no on the
+   panel); everything else is a soft preference so an unusual combination
+   of answers never produces zero results. */
+const FINDER_CATS = [["gel","Gels"], ["drink","Drink Mixes"], ["electrolyte","Electrolytes"]];
 
-const FINDER_Q = [
-  {key:"duration", label:"How long is the effort?", opts:[
-    ["under90","Under 90 min"], ["90to3h","90 min – 3 hrs"], ["over3h","Over 3 hrs"]]},
-  {key:"sensitivity", label:"Stomach sensitivity?", opts:[
-    ["sensitive","Sensitive"], ["noissues","No issues"]]},
-  {key:"caffeine", label:"Caffeine?", opts:[
-    ["want","Want it"], ["avoid","Avoid it"], ["dontcare","Don't care"]]},
-  {key:"electrolytes", label:"Do you want electrolytes in your gel?", opts:[
-    ["yes","Yes"], ["no","No"], ["dontcare","Don't care"]]}
-];
+const FINDER_QUESTIONS = {
+  gel: [
+    {key:"duration", label:"How long is the effort?", opts:[
+      ["under90","Under 90 min"], ["90to3h","90 min – 3 hrs"], ["over3h","Over 3 hrs"]]},
+    {key:"sensitivity", label:"Stomach sensitivity?", opts:[
+      ["sensitive","Sensitive"], ["noissues","No issues"]]},
+    {key:"caffeine", label:"Caffeine?", opts:[
+      ["want","Want it"], ["avoid","Avoid it"], ["dontcare","Don't care"]]},
+    {key:"electrolytes", label:"Do you want electrolytes in your gel?", opts:[
+      ["yes","Yes"], ["no","No"], ["dontcare","Don't care"]]}
+  ],
+  drink: [
+    {key:"duration", label:"How long is the effort?", opts:[
+      ["under90","Under 90 min"], ["90to3h","90 min – 3 hrs"], ["over3h","Over 3 hrs"]]},
+    {key:"carbs", label:"How many carbs do you want in your mix?", opts:[
+      ["low","Low"], ["med","Medium"], ["high","High"]]},
+    {key:"electrolytes", label:"Do you want electrolytes in your mix?", opts:[
+      ["yes","Yes"], ["no","No"], ["dontcare","Don't care"]]}
+  ],
+  electrolyte: [
+    {key:"sodium", label:"How much sodium are you looking for?", opts:[
+      ["light","Light"], ["moderate","Moderate"], ["heavy","Heavy"]]},
+    {key:"priority", label:"What matters more?", opts:[
+      ["cost","Lowest cost"], ["profile","Fullest mineral profile"]]}
+  ]
+};
+
+let finderAnswers = {category: "gel"};
+
+function finderHasAnswer(){
+  return Object.entries(finderAnswers).some(([k,v]) => k !== "category" && v);
+}
 
 function findMatches(answers){
-  const gels = PRODUCTS.filter(p => p.category === "gel");
-  let pool = gels;
-  if(answers.caffeine === "want") pool = pool.filter(p => p.caffeine > 0);
-  if(answers.caffeine === "avoid") pool = pool.filter(p => p.caffeine === 0);
-  if(!pool.length) pool = gels;
+  const cat = answers.category;
+  const catPool = PRODUCTS.filter(p => p.category === cat);
+  let pool = catPool;
+  const dims = [];
 
-  const dims = [["gut", p=>p.gut, "hi", answers.sensitivity === "sensitive" ? 3 : 1]];
-  if(answers.electrolytes === "yes") dims.push(["sod", p=>p.sodium, "hi", 3]);
-  else if(answers.electrolytes === "no") dims.push(["sod", p=>p.sodium, "lo", 2]);
-  const durW = answers.duration === "over3h" ? 3 : answers.duration === "90to3h" ? 1.5 : 0.5;
-  dims.push(["cost", p=>p.perGram, "lo", durW]);
-  dims.push(["dens", p=>p.carbs, "hi", durW * 0.7]);
-  dims.push(["rate", p=>p.ratioScore, "hi", 1]);
+  if(cat === "gel"){
+    if(answers.caffeine === "want") pool = pool.filter(p => p.caffeine > 0);
+    else if(answers.caffeine === "avoid") pool = pool.filter(p => p.caffeine === 0);
+    if(!pool.length) pool = catPool;
+    dims.push(["gut", p=>p.gut, "hi", answers.sensitivity === "sensitive" ? 3 : 1]);
+    if(answers.electrolytes === "yes") dims.push(["sod", p=>p.sodium, "hi", 3]);
+    else if(answers.electrolytes === "no") dims.push(["sod", p=>p.sodium, "lo", 2]);
+    const durW = answers.duration === "over3h" ? 3 : answers.duration === "90to3h" ? 1.5 : 0.5;
+    dims.push(["cost", p=>p.perGram, "lo", durW]);
+    dims.push(["dens", p=>p.carbs, "hi", durW * 0.7]);
+    dims.push(["rate", p=>p.ratioScore, "hi", 1]);
+  } else if(cat === "drink"){
+    if(answers.electrolytes === "yes") dims.push(["sod", p=>p.sodium, "hi", 3]);
+    else if(answers.electrolytes === "no") dims.push(["sod", p=>p.sodium, "lo", 2]);
+    const durW = answers.duration === "over3h" ? 3 : answers.duration === "90to3h" ? 1.5 : 0.5;
+    dims.push(["cost", p=>p.perGram, "lo", durW]);
+    if(answers.carbs === "low") dims.push(["dens", p=>p.carbs, "lo", 3]);
+    else if(answers.carbs === "high") dims.push(["dens", p=>p.carbs, "hi", 3]);
+    dims.push(["rate", p=>p.ratioScore, "hi", 1]);
+  } else {
+    if(answers.sodium === "light") dims.push(["sod", p=>p.sodium, "lo", 3]);
+    else if(answers.sodium === "heavy") dims.push(["sod", p=>p.sodium, "hi", 3]);
+    const costW = answers.priority === "cost" ? 4 : 1;
+    const profileW = answers.priority === "profile" ? 3 : 1;
+    dims.push(["cost", p=>p.costPer1000Na, "lo", costW]);
+    dims.push(["pot", p=>p.potassium, "hi", profileW]);
+    dims.push(["cal", p=>p.calcium, "hi", profileW]);
+    dims.push(["mag", p=>p.magnesium, "hi", profileW]);
+  }
 
   const scored = pool.map(p => {
     let total = 0, wsum = 0;
@@ -1165,7 +1215,7 @@ function findMatches(answers){
 }
 
 function finderQuizHTML(){
-  return FINDER_Q.map(q => `
+  return FINDER_QUESTIONS[finderAnswers.category].map(q => `
     <div class="fq-group">
       <div class="fq-label">${esc(q.label)}</div>
       <div class="fq-opts">${q.opts.map(([v,l]) => `
@@ -1173,42 +1223,57 @@ function finderQuizHTML(){
     </div>`).join("");
 }
 
+function finderStatsHTML(cat, p){
+  if(cat === "gel"){
+    return `<span>Gut comfort <b>${p.gut}</b></span>
+      <span>Sodium <b>${p.sodium===null?"n/d":p.sodium+" mg"}</b></span>
+      <span>Caffeine <b>${p.caffeine>0?p.caffeine+" mg":"None"}</b></span>
+      <span>Cost/g <b>$${p.perGram.toFixed(3)}</b></span>`;
+  }
+  if(cat === "drink"){
+    return `<span>Carbohydrate <b>${p.carbs} g</b></span>
+      <span>Sodium <b>${p.sodium===null?"n/d":p.sodium+" mg"}</b></span>
+      <span>Cost/g <b>$${p.perGram.toFixed(3)}</b></span>`;
+  }
+  return `<span>Sodium <b>${p.sodium} mg</b></span>
+    <span>Potassium <b>${p.potassium==null?"n/d":p.potassium+" mg"}</b></span>
+    <span>Cost/1000mg Na <b>${p.costPer1000Na==null?"n/d":"$"+p.costPer1000Na.toFixed(2)}</b></span>`;
+}
+
 function finderResultsHTML(){
-  if(Object.values(finderAnswers).every(v => v === null)){
+  if(!finderHasAnswer()){
     return `<p class="buy-empty">Answer a question above to see your matches.</p>`;
   }
   const matches = findMatches(finderAnswers);
+  const cat = finderAnswers.category;
   return `<div class="fr-grid">${matches.map((m,i) => { const p = m.p; return `
     <div class="fr-card">
       <div class="fr-rank">${i+1}</div>
       <div class="fr-body">
         <div class="fr-name"><b>${esc(p.name)}</b>${p.overallScore===null?"":`<span class="fr-score tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>`}</div>
         <div class="fr-brand">${esc(p.brand)}</div>
-        <div class="fr-stats">
-          <span>Gut comfort <b>${p.gut}</b></span>
-          <span>Sodium <b>${p.sodium===null?"n/d":p.sodium+" mg"}</b></span>
-          <span>Caffeine <b>${p.caffeine>0?p.caffeine+" mg":"None"}</b></span>
-          <span>Cost/g <b>$${p.perGram.toFixed(3)}</b></span>
-        </div>
+        <div class="fr-stats">${finderStatsHTML(cat, p)}</div>
       </div>
       <button class="home-go fr-go" data-i="${PRODUCTS.indexOf(p)}">View review &rarr;</button>
     </div>`; }).join("")}</div>`;
 }
 
-function renderFinder(){
-  document.title = "What gel is right for you? — Fuel Finder";
+function renderFinder(cat){
+  finderAnswers = {category: FINDER_QUESTIONS[cat] ? cat : "gel"};
+  document.title = "Find your fuel — Fuel Finder";
   clearNavHighlights();
   document.getElementById("find-link").classList.add("on");
   document.getElementById("toc").style.display = "none";
-  finderAnswers = {duration:null, sensitivity:null, caffeine:null, electrolytes:null};
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
     <p class="eye">Not sure where to start</p>
-    <h1>What gel is right for you?</h1>
-    <p class="thesis">Answer a few quick questions and we'll point you to the gels in our catalog that fit.</p>
+    <h1>Find your fuel</h1>
+    <p class="thesis">Answer a few quick questions and we'll point you to the gels, drink mixes, or electrolytes in our catalog that fit.</p>
+    <div class="fq-opts finder-cat-switch">${FINDER_CATS.map(([v,l]) => `
+      <button type="button" class="fq-opt${finderAnswers.category===v?" on":""}" data-fc="${v}">${esc(l)}</button>`).join("")}</div>
   </div>
   <section id="finder-quiz">
-    <div class="fq">${finderQuizHTML()}</div>
+    <div class="fq" id="finderQuizBody">${finderQuizHTML()}</div>
   </section>
   <section id="finder-results">
     <div class="sh"><h2>Your matches</h2><span class="rule"></span></div>
