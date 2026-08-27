@@ -116,7 +116,7 @@ const PRODUCTS = [
   cafNote:"Zero in most flavours. Some carry 20 to 40 mg from green tea extract.",
   pros:["$2.00 a sachet in a 24 box, cheaper than most gels here but not the lowest unit price.","60 mg of sodium, second only to C30.","Stocked almost everywhere.","Wide flavour range with caffeinated options."],
   cons:["22 g per sachet, the least here.","The ratio is neither stated nor computable.","Seventeen ingredients including sunflower oil.","Amino acids at these doses do nothing during a race."],
-  yes:["You want the cheapest per-sachet option.","You value being able to buy it anywhere.","You want caffeinated and non-caffeinated in one format."],
+  yes:["You want a cheap-side sachet without hunting for it.","You value being able to buy it anywhere.","You want caffeinated and non-caffeinated in one format."],
   no:["You are targeting 90 g/hr.","You want a short ingredient list or no added fat.","You want your ratio as a fact rather than an estimate."]
 },
 
