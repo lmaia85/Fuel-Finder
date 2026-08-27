@@ -81,6 +81,13 @@ async function renderRoute(page, port, route){
     () => document.getElementById("page").children.length > 0,
     { timeout: 5000 }
   );
+  /* The dev server injects <base href="/"> into its SPA-fallback response so
+     relative assets resolve locally no matter how deep the requested path is.
+     That tag must never survive into a generated page: it's already an
+     absolute "/" value, so the relative-path rewrite below skips it, and it
+     would then override every rewritten "../" reference at deploy time —
+     defeating the whole point of depth-relative assets under a subpath. */
+  await page.evaluate(() => document.querySelector("base")?.remove());
   const html = await page.evaluate(() => document.documentElement.outerHTML);
   return rewriteRelativePaths(html, route.depth);
 }
