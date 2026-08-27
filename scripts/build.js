@@ -76,6 +76,15 @@ async function discoverRoutes(page, port){
   const products = await page.evaluate(() =>
     PRODUCTS.map(p => ({ category: p.category, id: p.id }))
   );
+
+  /* The real safety check: a partial or broken catalog file can leave
+     PRODUCTS parsed but empty. Bail here, before the fixed routes below are
+     appended — once they are, the list is never empty and a count check
+     downstream can't tell a healthy build from a catalog that vanished. */
+  if(products.length === 0){
+    throw new Error("PRODUCTS loaded as empty — fuelcheck-products.js may be broken or partial. Aborting without deploying.");
+  }
+
   return [
     ...products.map(p => ({
       urlPath: `/${p.category}/${p.id}/`,
@@ -83,6 +92,13 @@ async function discoverRoutes(page, port){
       depth: 2
     })),
     { urlPath: "/find/", filePath: "find/index.html", depth: 1 },
+    /* The homepage's "Browse X" cards link straight at these, so a direct
+       load, reload or shared link has to resolve to a real file. */
+    ...["gel", "drink", "electrolyte"].map(cat => ({
+      urlPath: `/find/${cat}/`,
+      filePath: `find/${cat}/index.html`,
+      depth: 2
+    })),
     { urlPath: "/calculator/", filePath: "calculator/index.html", depth: 1 },
     { urlPath: "/requests/", filePath: "requests/index.html", depth: 1 }
   ];
@@ -125,10 +141,6 @@ async function build(){
       fs.mkdirSync(path.dirname(outPath), { recursive: true });
       fs.writeFileSync(outPath, "<!doctype html>\n" + html);
       console.log(`  wrote ${route.filePath}`);
-    }
-
-    if(routes.length === 0){
-      throw new Error("No routes were discovered — PRODUCTS may have failed to load. Aborting without deploying.");
     }
 
     fs.writeFileSync(path.join(OUT, "sitemap.xml"), buildSitemap(routes, SITE_URL));
