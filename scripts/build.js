@@ -25,7 +25,9 @@ const ROOT_ASSET_RE = /(href|src)="\/(?!\/)([^"]*)"/g;
 const SITE_URL = process.env.SITE_URL || "https://lmaia85.github.io/Fuel-Finder";
 
 function buildSitemap(routes, baseUrl){
-  const urls = ["/", ...routes.filter(r => r.urlPath !== "/requests/").map(r => r.urlPath)];
+  /* "/" is a discovered route in its own right now, so it needs no special
+     casing here — it's already first in the list. */
+  const urls = routes.filter(r => r.urlPath !== "/requests/").map(r => r.urlPath);
   const body = urls.map(u => `  <url><loc>${baseUrl}${u}</loc></url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
@@ -86,6 +88,11 @@ async function discoverRoutes(page, port){
   }
 
   return [
+    /* Depth 0: the landing page. copyStaticFiles() puts the source
+       index.html here first, with its empty <main id="page">; rendering it
+       as a route overwrites that with the real, JS-filled content — which
+       matters because it's the sitemap's highest-priority URL. */
+    { urlPath: "/", filePath: "index.html", depth: 0 },
     ...products.map(p => ({
       urlPath: `/${p.category}/${p.id}/`,
       filePath: `${p.category}/${p.id}/index.html`,
