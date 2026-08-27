@@ -542,11 +542,11 @@ function select(i){
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.toggle("on", a.dataset.cat === p.category));
   const ids = compareIds[p.category];
   if(!ids.includes(p.id)) ids.unshift(p.id);
-  /* Permalink: #category/id, pushed so Back/Forward walk reviews. Skipped when
-     the hash already matches (we were called FROM the router) so routing in
-     never stacks a duplicate history entry. */
-  const want = "#" + p.category + "/" + p.id;
-  if(location.hash !== want){ try{ history.pushState(null, "", want); }catch(err){} }
+  /* Permalink: /category/id/, pushed so Back/Forward walk reviews. Skipped
+     when the path already matches (we were called FROM the router) so
+     routing in never stacks a duplicate history entry. */
+  const want = "/" + p.category + "/" + p.id + "/";
+  if(location.pathname !== want){ try{ history.pushState(null, "", want); }catch(err){} }
   document.title = p.name + " — Fuel Finder";
   render(p);
 }
@@ -587,6 +587,17 @@ document.querySelectorAll(".nv > a").forEach(link => {
     nv.classList.toggle("open", !wasOpen);
     link.setAttribute("aria-expanded", String(!wasOpen));
   });
+});
+
+document.getElementById("find-link").addEventListener("click", e => {
+  e.preventDefault();
+  try{ history.pushState(null, "", "/find/"); }catch(err){}
+  renderFinder();
+});
+document.getElementById("calc-link").addEventListener("click", e => {
+  e.preventDefault();
+  try{ history.pushState(null, "", "/calculator/"); }catch(err){}
+  renderCalculator();
 });
 
 document.addEventListener("click", e=>{
@@ -663,6 +674,15 @@ page.addEventListener("click", e => {
 
   const go = e.target.closest(".home-go");
   if(go && go.dataset.i !== undefined){ select(+go.dataset.i); return; }
+
+  const fcLink = e.target.closest("[data-fc-link]");
+  if(fcLink){
+    e.preventDefault();
+    const cat = fcLink.dataset.fcLink;
+    try{ history.pushState(null, "", "/find/" + cat + "/"); }catch(err){}
+    renderFinder(cat);
+    return;
+  }
 
   const result = e.target.closest(".site-search-results button[data-i]");
   if(result){ select(+result.dataset.i); return; }
@@ -984,7 +1004,7 @@ function categoryCardsHTML(){
         <h2>${label[0].toUpperCase()+label.slice(1)}</h2>
         <p>${items.length} reviewed</p>
         ${items.length
-          ? `<a href="#find/${cat}" class="home-go">Browse ${label}</a>`
+          ? `<a href="/find/${cat}/" class="home-go" data-fc-link="${cat}">Browse ${label}</a>`
           : `<p class="home-soon">Coming soon</p>`}
       </div>`;
     }).join("")}
@@ -1105,11 +1125,11 @@ function renderRequestsAdmin(){
   window.scrollTo(0,0);
 }
 
-/* Hash routing. #category/product-id is a review permalink, #requests is the
-   owner view, and anything else — including no hash — is the landing page.
-   select() pushes permalinks; Back/Forward arrive here via hashchange. */
-function routeFromHash(){
-  const h = location.hash.slice(1);
+/* Path routing. /category/product-id/ is a review permalink, /requests/ is
+   the owner view, and anything else — including bare / — is the landing
+   page. select() pushes permalinks; Back/Forward arrive here via popstate. */
+function routeFromPath(){
+  const h = location.pathname.replace(/^\/|\/$/g, "");
   if(h === "requests"){ renderRequestsAdmin(); return; }
   if(h === "find"){ renderFinder(); return; }
   const fm = h.match(/^find\/([a-z]+)$/);
@@ -1122,14 +1142,14 @@ function routeFromHash(){
   }
   renderHome();
 }
-window.addEventListener("hashchange", routeFromHash);
+window.addEventListener("popstate", routeFromPath);
 
 document.getElementById("home-link").addEventListener("click", e => {
   e.preventDefault();
   closeMenu();
   /* push, not replace: Back from the landing page returns to the review */
-  try{ history.pushState(null, "", location.pathname); }catch(err){}
+  try{ history.pushState(null, "", "/"); }catch(err){}
   renderHome();
 });
 
-routeFromHash();
+routeFromPath();
