@@ -18,23 +18,28 @@ const MIME = {
 function startServer(port = 0){
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
-      const urlPath = decodeURIComponent(req.url.split("?")[0]);
-      const filePath = path.join(ROOT, urlPath);
+      try {
+        const urlPath = decodeURIComponent(req.url.split("?")[0]);
+        const filePath = path.join(ROOT, urlPath);
 
-      fs.stat(filePath, (err, stats) => {
-        if(!err && stats.isFile()){
-          serveFile(filePath, res);
-          return;
-        }
-        if(!err && stats.isDirectory()){
-          const indexPath = path.join(filePath, "index.html");
-          if(fs.existsSync(indexPath)){
-            serveFile(indexPath, res);
+        fs.stat(filePath, (err, stats) => {
+          if(!err && stats.isFile()){
+            serveFile(filePath, res);
             return;
           }
-        }
-        serveFallback(res);
-      });
+          if(!err && stats.isDirectory()){
+            const indexPath = path.join(filePath, "index.html");
+            if(fs.existsSync(indexPath)){
+              serveFile(indexPath, res);
+              return;
+            }
+          }
+          serveFallback(res);
+        });
+      } catch(err) {
+        res.writeHead(400, { "Content-Type": "text/plain" });
+        res.end("Bad Request");
+      }
     });
     server.listen(port, () => {
       resolve({ server, port: server.address().port });
