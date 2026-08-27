@@ -1024,6 +1024,7 @@ function clearNavHighlights(){
   document.getElementById("find-link").classList.remove("on");
   document.getElementById("calc-link").classList.remove("on");
   closeMobileNav();
+  setShareMeta(null);
 }
 
 function buildMenu(category){
@@ -1055,8 +1056,25 @@ function select(i){
   const want = "#" + p.category + "/" + p.id;
   if(location.hash !== want){ try{ history.pushState(null, "", want); }catch(err){} }
   document.title = p.name + " — Fuel Finder";
+  setShareMeta(p);
   render(p);
 }
+
+/* Per-product title/description for the tab, search snippets, and social
+   previews. clearNavHighlights() calls this with null on every non-product
+   render to restore the site-wide default — this is a single hash-routed
+   document, so nothing else clears a previous product's tags on the way out. */
+function setShareMeta(p){
+  const title = p ? p.name + " — Fuel Finder" : "Fuel Finder — Endurance nutrition reviews";
+  const desc = p ? stripTags(p.thesis) : DEFAULT_SHARE_DESCRIPTION;
+  [["meta[name='description']","content",desc],
+   ["meta[property='og:title']","content",title],
+   ["meta[property='og:description']","content",desc],
+   ["meta[name='twitter:title']","content",title],
+   ["meta[name='twitter:description']","content",desc]
+  ].forEach(([sel,attr,val]) => { const el = document.querySelector(sel); if(el) el.setAttribute(attr, val); });
+}
+const DEFAULT_SHARE_DESCRIPTION = document.querySelector('meta[name="description"]').content;
 
 function closeMenu(){
   document.querySelectorAll(".nv.open").forEach(x => x.classList.remove("open"));
