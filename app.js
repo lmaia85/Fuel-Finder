@@ -220,7 +220,16 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const money = n => "$" + n.toFixed(2);
 const ord = n => n + (["th","st","nd","rd"][(n%100-20)%10] || ["th","st","nd","rd"][n%100] || "th");
 
-function stripHtml(s){ return String(s).replace(/<[^>]+>/g, ""); }
+/* Turns catalog prose (which is HTML — tags and entities alike) into the
+   plain text a meta description needs. Parsing it and reading textContent
+   does both jobs at once: a regex that only strips tags leaves "&mdash;"
+   sitting there as literal characters, and setting that as an attribute
+   value re-escapes the ampersand, so "&amp;mdash;" is what ships. */
+function stripHtml(s){
+  const d = document.createElement("div");
+  d.innerHTML = String(s);
+  return d.textContent;
+}
 
 const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from declared nutrition panels — cost per gram, sodium and absorption rate compared across every product, not marketing copy.";
 
