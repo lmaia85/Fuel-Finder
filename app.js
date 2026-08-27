@@ -195,6 +195,28 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const money = n => "$" + n.toFixed(2);
 const ord = n => n + (["th","st","nd","rd"][(n%100-20)%10] || ["th","st","nd","rd"][n%100] || "th");
 
+function stripHtml(s){ return String(s).replace(/<[^>]+>/g, ""); }
+
+const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from declared nutrition panels — cost per gram, sodium and absorption rate compared across every product, not marketing copy.";
+
+function setMetaDescription(text){
+  document.querySelector('meta[name="description"]').setAttribute("content", text);
+}
+
+function setRobotsMeta(value){
+  let tag = document.querySelector('meta[name="robots"]');
+  if(value){
+    if(!tag){
+      tag = document.createElement("meta");
+      tag.setAttribute("name", "robots");
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute("content", value);
+  } else if(tag){
+    tag.remove();
+  }
+}
+
 function prov(p){
   return p.ratioProv === "Stated" ? "" : " &middot; " + esc(p.ratioProv.toLowerCase());
 }
@@ -517,6 +539,8 @@ function clearNavHighlights(){
   document.getElementById("find-link").classList.remove("on");
   document.getElementById("calc-link").classList.remove("on");
   closeMobileNav();
+  setMetaDescription(DEFAULT_DESCRIPTION);
+  setRobotsMeta(null);
 }
 
 function buildMenu(category){
@@ -548,6 +572,7 @@ function select(i){
   const want = "/" + p.category + "/" + p.id + "/";
   if(location.pathname !== want){ try{ history.pushState(null, "", want); }catch(err){} }
   document.title = p.name + " — Fuel Finder";
+  setMetaDescription(stripHtml(p.thesis));
   render(p);
 }
 
@@ -1071,6 +1096,7 @@ const ADMIN_PASSWORD = "Fuel";
 function renderAdminGate(){
   document.title = "Owner view — Fuel Finder";
   clearNavHighlights();
+  setRobotsMeta("noindex");
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
@@ -1103,6 +1129,7 @@ function renderRequestsAdmin(){
   if(localStorage.getItem(ADMIN_UNLOCK_KEY) !== "1"){ renderAdminGate(); return; }
   document.title = "Requested reviews — Fuel Finder";
   clearNavHighlights();
+  setRobotsMeta("noindex");
   document.getElementById("toc").style.display = "none";
   const entries = RequestLog.list();
   document.getElementById("page").innerHTML = `
