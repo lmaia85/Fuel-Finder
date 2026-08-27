@@ -9,7 +9,18 @@ const OUT = path.join(ROOT, "_site");
 const STATIC_FILES = ["index.html", "styles.css", "app.js", "fuelcheck-products.js"];
 const STATIC_DIRS = ["Product Photos"];
 
+/* Already-relative references (styles.css, Product Photos/x.png): prefix
+   them with enough "../" to climb back to the site root. */
 const REL_ASSET_RE = /(href|src)="(?!https?:\/\/|\/\/|\/|#|mailto:|data:)([^"]+)"/g;
+
+/* Site-root-absolute references (/Product Photos/x.png, /find/). The app
+   itself thinks in site-root terms at runtime — it resolves those against
+   the base path it derives from where app.js loaded — but a *generated*
+   page must not, because it may be served from a project subpath. Strip the
+   leading slash and give them the same depth-relative prefix, so nothing in
+   _site/ depends on the site being mounted at a domain root.
+   Excludes "//" (protocol-relative), which is an external reference. */
+const ROOT_ASSET_RE = /(href|src)="\/(?!\/)([^"]*)"/g;
 
 const SITE_URL = process.env.SITE_URL || "https://lmaia85.github.io/Fuel-Finder";
 
@@ -31,7 +42,9 @@ function buildRobotsTxt(baseUrl){
 
 function rewriteRelativePaths(html, depth){
   const prefix = "../".repeat(depth);
-  return html.replace(REL_ASSET_RE, (match, attr, value) => `${attr}="${prefix}${value}"`);
+  return html
+    .replace(REL_ASSET_RE, (match, attr, value) => `${attr}="${prefix}${value}"`)
+    .replace(ROOT_ASSET_RE, (match, attr, value) => `${attr}="${prefix}${value}"`);
 }
 
 function copyRecursive(src, dest){

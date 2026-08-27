@@ -1,4 +1,29 @@
 
+/* Where this site is mounted, derived at runtime — never configured, because
+   the hosting location isn't fixed: "/" on a root domain (and on the local
+   dev server), "/Fuel-Finder/" under a GitHub Pages *project* subpath.
+
+   document.currentScript is the <script> element currently executing, and
+   its .src is the browser's fully-resolved absolute URL for this very file.
+   That's reliable at any depth and any host precisely because the build
+   rewrites asset references to be depth-relative (app.js, ../app.js,
+   ../../app.js), so they always resolve back to the same site root. Strip
+   the filename off that resolved path and what's left is the base path.
+
+   Everything that reads or writes the URL — routeFromPath() and every
+   pushState — goes through this, so the app never assumes root hosting. */
+const BASE_PATH = (() => {
+  try{
+    const src = document.currentScript && document.currentScript.src;
+    if(!src) return "/";
+    return new URL(src, location.href).pathname.replace(/[^/]*$/, "");
+  }catch(err){ return "/"; }
+})();
+
+/* "/find/" -> "/Fuel-Finder/find/". Takes the root-relative path the app
+   thinks in and returns the real one for wherever the site actually lives. */
+const sitePath = p => BASE_PATH + String(p).replace(/^\//, "");
+
 const CATEGORY_LABEL = {gel:"gel", drink:"drink mix", electrolyte:"electrolyte"};
 const CATEGORY_PLURAL = {gel:"gels", drink:"drink mixes", electrolyte:"electrolytes"};
 /* Past six columns the table gets cramped and hard to actually compare —
@@ -360,7 +385,7 @@ function render(p){
     </div>
     <div class="shot-stage">
     ${p.photo
-      ? `<img class="shot" src="${p.photo}" alt="${esc(p.name)} sachet">`
+      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} sachet">`
       : `<div class="shot-ph" role="img" aria-label="Photo not yet available for ${esc(p.name)}">
            <svg viewBox="0 0 537 1030" xmlns="http://www.w3.org/2000/svg">
              <defs>
@@ -569,7 +594,7 @@ function select(i){
   /* Permalink: /category/id/, pushed so Back/Forward walk reviews. Skipped
      when the path already matches (we were called FROM the router) so
      routing in never stacks a duplicate history entry. */
-  const want = "/" + p.category + "/" + p.id + "/";
+  const want = sitePath(p.category + "/" + p.id + "/");
   if(location.pathname !== want){ try{ history.pushState(null, "", want); }catch(err){} }
   document.title = p.name + " — Fuel Finder";
   setMetaDescription(stripHtml(p.thesis));
@@ -614,14 +639,21 @@ document.querySelectorAll(".nv > a").forEach(link => {
   });
 });
 
+/* These two live as literal href="/find/" / href="/calculator/" in
+   index.html, which isn't templated at build time and so can't know the
+   mount point. Point them at the real one now that it's known — this also
+   keeps middle-click / open-in-new-tab honest, not just the click handler. */
+document.getElementById("find-link").setAttribute("href", sitePath("/find/"));
+document.getElementById("calc-link").setAttribute("href", sitePath("/calculator/"));
+
 document.getElementById("find-link").addEventListener("click", e => {
   e.preventDefault();
-  try{ history.pushState(null, "", "/find/"); }catch(err){}
+  try{ history.pushState(null, "", sitePath("/find/")); }catch(err){}
   renderFinder();
 });
 document.getElementById("calc-link").addEventListener("click", e => {
   e.preventDefault();
-  try{ history.pushState(null, "", "/calculator/"); }catch(err){}
+  try{ history.pushState(null, "", sitePath("/calculator/")); }catch(err){}
   renderCalculator();
 });
 
@@ -704,7 +736,7 @@ page.addEventListener("click", e => {
   if(fcLink){
     e.preventDefault();
     const cat = fcLink.dataset.fcLink;
-    try{ history.pushState(null, "", "/find/" + cat + "/"); }catch(err){}
+    try{ history.pushState(null, "", sitePath("/find/" + cat + "/")); }catch(err){}
     renderFinder(cat);
     return;
   }
@@ -1029,7 +1061,7 @@ function categoryCardsHTML(){
         <h2>${label[0].toUpperCase()+label.slice(1)}</h2>
         <p>${items.length} reviewed</p>
         ${items.length
-          ? `<a href="/find/${cat}/" class="home-go" data-fc-link="${cat}">Browse ${label}</a>`
+          ? `<a href="${sitePath(`/find/${cat}/`)}" class="home-go" data-fc-link="${cat}">Browse ${label}</a>`
           : `<p class="home-soon">Coming soon</p>`}
       </div>`;
     }).join("")}
@@ -1156,7 +1188,12 @@ function renderRequestsAdmin(){
    the owner view, and anything else — including bare / — is the landing
    page. select() pushes permalinks; Back/Forward arrive here via popstate. */
 function routeFromPath(){
-  const h = location.pathname.replace(/^\/|\/$/g, "");
+  /* Strip the mount point first, so the patterns below only ever have to
+     think in root-relative terms regardless of where the site is hosted. */
+  const base = BASE_PATH.replace(/\/$/, "");
+  let p = location.pathname;
+  if(base && (p === base || p.startsWith(base + "/"))) p = p.slice(base.length);
+  const h = p.replace(/^\/|\/$/g, "");
   if(h === "requests"){ renderRequestsAdmin(); return; }
   if(h === "find"){ renderFinder(); return; }
   const fm = h.match(/^find\/([a-z]+)$/);
@@ -1175,7 +1212,7 @@ document.getElementById("home-link").addEventListener("click", e => {
   e.preventDefault();
   closeMenu();
   /* push, not replace: Back from the landing page returns to the review */
-  try{ history.pushState(null, "", "/"); }catch(err){}
+  try{ history.pushState(null, "", BASE_PATH); }catch(err){}
   renderHome();
 });
 
