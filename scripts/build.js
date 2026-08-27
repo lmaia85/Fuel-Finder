@@ -11,6 +11,24 @@ const STATIC_DIRS = ["Product Photos"];
 
 const REL_ASSET_RE = /(href|src)="(?!https?:\/\/|\/\/|\/|#|mailto:|data:)([^"]+)"/g;
 
+const SITE_URL = process.env.SITE_URL || "https://lmaia85.github.io/Fuel-Finder";
+
+function buildSitemap(routes, baseUrl){
+  const urls = ["/", ...routes.filter(r => r.urlPath !== "/requests/").map(r => r.urlPath)];
+  const body = urls.map(u => `  <url><loc>${baseUrl}${u}</loc></url>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
+}
+
+function buildRobotsTxt(baseUrl){
+  /* No Disallow for /requests/ — it's already excluded from the sitemap
+     and marked noindex in its own <meta> tag (Task 5). Disallowing it here
+     too would stop crawlers from ever fetching it, which means they'd
+     never see the noindex tag either — a page can still surface in search
+     with no snippet in that case. Letting them fetch it and read the
+     noindex tag is the correct way to keep a page out of results. */
+  return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
+}
+
 function rewriteRelativePaths(html, depth){
   const prefix = "../".repeat(depth);
   return html.replace(REL_ASSET_RE, (match, attr, value) => `${attr}="${prefix}${value}"`);
@@ -93,7 +111,10 @@ async function build(){
       throw new Error("No routes were discovered — PRODUCTS may have failed to load. Aborting without deploying.");
     }
 
-    console.log(`Build complete: ${routes.length} pages generated in _site/`);
+    fs.writeFileSync(path.join(OUT, "sitemap.xml"), buildSitemap(routes, SITE_URL));
+    fs.writeFileSync(path.join(OUT, "robots.txt"), buildRobotsTxt(SITE_URL));
+
+    console.log(`Build complete: ${routes.length} pages generated in _site/, plus sitemap.xml and robots.txt`);
     return routes;
   } finally {
     if(browser) await browser.close();
