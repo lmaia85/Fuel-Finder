@@ -70,11 +70,15 @@ async function renderRoute(page, port, route){
 async function build(){
   copyStaticFiles();
 
-  const { server, port } = await startServer(0);
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+  let server = null;
+  let browser = null;
 
   try{
+    let port;
+    ({ server, port } = await startServer(0));
+    browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
     const routes = await discoverRoutes(page, port);
 
     for(const route of routes){
@@ -92,8 +96,8 @@ async function build(){
     console.log(`Build complete: ${routes.length} pages generated in _site/`);
     return routes;
   } finally {
-    await browser.close();
-    server.close();
+    if(browser) await browser.close();
+    if(server) server.close();
   }
 }
 
