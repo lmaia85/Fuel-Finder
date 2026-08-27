@@ -907,7 +907,7 @@ function render(p){
     <div class="sh"><h2>Comparison</h2><span class="rule"></span>
       <span class="n" id="gelsHeldCount">${compareSet(p).length} of ${PRODUCTS.filter(x=>x.category===p.category).length} ${CATEGORY_PLURAL[p.category]} held</span>
     </div>
-    <p class="sub">Prices per single sachet at the cheapest box size we track. Best in green, worst in red, across the gels shown.</p>
+    <p class="sub">Prices per single ${p.servingWord||"sachet"} at the cheapest box size we track. Best in green, worst in red, across the ${CATEGORY_PLURAL[p.category]} shown.</p>
     <div id="tableWrap">${table(p)}</div>
   </section>
 
