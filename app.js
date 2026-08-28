@@ -313,7 +313,7 @@ function stripHtml(s){
   return d.textContent;
 }
 
-const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from declared nutrition panels — cost per gram, sodium and absorption rate compared across every product, not marketing copy.";
+const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from declared nutrition panels — cost per gram, sodium and absorption rate compared, not marketing copy.";
 
 /* Title/description for the tab, search snippets, and social previews.
    clearNavHighlights() calls this with null on every non-product render to
