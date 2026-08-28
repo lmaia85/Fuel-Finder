@@ -143,7 +143,13 @@ async function build(){
   try{
     let port;
     ({ server, port } = await startServer(0));
-    browser = await puppeteer.launch();
+    /* GitHub Actions' runners don't have Chromium's setuid sandbox available
+       (no privileged user namespaces), so a plain launch() dies immediately
+       with "No usable sandbox!". --no-sandbox is the standard, documented
+       fix for exactly this class of CI container — safe here since the
+       whole build already runs inside GitHub's own short-lived, single-
+       purpose runner, not a shared or untrusted host. */
+    browser = await puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
     const page = await browser.newPage();
 
     const routes = await discoverRoutes(page, port);
