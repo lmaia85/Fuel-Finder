@@ -1,13 +1,21 @@
 :root{
   --ground:#07090C; --panel:#0C1015; --sunk:#04060899;
   --rule:#171E26; --rule-2:#232D38;
-  --ink:#E8EEF1; --dim:#8C99A3; --faint:#59646E;
+  --ink:#E8EEF1; --dim:#8C99A3; --faint:#7A8790; /* 5.4:1 on --ground, passes WCAG AA */
   --me:#3BD0EC; --best:#A9D62B; --worst:#F0576E; --band:rgba(59,208,236,.10);
   --display:'Archivo',system-ui,sans-serif;
   --body:'IBM Plex Sans',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box}
+/* Global keyboard-focus indicator. Several inputs/selects already set
+   outline:none and swap in a border-color change instead — this doesn't
+   fight that, it just makes sure every OTHER focusable element (nav
+   links, TOC buttons, buy links, the menu toggle, brand-dropdown
+   buttons) gets a visible ring too. :focus-visible rather than :focus
+   so it only shows for keyboard/assistive-tech navigation, not every
+   mouse click. */
+:focus-visible{outline:2px solid var(--me);outline-offset:2px}
 html{background:var(--ground)}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
   font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}

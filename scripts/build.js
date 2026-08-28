@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const { minify } = require("terser");
 const { startServer } = require("./dev-server");
 
 const ROOT = path.join(__dirname, "..");
@@ -62,11 +63,27 @@ function copyRecursive(src, dest){
   }
 }
 
-function copyStaticFiles(){
+/* app.js and fuelcheck-products.js are hand-written and readable in the
+   repo on purpose (they're what the site's own "view source" comments
+   point people at) -- this only shrinks the *deployed* copy. Both stay
+   plain scripts (not modules), so top-level `const PRODUCTS` etc. still
+   land as real globals the way the rest of the app expects. */
+const MINIFY_JS = new Set(["app.js", "fuelcheck-products.js"]);
+
+async function copyStaticFiles(){
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
   for(const file of STATIC_FILES){
-    copyRecursive(path.join(ROOT, file), path.join(OUT, file));
+    const dest = path.join(OUT, file);
+    if(MINIFY_JS.has(file)){
+      const src = fs.readFileSync(path.join(ROOT, file), "utf8");
+      const result = await minify(src, { sourceMap: false });
+      if(result.error) throw result.error;
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, result.code);
+    } else {
+      copyRecursive(path.join(ROOT, file), dest);
+    }
   }
   for(const dir of STATIC_DIRS){
     copyRecursive(path.join(ROOT, dir), path.join(OUT, dir));
@@ -136,7 +153,7 @@ async function renderRoute(page, port, route){
 }
 
 async function build(){
-  copyStaticFiles();
+  await copyStaticFiles();
 
   let server = null;
   let browser = null;
