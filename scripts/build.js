@@ -6,7 +6,7 @@ const { startServer } = require("./dev-server");
 const ROOT = path.join(__dirname, "..");
 const OUT = path.join(ROOT, "_site");
 
-const STATIC_FILES = ["index.html", "styles.css", "app.js", "fuelcheck-products.js"];
+const STATIC_FILES = ["index.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png"];
 const STATIC_DIRS = ["Product Photos"];
 
 /* Already-relative references (styles.css, Product Photos/x.png): prefix
@@ -124,7 +124,13 @@ async function renderRoute(page, port, route){
      would then override every rewritten "../" reference at deploy time —
      defeating the whole point of depth-relative assets under a subpath. */
   await page.evaluate(() => document.querySelector("base")?.remove());
-  const html = await page.evaluate(() => document.documentElement.outerHTML);
+  let html = await page.evaluate(() => document.documentElement.outerHTML);
+  /* Anything built at runtime from location.origin (e.g. the JSON-LD
+     Review schema's absolute image URL) reflects wherever Puppeteer
+     actually is right now — the local dev server's ephemeral port, not
+     the real deployed domain. Fix that up before it ever gets written to
+     a file: swap the captured origin for the real one, globally. */
+  html = html.split(`http://localhost:${port}`).join(SITE_URL);
   return rewriteRelativePaths(html, route.depth);
 }
 

@@ -233,8 +233,19 @@ function stripHtml(s){
 
 const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from declared nutrition panels — cost per gram, sodium and absorption rate compared across every product, not marketing copy.";
 
-function setMetaDescription(text){
-  document.querySelector('meta[name="description"]').setAttribute("content", text);
+/* Title/description for the tab, search snippets, and social previews.
+   clearNavHighlights() calls this with null on every non-product render to
+   restore the site-wide defaults — this is a single hash-routed document,
+   so nothing else clears a previous product's tags on the way out. */
+function setShareMeta(p){
+  const title = p ? p.name + " — Fuel Finder" : "Fuel Finder — Endurance nutrition reviews";
+  const desc = p ? stripHtml(p.thesis) : DEFAULT_DESCRIPTION;
+  [["meta[name='description']","content",desc],
+   ["meta[property='og:title']","content",title],
+   ["meta[property='og:description']","content",desc],
+   ["meta[name='twitter:title']","content",title],
+   ["meta[name='twitter:description']","content",desc]
+  ].forEach(([sel,attr,val]) => { const el = document.querySelector(sel); if(el) el.setAttribute(attr, val); });
 }
 
 function setRobotsMeta(value){
@@ -380,11 +391,46 @@ function drawResults(q){
         : `No ${label} matches that.`}</p>`;
 }
 
+/* Per-product Review schema.org JSON-LD, one genuine single-author review
+   per product page. reviewRating mirrors the same null-check the score
+   badge itself uses (p.overallScore===null, see render()) — some products
+   don't have enough declared data for a computed score, and this omits the
+   whole rating block for those rather than emit a fake 0. Built as a plain
+   object and serialized with JSON.stringify so product names/brands with
+   quotes or other special characters escape correctly; never hand-built
+   with template-literal string concatenation. */
+function reviewSchema(p){
+  const obj = {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    itemReviewed: {
+      "@type": "Product",
+      name: p.name,
+      brand: {"@type": "Organization", name: p.brand},
+      ...(p.photo ? {image: location.origin + sitePath(p.photo)} : {})
+    },
+    author: {"@type": "Organization", name: "Fuel Finder"},
+    ...(p.overallScore === null ? {} : {
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: p.overallScore,
+        bestRating: 100,
+        worstRating: 0
+      }
+    }),
+    reviewBody: stripHtml(p.thesis)
+  };
+  /* Escape "</" so a stray closing script tag inside any field can't break
+     out of the element this gets embedded in via innerHTML below. */
+  return JSON.stringify(obj).replace(/<\//g, "<\\/");
+}
+
 function render(p){
   CURRENT = p;
   document.getElementById("toc").style.display = "";
   const costRank = rank({get:q=>scoreCost(q)}, p);
   document.getElementById("page").innerHTML = `
+  <script type="application/ld+json">${reviewSchema(p)}<\/script>
   <div class="hero">
     <div>
       <p class="eye">During-effort fuel &middot; ${CATEGORY_LABEL[p.category]} &middot; reviewed 23 Aug 2026</p>
@@ -573,7 +619,7 @@ function clearNavHighlights(){
   document.getElementById("find-link").classList.remove("on");
   document.getElementById("calc-link").classList.remove("on");
   closeMobileNav();
-  setMetaDescription(DEFAULT_DESCRIPTION);
+  setShareMeta(null);
   setRobotsMeta(null);
 }
 
@@ -606,7 +652,7 @@ function select(i){
   const want = sitePath(p.category + "/" + p.id + "/");
   if(location.pathname !== want){ try{ history.pushState(null, "", want); }catch(err){} }
   document.title = p.name + " — Fuel Finder";
-  setMetaDescription(stripHtml(p.thesis));
+  setShareMeta(p);
   render(p);
 }
 
