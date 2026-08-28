@@ -2,3 +2,5 @@
 Admin Files/.Rhistory
 Product Photos/files.zip
 .worktrees/
+node_modules/
+_site/
