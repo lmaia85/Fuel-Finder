@@ -279,6 +279,27 @@ function refreshCurrentView(){
   window.scrollTo(0, y);
 }
 
+/* GoatCounter's script only auto-counts the very first pageload — it has
+   no way to know this is a client-routed SPA. Wrapping pushState once,
+   here, makes every in-app navigation register as a real pageview too,
+   without having to remember to call this at each of the many places
+   the app calls pushState directly. The setTimeout defers the count
+   until after the caller's own synchronous code (which sets
+   document.title right after pushState in every one of those places)
+   has finished, so GoatCounter records the page's real title rather
+   than whatever it still was mid-navigation. */
+(function trackSpaNavigation(){
+  const nativePushState = history.pushState.bind(history);
+  history.pushState = function(...args){
+    nativePushState(...args);
+    setTimeout(() => {
+      if(window.goatcounter && window.goatcounter.count){
+        window.goatcounter.count({path: location.pathname, title: document.title});
+      }
+    }, 0);
+  };
+})();
+
 const ord = n => n + (["th","st","nd","rd"][(n%100-20)%10] || ["th","st","nd","rd"][n%100] || "th");
 
 /* Turns catalog prose (which is HTML — tags and entities alike) into the

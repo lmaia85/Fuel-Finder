@@ -1,7 +1,9 @@
 <!doctype html>
 <!--
-  Fuel Finder - endurance fuel reviews. Single-page app: no build, no network
-  beyond Google Fonts and the one product photo being viewed.
+  Fuel Finder - endurance fuel reviews. Single-page app. Network calls beyond
+  the page's own assets: Google Fonts, the one product photo being viewed,
+  GoatCounter (pageview analytics, no cookies), and Frankfurter (currency
+  conversion rates, fetched at most once a day).
 
   Structure
     PRODUCTS[]  one record per product (in fuelcheck-products.js). Everything
@@ -58,6 +60,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<!-- GoatCounter: privacy-respecting pageview analytics (no cookies, no
+     personal data collected), so no cookie-consent banner is needed. -->
+<script data-goatcounter="https://lourencom.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
