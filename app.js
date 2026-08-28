@@ -24,6 +24,16 @@ const BASE_PATH = (() => {
    thinks in and returns the real one for wherever the site actually lives. */
 const sitePath = p => BASE_PATH + String(p).replace(/^\//, "");
 
+/* p.reviewed is an ISO date ("2026-08-26") — when that product's review
+   text (thesis/pros/cons) was last actually written or verified, taken
+   from git history rather than typed by hand. Formatted here rather than
+   stored pre-formatted so the stored value stays sortable/machine-usable. */
+const REVIEW_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function formatReviewDate(iso){
+  const d = new Date(iso + "T00:00:00Z");
+  return `${d.getUTCDate()} ${REVIEW_MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
 const CATEGORY_LABEL = {gel:"gel", drink:"drink mix", electrolyte:"electrolyte"};
 const CATEGORY_PLURAL = {gel:"gels", drink:"drink mixes", electrolyte:"electrolytes"};
 /* Past six columns the table gets cramped and hard to actually compare —
@@ -191,8 +201,8 @@ const CAPS = [
   {key:"cost", name:"Cost per gram",
    what:"Price of one gram of carbohydrate, the only unit that compares across sachet sizes.",
    get:p => scoreCost(p),
-   show:p => "$" + p.perGram.toFixed(3),
-   legend:p => "$" + p.perGram.toFixed(3),
+   show:p => moneyPrecise(p.perGram, 3),
+   legend:p => moneyPrecise(p.perGram, 3),
    note:p => `${money(p.cost300)} to fuel a four-hour marathon.`},
 
   {key:"gut", name:"Gut tolerance",
@@ -217,7 +227,58 @@ function field(cap){
 }
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const money = n => "$" + n.toFixed(2);
+
+/* Currency display. Every price in the catalog is stored in USD — this
+   only affects how it's *shown*. Rates come from Frankfurter (ECB data,
+   free, no API key or account needed), fetched at most once a day and
+   cached in localStorage; if the fetch fails for any reason (offline,
+   API down), everything just silently stays in USD rather than showing
+   a broken or stale conversion. Prose in a product's thesis/pros/cons —
+   editorial copy written once, not live data — always stays in the
+   dollar figures it was written with; only the structured price fields
+   (buy links, the comparison table, cost-per-gram, the calculator)
+   convert. */
+const CURRENCY_SYMBOL = {USD:"$", GBP:"£", EUR:"€"};
+const FX_CACHE_KEY = "fuelfinder_fx_rates";
+const CURRENCY_KEY = "fuelfinder_currency";
+let currentCurrency = (() => {
+  try{ return localStorage.getItem(CURRENCY_KEY) || "USD"; }catch(err){ return "USD"; }
+})();
+let fxRates = {USD:1};
+
+(function loadFxRates(){
+  try{
+    const cached = JSON.parse(localStorage.getItem(FX_CACHE_KEY) || "null");
+    const today = new Date().toISOString().slice(0,10);
+    if(cached && cached.date === today){ fxRates = cached.rates; return; }
+  }catch(err){}
+  fetch("https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR,GBP")
+    .then(r => r.json())
+    .then(data => {
+      fxRates = {USD:1, EUR:data.rates.EUR, GBP:data.rates.GBP};
+      try{ localStorage.setItem(FX_CACHE_KEY, JSON.stringify({date:data.date, rates:fxRates})); }catch(err){}
+      if(currentCurrency !== "USD") refreshCurrentView();
+    })
+    .catch(()=>{ /* stays USD-only */ });
+})();
+
+function convert(usd){
+  const rate = fxRates[currentCurrency];
+  return rate ? usd * rate : usd;
+}
+function money(n){ return CURRENCY_SYMBOL[currentCurrency] + convert(n).toFixed(2); }
+function moneyPrecise(n, decimals){ return CURRENCY_SYMBOL[currentCurrency] + convert(n).toFixed(decimals); }
+
+/* Re-paints whatever page the URL says we're on, preserving scroll —
+   used after a currency change (user-driven) or the FX rates arriving
+   late (network-driven), neither of which should jump the page to top
+   the way a real navigation does. */
+function refreshCurrentView(){
+  const y = window.scrollY;
+  routeFromPath();
+  window.scrollTo(0, y);
+}
+
 const ord = n => n + (["th","st","nd","rd"][(n%100-20)%10] || ["th","st","nd","rd"][n%100] || "th");
 
 /* Turns catalog prose (which is HTML — tags and entities alike) into the
@@ -327,7 +388,7 @@ function table(cur){
      "Minimal by design. This is a hydration product, not a fuel source."],
     [`Price per ${unit}`, p=>money(p.price), p=>p.price, "lo",
      `What one ${unit} costs.`],
-    ["Cost per 1000mg sodium", p=>p.costPer1000Na==null?"not declared":"$"+p.costPer1000Na.toFixed(2), p=>p.costPer1000Na, "lo",
+    ["Cost per 1000mg sodium", p=>p.costPer1000Na==null?"not declared":moneyPrecise(p.costPer1000Na, 2), p=>p.costPer1000Na, "lo",
      "The only price that compares across different sodium concentrations."]
   ] : [
     ["Carbohydrate", p=>`${p.carbs} g`, p=>p.carbs, "hi",
@@ -343,7 +404,7 @@ function table(cur){
      "Whether that ratio is read off the panel, computed from it, or inferred."],
     [`Price per ${unit}`, p=>money(p.price), p=>p.price, "lo",
      `What one costs. Not comparable across ${unit} sizes.`],
-    ["Cost per gram", p=>"$"+p.perGram.toFixed(3), p=>p.perGram, "lo",
+    ["Cost per gram", p=>moneyPrecise(p.perGram, 3), p=>p.perGram, "lo",
      `The only price that compares across ${unit} sizes.`],
     [`${unit[0].toUpperCase()+unit.slice(1)}s for 90 g/hr`, p=>p.perHour.toFixed(1), p=>p.perHour, "lo",
      `How many you open an hour to hold a 90 g/hr target.`]
@@ -404,7 +465,7 @@ function drawResults(q){
     (p.name + " " + p.brand + " " + p.code).toLowerCase().includes(s));
   const label = CATEGORY_LABEL[CURRENT.category];
   box.innerHTML = hits.length
-    ? hits.map(p => `<button data-add="${p.id}">${esc(p.name)}<span>${esc(p.brand)} &middot; ${p.category==="electrolyte"?`${p.sodium} mg Na`:`${p.carbs} g`} &middot; ${p.category==="electrolyte"?(p.costPer1000Na==null?"n/d":"$"+p.costPer1000Na.toFixed(2)+"/1000mg"):"$"+p.perGram.toFixed(3)+"/g"}</span></button>`).join("")
+    ? hits.map(p => `<button data-add="${p.id}">${esc(p.name)}<span>${esc(p.brand)} &middot; ${p.category==="electrolyte"?`${p.sodium} mg Na`:`${p.carbs} g`} &middot; ${p.category==="electrolyte"?(p.costPer1000Na==null?"n/d":moneyPrecise(p.costPer1000Na, 2)+"/1000mg"):moneyPrecise(p.perGram, 3)+"/g"}</span></button>`).join("")
     : `<p>${have.size >= pool.length
         ? `Every ${label} in the database is already in this comparison.`
         : `No ${label} matches that.`}</p>`;
@@ -429,6 +490,7 @@ function reviewSchema(p){
       ...(p.photo ? {image: location.origin + sitePath(p.photo)} : {})
     },
     author: {"@type": "Organization", name: "Fuel Finder"},
+    ...(p.reviewed ? {datePublished: p.reviewed} : {}),
     ...(p.overallScore === null ? {} : {
       reviewRating: {
         "@type": "Rating",
@@ -452,7 +514,7 @@ function render(p){
   <script type="application/ld+json">${reviewSchema(p)}<\/script>
   <div class="hero">
     <div>
-      <p class="eye">During-effort fuel &middot; ${CATEGORY_LABEL[p.category]} &middot; reviewed 23 Aug 2026</p>
+      <p class="eye">During-effort fuel &middot; ${CATEGORY_LABEL[p.category]} &middot; reviewed ${formatReviewDate(p.reviewed)}</p>
       <h1>${esc(p.name)}${p.overallScore===null?"":` <span class="score-badge tier-${scoreTier(p.overallScore)}" title="Overall score among ${CATEGORY_PLURAL[p.category]}, averaged from what this product declares">${p.overallScore}</span>`}</h1>
       <p class="meta">${esc(p.brand)} &nbsp;/&nbsp; ${esc(p.serving)} &nbsp;/&nbsp; ${p.category==="electrolyte"?`${p.sodium} mg sodium`:`${p.carbs} g carbohydrate`} &nbsp;/&nbsp; ${money(p.price)}</p>
       <p class="thesis">${p.thesis}</p>
@@ -499,7 +561,7 @@ function render(p){
       ${p.category === "electrolyte" ? `
       <div class="pcell">
         <div class="k">Cost per 1000mg sodium</div>
-        <div class="v num">${p.costPer1000Na==null?"n/d":"$"+p.costPer1000Na.toFixed(2)}<small>/1000mg</small></div>
+        <div class="v num">${p.costPer1000Na==null?"n/d":moneyPrecise(p.costPer1000Na, 2)}<small>/1000mg</small></div>
       </div>
       <div class="pcell">
         <div class="k">Sodium per ${p.servingWord||"serving"}</div>
@@ -507,7 +569,7 @@ function render(p){
       </div>` : `
       <div class="pcell">
         <div class="k">Cost per gram of carbohydrate</div>
-        <div class="v num">$${p.perGram.toFixed(3)}<small>/g</small></div>
+        <div class="v num">${moneyPrecise(p.perGram, 3)}<small>/g</small></div>
       </div>
       <div class="pcell">
         <div class="k">Glucose : fructose${prov(p)}</div>
@@ -637,6 +699,7 @@ function clearNavHighlights(){
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.remove("on"));
   document.getElementById("find-link").classList.remove("on");
   document.getElementById("calc-link").classList.remove("on");
+  document.getElementById("about-link").classList.remove("on");
   closeMobileNav();
   setShareMeta(null);
   setRobotsMeta(null);
@@ -719,6 +782,7 @@ document.querySelectorAll(".nv > a").forEach(link => {
    keeps middle-click / open-in-new-tab honest, not just the click handler. */
 document.getElementById("find-link").setAttribute("href", sitePath("/find/"));
 document.getElementById("calc-link").setAttribute("href", sitePath("/calculator/"));
+document.getElementById("about-link").setAttribute("href", sitePath("/methodology/"));
 
 document.getElementById("find-link").addEventListener("click", e => {
   e.preventDefault();
@@ -729,6 +793,19 @@ document.getElementById("calc-link").addEventListener("click", e => {
   e.preventDefault();
   try{ history.pushState(null, "", sitePath("/calculator/")); }catch(err){}
   renderCalculator();
+});
+document.getElementById("about-link").addEventListener("click", e => {
+  e.preventDefault();
+  try{ history.pushState(null, "", sitePath("/methodology/")); }catch(err){}
+  renderMethodology();
+});
+
+const currencySel = document.getElementById("currencySel");
+currencySel.value = currentCurrency;
+currencySel.addEventListener("change", () => {
+  currentCurrency = currencySel.value;
+  try{ localStorage.setItem(CURRENCY_KEY, currentCurrency); }catch(err){}
+  refreshCurrentView();
 });
 
 document.addEventListener("click", e=>{
@@ -982,16 +1059,16 @@ function finderStatsHTML(cat, p){
     return `<span>Gut comfort <b>${p.gut}</b></span>
       <span>Sodium <b>${p.sodium===null?"n/d":p.sodium+" mg"}</b></span>
       <span>Caffeine <b>${p.caffeine>0?p.caffeine+" mg":"None"}</b></span>
-      <span>Cost/g <b>$${p.perGram.toFixed(3)}</b></span>`;
+      <span>Cost/g <b>${moneyPrecise(p.perGram, 3)}</b></span>`;
   }
   if(cat === "drink"){
     return `<span>Carbohydrate <b>${p.carbs} g</b></span>
       <span>Sodium <b>${p.sodium===null?"n/d":p.sodium+" mg"}</b></span>
-      <span>Cost/g <b>$${p.perGram.toFixed(3)}</b></span>`;
+      <span>Cost/g <b>${moneyPrecise(p.perGram, 3)}</b></span>`;
   }
   return `<span>Sodium <b>${p.sodium} mg</b></span>
     <span>Potassium <b>${p.potassium==null?"n/d":p.potassium+" mg"}</b></span>
-    <span>Cost/1000mg Na <b>${p.costPer1000Na==null?"n/d":"$"+p.costPer1000Na.toFixed(2)}</b></span>`;
+    <span>Cost/1000mg Na <b>${p.costPer1000Na==null?"n/d":moneyPrecise(p.costPer1000Na, 2)}</b></span>`;
 }
 
 function finderResultsHTML(){
@@ -1160,6 +1237,63 @@ function renderHome(){
   window.scrollTo(0,0);
 }
 
+function renderMethodology(){
+  document.title = "Methodology — Fuel Finder";
+  clearNavHighlights();
+  document.getElementById("about-link").classList.add("on");
+  document.getElementById("toc").style.display = "none";
+  const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
+  const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
+  const electrolyteCount = PRODUCTS.filter(p => p.category === "electrolyte").length;
+  document.getElementById("page").innerHTML = `
+  <div class="home-hero">
+    <p class="eye">How this site works</p>
+    <h1>Methodology</h1>
+    <p class="thesis">Every number on this site comes from a product's own declared nutrition or supplement panel. Nothing is estimated unless it's labeled as an estimate, and nothing here is sponsored.</p>
+  </div>
+
+  <section>
+    <div class="sh"><h2>Where the data comes from</h2><span class="rule"></span></div>
+    <p class="thesis">Carbohydrate, sodium, calories and every other figure is read directly off the product's own label &mdash; the same panel you'd read on the packet. We don't estimate a number because a competitor discloses it and this product doesn't.</p>
+    <p class="thesis">The one figure that sometimes needs interpretation is the glucose:fructose ratio, since not every brand states it outright. Each product's ratio is tagged with where it actually came from:</p>
+    <ul class="thesis" style="padding-left:1.2em">
+      <li><b>Stated</b> &mdash; the brand publishes the ratio directly.</li>
+      <li><b>Derived</b> &mdash; computed from ingredient percentages the brand does disclose.</li>
+      <li><b>Estimated</b> &mdash; inferred from what's on the panel when neither of the above is available, and treated as lower-confidence in the scoring.</li>
+      <li><b>Not disclosed</b> &mdash; the brand doesn't say, and we don't guess.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sh"><h2>How scores are calculated</h2><span class="rule"></span></div>
+    <p class="thesis">Every score on this site is relative, not absolute &mdash; each dimension (absorption rate, carb density, sodium, cost per gram, and gut comfort for gels) is scaled against every other product in the same category, not against a fixed external benchmark. That means scores shift slightly as products are added or removed; they're a snapshot of the field as it stands, not a permanent grade.</p>
+    <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it &mdash; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose.</p>
+    <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's a min-max score of ingredient count within the gel category, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is &mdash; an inference from the label, same as everything else here &mdash; not a stand-in for someone actually racing on it.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Pricing</h2><span class="rule"></span></div>
+    <p class="thesis">Prices are tracked from a specific retailer, linked directly on every product page, and reflect what that retailer listed as of the review date shown at the top of the page. Prices move; we don't re-check every listing daily, so treat the number as a recent snapshot and the link as the source of truth.</p>
+    <p class="thesis">None of the links on this site are affiliate links. We don't earn anything when you click through or buy, and that's on purpose &mdash; it removes any incentive to rank a product higher because it pays better.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Photos</h2><span class="rule"></span></div>
+    <p class="thesis">Product photos are sourced only from the official brand site or an authorized retailer &mdash; never stock photography, never a competitor's marketing image. Where a brand's own photography wasn't clean enough to use as-is, we've edited the background, never the product itself.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Review dates</h2><span class="rule"></span></div>
+    <p class="thesis">The date on each product page reflects when that product's written review &mdash; its verdict, pros, cons and data &mdash; was last actually verified or revised, not when the page was last deployed. A photo swap or a copy-editing pass elsewhere on the site doesn't move a product's review date; a change to what the review actually claims does.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>The catalog today</h2><span class="rule"></span></div>
+    <p class="thesis">${gelCount} gels, ${drinkCount} drink mixes and ${electrolyteCount} electrolyte products, and growing. Don't see something you use? Search for it &mdash; if it's not here yet, that tells us it should be.</p>
+  </section>`;
+  window.scrollTo(0,0);
+}
+
 /* Shown when a search doesn't match anything in the catalog — a clean
    dead end instead of no result at all, and a natural place to point
    people at what already exists while a new review gets written. */
@@ -1273,6 +1407,7 @@ function routeFromPath(){
   const fm = h.match(/^find\/([a-z]+)$/);
   if(fm){ renderFinder(fm[1]); return; }
   if(h === "calculator"){ renderCalculator(); return; }
+  if(h === "methodology"){ renderMethodology(); return; }
   const m = h.match(/^([a-z]+)\/(.+)$/);
   if(m){
     const p = PRODUCTS.find(x => x.category === m[1] && x.id === m[2]);
