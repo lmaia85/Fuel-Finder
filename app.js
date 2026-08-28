@@ -246,6 +246,25 @@ function setShareMeta(p){
    ["meta[name='twitter:title']","content",title],
    ["meta[name='twitter:description']","content",desc]
   ].forEach(([sel,attr,val]) => { const el = document.querySelector(sel); if(el) el.setAttribute(attr, val); });
+
+  /* Preload hint for the product hero photo: dropped into <head> so the
+     browser can start fetching it before the body (and this script) even
+     runs. Baked into the prerendered static HTML for each route, so it's
+     there from the very first byte on the live site, not just added after
+     JS executes. */
+  let preload = document.querySelector('link[data-role="photo-preload"]');
+  if(p && p.photo){
+    if(!preload){
+      preload = document.createElement("link");
+      preload.rel = "preload";
+      preload.as = "image";
+      preload.dataset.role = "photo-preload";
+      document.head.appendChild(preload);
+    }
+    preload.href = sitePath(p.photo);
+  } else if(preload){
+    preload.remove();
+  }
 }
 
 function setRobotsMeta(value){
@@ -440,7 +459,7 @@ function render(p){
     </div>
     <div class="shot-stage">
     ${p.photo
-      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} sachet">`
+      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} sachet" loading="eager" fetchpriority="high" decoding="async">`
       : `<div class="shot-ph" role="img" aria-label="Photo not yet available for ${esc(p.name)}">
            <svg viewBox="0 0 537 1030" xmlns="http://www.w3.org/2000/svg">
              <defs>
