@@ -9,6 +9,7 @@ const PRODUCTS = [
 {
   category:"gel",
   id:"maurten-gel-100", code:"MAU", short:"Gel 100", name:"Maurten Gel 100", brand:"Maurten",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Maurten_GEL_100/descpage-MAU100.html", price:4.00}],
   serving:"40 g sachet", kcal:100, carbs:25, sugars:25, sodium:20, caffeine:0,
   price:3.75, boxPrice:45.00, boxQty:12,
@@ -42,6 +43,7 @@ const PRODUCTS = [
 {
   category:"gel",
   id:"sis-beta-fuel", code:"SIS", short:"Beta Fuel Gel", name:"SiS Beta Fuel Gel", brand:"Science in Sport",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Science in Sport", url:"https://www.scienceinsport.com/us/catalog/product/view/_ignore_category/1/id/6408/s/beta-fuel-gel-orange-6-pack/", price:21.99, pack:"6-pack"}],
   photo:"Product Photos/sis-beta-fuel-gel.webp",
   serving:"60 ml sachet", kcal:158, carbs:40, sugars:19, sodium:30, caffeine:0,
@@ -62,6 +64,7 @@ const PRODUCTS = [
 {
   category:"gel",
   id:"precision-pf-30", code:"PF30", short:"PF 30 Gel", name:"Precision Fuel PF 30 Gel", brand:"Precision Fuel & Hydration",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Precision Fuel & Hydration", url:"https://www.precisionhydration.com/us/en/products/pf-30-gel/", price:12.49, pack:"box of 4"}],
   photo:"Product Photos/precision-pf-30-gel.webp",
   serving:"51 g sachet", kcal:120, carbs:30, sugars:12, sodium:null, caffeine:0,
@@ -82,6 +85,7 @@ const PRODUCTS = [
 {
   category:"gel",
   id:"neversecond-c30", code:"C30", short:"C30 Gel", name:"NEVERSECOND C30 Gel", brand:"NEVERSECOND",
+  reviewed:"2026-08-26",
   buy:[{retailer:"NEVERSECOND", url:"https://never2.com/products/c30-unflavored-energy-gel-12-pack", price:42.00, pack:"12-pack"}],
   photo:"Product Photos/neversecond-c30-gel.webp",
   serving:"60 ml sachet", kcal:120, carbs:30, sugars:10, sodium:200, caffeine:0,
@@ -102,6 +106,7 @@ const PRODUCTS = [
 {
   category:"gel",
   id:"gu-original", code:"GU", short:"Original Energy Gel", name:"GU Original Energy Gel", brand:"GU Energy Labs",
+  reviewed:"2026-08-27",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/GU_Energy_Gel/descpage-GU24.html", price:2.00}],
   photo:"Product Photos/gu-original-energy-gel.webp",
   serving:"32 g sachet", kcal:100, carbs:22, sugars:7, sodium:60, caffeine:0,
@@ -124,6 +129,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"gu-roctane", code:"ROC", short:"Roctane Energy Gel", name:"GU Roctane Energy Gel", brand:"GU Energy Labs",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/GU_Roctane_Energy_Gel/descpage-GUR24.html", price:3.00}],
   photo:"Product Photos/gu-roctane-energy-gel.png",
   serving:"32 g sachet", kcal:100, carbs:21, sugars:6, sodium:125, caffeine:0,
@@ -139,6 +145,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"honey-stinger-organic", code:"HSO", short:"Organic Energy Gel", name:"Honey Stinger Organic Energy Gel", brand:"Honey Stinger",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Honey_Stinger_Organic_Energy_Gel_/descpage-HSOEG24.html", price:1.95}],
   photo:"Product Photos/honey-stinger-organic-energy-gel.webp",
   serving:"32 g sachet", kcal:100, carbs:23, sugars:14, sodium:60, caffeine:32,
@@ -154,6 +161,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"clif-shot-vanilla", code:"CLF", short:"Shot Energy Gel", name:"Clif Shot Energy Gel", brand:"CLIF Bar & Company",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://runningwarehouse.com/Clif_Shot_Energy_Gel_24-Pack/descpage-CSG24.html", price:36.00, pack:"24-pack"}],
   photo:"Product Photos/clif-shot-energy-gel.webp",
   serving:"34 g sachet", kcal:110, carbs:24, sugars:12, sodium:90, caffeine:0,
@@ -169,6 +177,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"hammer-gel-espresso", code:"HAM", short:"Hammer Gel Espresso", name:"Hammer Gel Espresso", brand:"Hammer Nutrition",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Hammer Nutrition", url:"https://hammernutrition.com/products/hammer-gel", price:1.60}],
   photo:"Product Photos/hammer-gel-espresso.webp",
   serving:"33 g sachet", kcal:95, carbs:21, sugars:3, sodium:40, caffeine:50,
@@ -184,6 +193,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"powerbar-powergel", code:"PWB", short:"PowerGel Original", name:"PowerBar PowerGel Original", brand:"PowerBar",
+  reviewed:"2026-08-26",
   buy:[{retailer:"SwimOutlet", url:"https://www.swimoutlet.com/products/powerbar-powergel-original-8212886", price:1.99}],
   photo:"Product Photos/powerbar-powergel-original.webp",
   serving:"41 g sachet", kcal:103, carbs:26, sugars:11, sodium:200, caffeine:0,
@@ -199,6 +209,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"huma-plus-strawberry-lemonade", code:"HUM", short:"Huma Plus Chia Gel", name:"Huma Plus Chia Energy Gel", brand:"Huma",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Huma", url:"https://humagel.com/products/plus-flavors", price:2.75}],
   photo:"Product Photos/huma-plus-chia-energy-gel.webp",
   serving:"40 g sachet", kcal:100, carbs:24, sugars:15, sodium:105, caffeine:25,
@@ -214,6 +225,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"spring-energy-speednut", code:"SPR", short:"Speednut", name:"Spring Energy Speednut", brand:"Spring Energy",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Spring Energy", url:"https://myspringenergy.com/products/speednut", price:4.60}],
   photo:"Product Photos/spring-energy-speednut.webp",
   serving:"52 g sachet", kcal:250, carbs:12, sugars:10, sodium:6, caffeine:50,
@@ -229,6 +241,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"untapped-maple", code:"UNT", short:"Maple Energy Gel", name:"UnTapped Maple-Based Energy Gel", brand:"UnTapped",
+  reviewed:"2026-08-26",
   buy:[{retailer:"The Run House", url:"https://therunhouse.com/products/untapped-maple-untapped-energy-gel-1-oz", price:2.20}],
   photo:"Product Photos/untapped-maple-energy-gel.webp",
   serving:"38 g sachet", kcal:100, carbs:26, sugars:26, sodium:5, caffeine:0,
@@ -244,6 +257,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"torq-energy-gel", code:"TRQ", short:"TORQ Energy Gel", name:"TORQ Energy Gel", brand:"TORQ",
+  reviewed:"2026-08-28",
   buy:[{retailer:"TORQ USA", url:"https://torqusa.com/products/torq-energy-gel-orange-banana-box-of-15", price:42.00, pack:"box of 15"}],
   photo:"Product Photos/torq-energy-gel.webp",
   serving:"45 g sachet", kcal:114, carbs:28, sugars:11, sodium:49, caffeine:0,
@@ -259,6 +273,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"high5-energy-gel-citrus", code:"H5E", short:"Energy Gel Citrus", name:"High5 Energy Gel", brand:"High5",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Amazon", url:"https://www.amazon.com/HIGH5-Energy-Citrus-Running-Cycling/dp/B0H3756B3K", price:14.99, pack:"6-pack"}],
   photo:"Product Photos/high5-energy-gel.webp",
   serving:"40 g sachet", kcal:91, carbs:23, sugars:2.4, sodium:48, caffeine:0,
@@ -274,6 +289,7 @@ const PRODUCTS = [
 {
   category:"gel", servingWord:"sachet",
   id:"4endurance-4energy-gel", code:"4EN", short:"4Energy Gel", name:"4Endurance 4Energy Gel", brand:"4Endurance",
+  reviewed:"2026-08-28",
   photo:"Product Photos/4endurance-4energy-gel.webp",
   serving:"66 g sachet", kcal:82, carbs:20.6, sugars:2.8, sodium:66, caffeine:0,
   price:1.67, boxPrice:29.99, boxQty:18,
@@ -290,6 +306,7 @@ const PRODUCTS = [
 {
   category:"drink", servingWord:"scoop",
   id:"tailwind-endurance-fuel-lemon", code:"TLW", short:"Endurance Fuel Lemon", name:"Tailwind Endurance Fuel", brand:"Tailwind Nutrition",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Tailwind_Nutrition_Endurance_Fuel_Drink_30-Serving/descpage-TWEFD30.html", price:30.99, pack:"30-serving bag"}],
   photo:"Product Photos/tailwind-endurance-fuel.webp",
   serving:"1 scoop (27 g) in 18–24 oz water", kcal:100, carbs:25, sugars:25, sodium:310, caffeine:0,
@@ -305,6 +322,7 @@ const PRODUCTS = [
 {
   category:"drink", servingWord:"scoop",
   id:"skratch-super-high-carb", code:"SKR", short:"Super High-Carb Mix", name:"Skratch Labs Super High-Carb Sport Drink Mix", brand:"Skratch Labs",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Skratch_Labs_Super_High-Carb_Sport_Drink_Mix_Bag/descpage-SKSHCS.html", price:41.95, pack:"bag, 16 servings"}],
   photo:"Product Photos/skratch-super-high-carb-sport-drink-mix.webp",
   serving:"2 scoops (53 g) in 8–10 fl oz water", kcal:200, carbs:50, sugars:4, sodium:200, caffeine:0,
@@ -320,6 +338,7 @@ const PRODUCTS = [
 {
   category:"drink", servingWord:"sachet",
   id:"maurten-drink-mix-320", code:"MDM", short:"Drink Mix 320", name:"Maurten Drink Mix 320", brand:"Maurten",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Maurten_Drink_Mix_320/descpage-MAU12.html", price:4.20}],
   photo:"Product Photos/maurten-drink-mix-320.webp",
   serving:"1 sachet (83 g) in 500 ml water", kcal:320, carbs:80, sugars:37, sodium:245, caffeine:0,
@@ -335,6 +354,7 @@ const PRODUCTS = [
 {
   category:"drink", servingWord:"sachet",
   id:"sis-beta-fuel-drink", code:"SBD", short:"Beta Fuel 80 Drink", name:"SiS Beta Fuel 80 Drink Mix", brand:"Science in Sport",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Science in Sport", url:"https://www.scienceinsport.com/us/beta-fuel-80-15-pack-usa", price:57.99, pack:"15-pack"}],
   photo:"Product Photos/sis-beta-fuel-80-drink-mix.webp",
   serving:"1 sachet (82 g) in 20 fl oz (600 ml) water", kcal:320, carbs:80, sugars:45, sodium:4, caffeine:0,
@@ -350,6 +370,7 @@ const PRODUCTS = [
 {
   category:"drink", servingWord:"scoop",
   id:"precision-carb-electrolyte-drink", code:"PCE", short:"Carb & Electrolyte Mix", name:"Precision Fuel & Hydration Carb & Electrolyte Drink Mix", brand:"Precision Fuel & Hydration",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Precision_Fuel__Hydration_Carb__Electrolyte_Drink_Mix/descpage-PHCED.html", price:31.99, pack:"15-serving container"}],
   photo:"Product Photos/precision-fuel-carb-electrolyte-drink-mix.webp",
   serving:"2 scoops (34 g) in 500 ml (16 oz) water", kcal:120, carbs:30, sugars:12, sodium:500, potassium:125, calcium:24, magnesium:12, caffeine:0,
@@ -365,6 +386,7 @@ const PRODUCTS = [
 {
   category:"drink", servingWord:"scoop",
   id:"4endurance-2to1-drink", code:"4E2", short:"2:1 Drink", name:"4Endurance 2:1 Drink", brand:"4Endurance",
+  reviewed:"2026-08-26",
   photo:"Product Photos/4endurance-2-1-drink.webp",
   serving:"1 scoop (33 g) in 250–500 ml water", kcal:121, carbs:30, sugars:22, sodium:100, caffeine:0,
   price:0.72, boxPrice:21.59, boxQty:30,
@@ -381,6 +403,7 @@ const PRODUCTS = [
 {
   category:"electrolyte", servingWord:"stick",
   id:"lmnt-citrus-salt", code:"LMN", short:"Citrus Salt", name:"LMNT Citrus Salt", brand:"LMNT",
+  reviewed:"2026-08-26",
   buy:[{retailer:"LMNT", url:"https://drinklmnt.com/products/lmnt-recharge-electrolyte-drink?variant=16358367199266", price:45.00, pack:"box of 30"}],
   photo:"Product Photos/lmnt-citrus-salt.webp",
   serving:"1 stick pack (6 g) in 16–24 oz water", kcal:5, carbs:0, sodium:1000, potassium:200, calcium:0, magnesium:60, caffeine:0,
@@ -395,6 +418,7 @@ const PRODUCTS = [
 {
   category:"electrolyte", servingWord:"tablet",
   id:"nuun-sport-lemon-lime", code:"NUU", short:"Sport Lemon Lime", name:"Nuun Sport", brand:"Nuun",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Nuun", url:"https://nuunlife.com/products/nuun-sport", price:7.49, pack:"tube of 10"}],
   photo:"Product Photos/nuun-sport.webp",
   serving:"1 tablet in 16 fl oz water", kcal:15, carbs:4, sodium:300, potassium:150, calcium:13, magnesium:25, caffeine:0,
@@ -409,6 +433,7 @@ const PRODUCTS = [
 {
   category:"electrolyte", servingWord:"tablet",
   id:"precision-ph1000", code:"PH1", short:"PH 1000", name:"Precision Fuel & Hydration PH 1000", brand:"Precision Fuel & Hydration",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Precision_Fuel__Hydration_PH_1000_10-Tablet_Tube/descpage-PH1000T.html", price:11.99, pack:"tube of 10"}],
   photo:"Product Photos/precision-hydration-ph-1000.webp",
   serving:"1 tablet in 16 fl oz (500 ml) water", kcal:10, carbs:3, sodium:500, potassium:130, calcium:20, magnesium:10, caffeine:0,
@@ -423,6 +448,7 @@ const PRODUCTS = [
 {
   category:"electrolyte", servingWord:"tablet",
   id:"sis-go-hydro", code:"SGH", short:"GO Hydro", name:"SiS GO Hydro", brand:"Science in Sport",
+  reviewed:"2026-08-26",
   buy:[{retailer:"Science in Sport", url:"https://www.scienceinsport.com/us/go-hydro-20-tablets-berry", price:14.99, pack:"tube of 20"}],
   photo:"Product Photos/sis-go-hydro.webp",
   serving:"1 tablet in 500 ml water", kcal:8, carbs:0.9, sodium:345, potassium:65, calcium:102, magnesium:8.1, caffeine:0,
@@ -437,6 +463,7 @@ const PRODUCTS = [
 {
   category:"electrolyte", servingWord:"tablet",
   id:"4endurance-electrolytes", code:"4EL", short:"Electrolytes", name:"4Endurance Electrolytes", brand:"4Endurance",
+  reviewed:"2026-08-26",
   photo:"Product Photos/4endurance-electrolytes.webp",
   serving:"1 tablet in 200–300 ml water", kcal:0, carbs:0, sodium:250, potassium:70, calcium:10, magnesium:50, caffeine:0,
   price:0.27, boxPrice:5.39, boxQty:20,

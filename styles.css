@@ -69,8 +69,14 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
   color:var(--dim);cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
   text-transform:uppercase;padding:9px 16px;margin-left:auto}
 .menu-toggle:hover{border-color:var(--me);color:var(--me)}
+#currencySel{appearance:none;background:var(--ground) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%238C99A3"/></svg>') no-repeat right 10px center;
+  color:var(--dim);border:1px solid var(--rule-2);cursor:pointer;font-family:var(--mono);
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:9px 26px 9px 12px;margin-left:16px}
+#currencySel:hover{border-color:var(--me);color:var(--me)}
+#currencySel option{background:var(--panel);color:var(--ink)}
 @media(max-width:800px){
   .menu-toggle{display:block}
+  #currencySel{margin-left:8px}
   .nav{display:none;position:absolute;top:100%;left:0;right:0;margin:0;
     flex-direction:column;align-items:stretch;gap:0;background:var(--panel);
     border-bottom:1px solid var(--rule-2);padding:4px 20px 18px;
