@@ -541,12 +541,43 @@ function reviewSchema(p){
   return JSON.stringify(obj).replace(/<\//g, "<\\/");
 }
 
+/* Home > category > product, both as visible UI (breadcrumbHTML) and as
+   BreadcrumbList JSON-LD (breadcrumbSchema) from the same three stops, so
+   the two can never drift out of sync with each other. */
+function breadcrumbStops(p){
+  return [
+    {name: "Home", url: sitePath("/")},
+    {name: CATEGORY_PLURAL[p.category][0].toUpperCase() + CATEGORY_PLURAL[p.category].slice(1), url: sitePath(`/find/${p.category}/`)},
+    {name: p.name, url: sitePath(`${p.category}/${p.id}/`)}
+  ];
+}
+function breadcrumbSchema(p){
+  const obj = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbStops(p).map((s, i) => ({
+      "@type": "ListItem", position: i + 1, name: s.name, item: location.origin + s.url
+    }))
+  };
+  return JSON.stringify(obj).replace(/<\//g, "<\\/");
+}
+function breadcrumbHTML(p){
+  const stops = breadcrumbStops(p);
+  return `<nav class="crumbs" aria-label="Breadcrumb">${stops.map((s, i) =>
+    i === stops.length - 1
+      ? `<span aria-current="page">${esc(s.name)}</span>`
+      : `<a href="${s.url}">${esc(s.name)}</a><span class="crumb-sep">&rsaquo;</span>`
+  ).join("")}</nav>`;
+}
+
 function render(p){
   CURRENT = p;
   document.getElementById("toc").style.display = "";
   const costRank = rank({get:q=>scoreCost(q)}, p);
   document.getElementById("page").innerHTML = `
   <script type="application/ld+json">${reviewSchema(p)}<\/script>
+  <script type="application/ld+json">${breadcrumbSchema(p)}<\/script>
+  ${breadcrumbHTML(p)}
   <div class="hero">
     <div>
       <p class="eye">During-effort fuel &middot; ${CATEGORY_LABEL[p.category]} &middot; reviewed ${formatReviewDate(p.reviewed)}</p>
@@ -556,7 +587,7 @@ function render(p){
     </div>
     <div class="shot-stage">
     ${p.photo
-      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} sachet" loading="eager" fetchpriority="high" decoding="async">`
+      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} ${esc(p.servingWord || "sachet")} package" loading="eager" fetchpriority="high" decoding="async">`
       : `<div class="shot-ph" role="img" aria-label="Photo not yet available for ${esc(p.name)}">
            <svg viewBox="0 0 537 1030" xmlns="http://www.w3.org/2000/svg">
              <defs>
@@ -1125,6 +1156,23 @@ function finderResultsHTML(){
     </div>`; }).join("")}</div>`;
 }
 
+/* The full category, not whatever the quiz currently has filtered down to
+   -- ItemList should describe the whole collection this page represents,
+   same as a category page's product grid would, regardless of which
+   quiz answers happen to be selected right now. */
+function itemListSchema(cat){
+  const items = PRODUCTS.filter(p => p.category === cat);
+  const obj = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((p, i) => ({
+      "@type": "ListItem", position: i + 1, name: p.name,
+      url: location.origin + sitePath(`${p.category}/${p.id}/`)
+    }))
+  };
+  return JSON.stringify(obj).replace(/<\//g, "<\\/");
+}
+
 function renderFinder(cat){
   finderAnswers = {category: FINDER_QUESTIONS[cat] ? cat : "gel"};
   document.title = "Find your fuel — Fuel Finder";
@@ -1132,6 +1180,7 @@ function renderFinder(cat){
   document.getElementById("find-link").classList.add("on");
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
+  <script type="application/ld+json">${itemListSchema(finderAnswers.category)}<\/script>
   <div class="home-hero">
     <p class="eye">Not sure where to start</p>
     <h1>Find your fuel</h1>
