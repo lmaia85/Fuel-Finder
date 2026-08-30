@@ -236,6 +236,12 @@ function field(cap){
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
+/* A small "?" that shows its definition instantly on hover/focus via CSS
+   (no native title-attribute delay, no JS). tabindex makes it keyboard
+   reachable; aria-label carries the text to screen readers even without
+   a hover, since the tooltip span itself is visually hidden until then. */
+const infoTip = text => `<span class="info-ic" tabindex="0" aria-label="${esc(text)}">?<span class="info-tip">${esc(text)}</span></span>`;
+
 /* Currency display. Every price in the catalog is stored in USD — this
    only affects how it's *shown*. Rates come from Frankfurter (ECB data,
    free, no API key or account needed), fetched at most once a day and
@@ -580,10 +586,10 @@ function render(p){
         <div class="sb-tile tier-${scoreTier(p.overallScore)}">
           <div class="sb-num">${p.overallScore}</div>
           <div class="sb-label">${scoreTierLabel(p.overallScore)}</div>
-          ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis" title="A dimension a product doesn't declare is left out of its average rather than counted against it -- so this score reflects fewer measures than a product with a full panel.">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures</div>` : ""}
+          ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures ${infoTip("A dimension a product doesn't declare is left out of its average rather than counted against it -- so this score reflects fewer measures than a product with a full panel.")}</div>` : ""}
         </div>
         <div class="sb-rows">${p.scoreBreakdown.map(d => `
-          <div class="sb-row"><span class="sb-row-label" title="${esc(d.what)}">${esc(d.label)}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
+          <div class="sb-row"><span class="sb-row-label">${esc(d.label)} ${infoTip(d.what)}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
         </div>
       </div>
     </div>
