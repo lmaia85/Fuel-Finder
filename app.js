@@ -121,24 +121,24 @@ PRODUCTS.forEach(p => { if(p.category === "gel") p.gut = ingredientGutScore(p); 
    real value for — missing data is dropped, not counted against it. */
 const SCORE_DIMS = {
   gel: [
-    ["rate", "Absorption rate", p=>p.ratioScore, "hi"],
-    ["dens", "Carb density", p=>p.carbs, "hi"],
-    ["sod",  "Sodium", p=>p.sodium, "hi"],
-    ["cost", "Value (cost/gram)", p=>p.perGram, "lo"],
-    ["gut",  "Gut comfort", p=>p.gut, "hi"]
+    ["rate", "Absorption rate", p=>p.ratioScore, "hi", "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio; an Estimated ratio counts the same as a Stated one here."],
+    ["dens", "Carb density", p=>p.carbs, "hi", "How much fuel one sachet carries, which sets how many you'd need to open per hour."],
+    ["sod",  "Sodium", p=>p.sodium, "hi", "Sodium carried by the gel itself, against 400 to 1000 mg an hour typically lost to sweat."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, "lo", "Price of one gram of carbohydrate, the only unit that compares fairly across sachet sizes."],
+    ["gut",  "Gut comfort", p=>p.gut, "hi", "A proxy, not a taste or tolerance test: shorter ingredient lists score higher. Nobody has actually run these through anyone's gut for this score."]
   ],
   drink: [
-    ["rate", "Absorption rate", p=>p.ratioScore, "hi"],
-    ["dens", "Carb density", p=>p.carbs, "hi"],
-    ["sod",  "Sodium", p=>p.sodium, "hi"],
-    ["cost", "Value (cost/gram)", p=>p.perGram, "lo"]
+    ["rate", "Absorption rate", p=>p.ratioScore, "hi", "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio; an Estimated ratio counts the same as a Stated one here."],
+    ["dens", "Carb density", p=>p.carbs, "hi", "How much fuel one scoop or sachet carries, which sets how many you'd need per bottle."],
+    ["sod",  "Sodium", p=>p.sodium, "hi", "Sodium carried by the mix itself, against 400 to 1000 mg an hour typically lost to sweat."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, "lo", "Price of one gram of carbohydrate, the only unit that compares fairly across serving sizes."]
   ],
   electrolyte: [
-    ["sod",  "Sodium dose", p=>p.sodium, "hi"],
-    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, "lo"],
-    ["pot",  "Potassium", p=>p.potassium, "hi"],
-    ["cal",  "Calcium", p=>p.calcium, "hi"],
-    ["mag",  "Magnesium", p=>p.magnesium, "hi"]
+    ["sod",  "Sodium dose", p=>p.sodium, "hi", "Sodium per serving, the electrolyte lost in the largest amount through sweat."],
+    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, "lo", "What it costs to get 1000 mg of sodium from this product, the only price that compares fairly across tablet, stick and scoop formats."],
+    ["pot",  "Potassium", p=>p.potassium, "hi", "Potassium per serving, the second most sweat-lost electrolyte after sodium."],
+    ["cal",  "Calcium", p=>p.calcium, "hi", "Calcium per serving. Declared by some electrolyte products and not others."],
+    ["mag",  "Magnesium", p=>p.magnesium, "hi", "Magnesium per serving, tied to muscle function and easy to under-replace on long efforts."]
   ]
 };
 
@@ -149,18 +149,22 @@ const SCORE_DIMS = {
 function computeScore(p){
   const peers = PRODUCTS.filter(x => x.category === p.category);
   const breakdown = [];
-  SCORE_DIMS[p.category].forEach(([key,label,get,dir]) => {
+  SCORE_DIMS[p.category].forEach(([key,label,get,dir,what]) => {
     const mine = get(p);
     if(mine === null || mine === undefined) return;
     const vals = peers.map(get).filter(v => v !== null && v !== undefined);
     const min = Math.min(...vals), max = Math.max(...vals);
     const t = max === min ? 1 : (mine - min) / (max - min);
-    breakdown.push({key, label, score: Math.round((dir === "hi" ? t : 1 - t) * 100)});
+    breakdown.push({key, label, what, score: Math.round((dir === "hi" ? t : 1 - t) * 100)});
   });
   const overall = breakdown.length ? Math.round(breakdown.reduce((a,b)=>a+b.score,0) / breakdown.length) : null;
-  return {overall, breakdown};
+  /* possible is the dimension count a product COULD have shown data for,
+     regardless of how many it actually did -- the gap between the two is
+     exactly the "missing data isn't penalized, just excluded" caveat from
+     the Methodology page, made visible in context instead of buried there. */
+  return {overall, breakdown, possible: SCORE_DIMS[p.category].length};
 }
-PRODUCTS.forEach(p => { const s = computeScore(p); p.overallScore = s.overall; p.scoreBreakdown = s.breakdown; });
+PRODUCTS.forEach(p => { const s = computeScore(p); p.overallScore = s.overall; p.scoreBreakdown = s.breakdown; p.scorePossible = s.possible; });
 function scoreTier(score){ return score >= 65 ? "best" : score >= 35 ? "mid" : "worst"; }
 function scoreTierLabel(score){ return score >= 65 ? "Strong" : score >= 35 ? "Mixed" : "Weak"; }
 
@@ -572,9 +576,10 @@ function render(p){
         <div class="sb-tile tier-${scoreTier(p.overallScore)}">
           <div class="sb-num">${p.overallScore}</div>
           <div class="sb-label">${scoreTierLabel(p.overallScore)}</div>
+          ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis" title="A dimension a product doesn't declare is left out of its average rather than counted against it -- so this score reflects fewer measures than a product with a full panel.">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures</div>` : ""}
         </div>
         <div class="sb-rows">${p.scoreBreakdown.map(d => `
-          <div class="sb-row"><span class="sb-row-label">${esc(d.label)}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
+          <div class="sb-row"><span class="sb-row-label" title="${esc(d.what)}">${esc(d.label)}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
         </div>
       </div>
     </div>
