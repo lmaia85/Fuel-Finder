@@ -97,48 +97,55 @@ function derive(p){
 }
 PRODUCTS.forEach(p => Object.assign(p, derive(p)));
 
-/* Gut comfort (gels only). Computed from ingredient count, min-max
-   normalized against the gel field — fewer ingredients scores higher. This
-   isn't a stand-in for someone actually testing the product; it's what the
-   declared ingredient panel implies, same as every other number here. */
+/* Gut comfort (gels only). Fixed scale, not normalized against the current
+   catalog: 1 ingredient scores 100, 15+ scores 0, linear between. Anchored
+   to a realistic ingredient-count range rather than whatever happens to be
+   in the catalog today, so this number means the same thing regardless of
+   what else has been added or removed. This isn't a stand-in for someone
+   actually testing the product; it's what the declared ingredient panel
+   implies, same as every other number here. */
 function ingredientGutScore(p){
-  const gels = PRODUCTS.filter(x => x.category === "gel");
-  const counts = gels.map(x => x.ingredients.split(",").length);
-  const min = Math.min(...counts), max = Math.max(...counts);
-  const mine = p.ingredients.split(",").length;
-  const t = max === min ? 1 : (mine - min) / (max - min);
-  return Math.round((1 - t) * 100);
+  const count = p.ingredients.split(",").length;
+  const t = (count - 1) / (15 - 1);
+  return Math.round((1 - Math.min(1, Math.max(0, t))) * 100);
 }
 PRODUCTS.forEach(p => { if(p.category === "gel") p.gut = ingredientGutScore(p); });
 
 /* Overall score. Each category scores its own dimensions — gels and drinks
    share rate/density/sodium/cost, gels alone add gut tolerance (the only
    category where it's judged), electrolytes get a wholly different set
-   built from their own fields. Every dimension is min-max normalized
-   against that product's category peers rather than a fixed scale, so it
-   self-adjusts as products are added instead of needing retuning. A
+   built from their own fields. Every dimension is scored against a FIXED
+   scale (worst, best below), not against whatever else happens to be in
+   the catalog — a 90 here means the same thing regardless of what's added
+   or removed later. Anchors are grounded in real sports-nutrition
+   reference points where they exist (carb density, sodium, potassium) —
+   see the Methodology page for what each is based on and where the
+   grounding is weaker (calcium, magnesium, both cost dimensions, gut
+   comfort — those are pragmatic anchors, not physiological ones). A
    product's score is the plain average of whichever dimensions it has a
-   real value for — missing data is dropped, not counted against it. */
+   real value for — missing data is dropped, not counted against it, and
+   the "Based on N of X measures" note on the page says when that's
+   happened. */
 const SCORE_DIMS = {
   gel: [
-    ["rate", "Absorption rate", p=>p.ratioScore, "hi", "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio; an Estimated ratio counts the same as a Stated one here."],
-    ["dens", "Carb density", p=>p.carbs, "hi", "How much fuel one sachet carries, which sets how many you'd need to open per hour."],
-    ["sod",  "Sodium", p=>p.sodium, "hi", "Sodium carried by the gel itself, against 400 to 1000 mg an hour typically lost to sweat."],
-    ["cost", "Value (cost/gram)", p=>p.perGram, "lo", "Price of one gram of carbohydrate, the only unit that compares fairly across sachet sizes."],
-    ["gut",  "Gut comfort", p=>p.gut, "hi", "A proxy, not a taste or tolerance test: shorter ingredient lists score higher. Nobody has actually run these through anyone's gut for this score."]
+    ["rate", "Absorption rate", p=>p.ratioScore, 0, 100, "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio (1:0.8 tops out this scale); an Estimated ratio counts the same as a Stated one here."],
+    ["dens", "Carb density", p=>p.carbs, 0, 90, "How much fuel one sachet carries. 90 g is the ceiling here, matching the top of the range cited for multi-transportable-carb intake."],
+    ["sod",  "Sodium", p=>p.sodium, 0, 1000, "Sodium carried by the gel itself, on a scale topping out at 1000 mg — the upper end of what's typically lost to sweat in an hour."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from $0.15/g (0) to $0.02/g (100)."],
+    ["gut",  "Gut comfort", p=>p.gut, 0, 100, "A proxy, not a taste or tolerance test: shorter ingredient lists score higher, from 15 ingredients (0) to 1 (100). Nobody has actually run these through anyone's gut for this score."]
   ],
   drink: [
-    ["rate", "Absorption rate", p=>p.ratioScore, "hi", "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio; an Estimated ratio counts the same as a Stated one here."],
-    ["dens", "Carb density", p=>p.carbs, "hi", "How much fuel one scoop or sachet carries, which sets how many you'd need per bottle."],
-    ["sod",  "Sodium", p=>p.sodium, "hi", "Sodium carried by the mix itself, against 400 to 1000 mg an hour typically lost to sweat."],
-    ["cost", "Value (cost/gram)", p=>p.perGram, "lo", "Price of one gram of carbohydrate, the only unit that compares fairly across serving sizes."]
+    ["rate", "Absorption rate", p=>p.ratioScore, 0, 100, "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio (1:0.8 tops out this scale); an Estimated ratio counts the same as a Stated one here."],
+    ["dens", "Carb density", p=>p.carbs, 0, 90, "How much fuel one scoop or sachet carries. 90 g is the ceiling here, matching the top of the range cited for multi-transportable-carb intake."],
+    ["sod",  "Sodium", p=>p.sodium, 0, 1000, "Sodium carried by the mix itself, on a scale topping out at 1000 mg — the upper end of what's typically lost to sweat in an hour."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from $0.15/g (0) to $0.02/g (100)."]
   ],
   electrolyte: [
-    ["sod",  "Sodium dose", p=>p.sodium, "hi", "Sodium per serving, the electrolyte lost in the largest amount through sweat."],
-    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, "lo", "What it costs to get 1000 mg of sodium from this product, the only price that compares fairly across tablet, stick and scoop formats."],
-    ["pot",  "Potassium", p=>p.potassium, "hi", "Potassium per serving, the second most sweat-lost electrolyte after sodium."],
-    ["cal",  "Calcium", p=>p.calcium, "hi", "Calcium per serving. Declared by some electrolyte products and not others."],
-    ["mag",  "Magnesium", p=>p.magnesium, "hi", "Magnesium per serving, tied to muscle function and easy to under-replace on long efforts."]
+    ["sod",  "Sodium dose", p=>p.sodium, 0, 1000, "Sodium per serving, on a scale topping out at 1000 mg — a single dose covering the top of what's typically lost to sweat in an hour."],
+    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, 3.00, 1.00, "What it costs to get 1000 mg of sodium from this product. Not physiological -- a market-based scale from $3.00 (0) to $1.00 (100)."],
+    ["pot",  "Potassium", p=>p.potassium, 0, 200, "Potassium per serving, on a scale topping out at 200 mg — roughly the upper end of typical hourly sweat loss."],
+    ["cal",  "Calcium", p=>p.calcium, 0, 100, "Calcium per serving. Weaker grounding than sodium/potassium -- sweat calcium loss is minor and not really a primary target during exercise; the 100 mg ceiling is this catalog's practical high end, not a physiological one."],
+    ["mag",  "Magnesium", p=>p.magnesium, 0, 60, "Magnesium per serving, on a scale topping out at 60 mg, roughly matching cited hourly sweat-loss ranges."]
   ]
 };
 
@@ -147,15 +154,12 @@ const SCORE_DIMS = {
    breakdown" section on each product page shows its work, same reasoning
    as making gut comfort transparent rather than an unexplained figure. */
 function computeScore(p){
-  const peers = PRODUCTS.filter(x => x.category === p.category);
   const breakdown = [];
-  SCORE_DIMS[p.category].forEach(([key,label,get,dir,what]) => {
+  SCORE_DIMS[p.category].forEach(([key,label,get,worst,best,what]) => {
     const mine = get(p);
     if(mine === null || mine === undefined) return;
-    const vals = peers.map(get).filter(v => v !== null && v !== undefined);
-    const min = Math.min(...vals), max = Math.max(...vals);
-    const t = max === min ? 1 : (mine - min) / (max - min);
-    breakdown.push({key, label, what, score: Math.round((dir === "hi" ? t : 1 - t) * 100)});
+    const t = (mine - worst) / (best - worst);
+    breakdown.push({key, label, what, score: Math.round(Math.min(1, Math.max(0, t)) * 100)});
   });
   const overall = breakdown.length ? Math.round(breakdown.reduce((a,b)=>a+b.score,0) / breakdown.length) : null;
   /* possible is the dimension count a product COULD have shown data for,
@@ -1285,16 +1289,18 @@ function renderMethodology(){
     <ul class="thesis" style="padding-left:1.2em">
       <li><b>Stated</b> &mdash; the brand publishes the ratio directly.</li>
       <li><b>Derived</b> &mdash; computed from ingredient percentages the brand does disclose.</li>
-      <li><b>Estimated</b> &mdash; inferred from what's on the panel when neither of the above is available, and treated as lower-confidence in the scoring.</li>
+      <li><b>Estimated</b> &mdash; inferred from what's on the panel when neither of the above is available. It's marked as an estimate everywhere it appears, but it scores the same as a Stated ratio &mdash; there's no confidence discount built into the number itself.</li>
       <li><b>Not disclosed</b> &mdash; the brand doesn't say, and we don't guess.</li>
     </ul>
   </section>
 
   <section>
     <div class="sh"><h2>How scores are calculated</h2><span class="rule"></span></div>
-    <p class="thesis">Every score on this site is relative, not absolute &mdash; each dimension (absorption rate, carb density, sodium, cost per gram, and gut comfort for gels) is scaled against every other product in the same category, not against a fixed external benchmark. That means scores shift slightly as products are added or removed; they're a snapshot of the field as it stands, not a permanent grade.</p>
-    <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it &mdash; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose.</p>
-    <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's a min-max score of ingredient count within the gel category, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is &mdash; an inference from the label, same as everything else here &mdash; not a stand-in for someone actually racing on it.</p>
+    <p class="thesis">Every score on this site is absolute, not relative &mdash; each dimension (absorption rate, carb density, sodium, cost per gram, gut comfort for gels, potassium/calcium/magnesium for electrolytes) is scored against a fixed scale, not against whatever else happens to be in the catalog. A 90 means the same thing today as it will after the next product is added; scores only change when a product's own declared data changes.</p>
+    <p class="thesis">Where real sports-nutrition reference points exist, the fixed scale is anchored to them: carb density tops out at 90 g, matching the upper end of the range cited for multi-transportable-carb intake; sodium scales top out at 1000 mg, the upper end of what's typically lost to sweat in an hour; potassium and magnesium follow the same logic at smaller scales. Hover any dimension label on a product page for its specific scale and reasoning.</p>
+    <p class="thesis">Some dimensions don't have a physiological anchor to reach for and say so plainly: both cost dimensions are scored against a market-based price range, not a nutrition benchmark, and calcium's scale is anchored to this catalog's practical ceiling rather than sweat-loss research, since calcium loss during exercise is minor and isn't really a target most products are optimizing for.</p>
+    <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it &mdash; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose. Whenever that's happened, the product page says so directly: "Based on N of X measures" next to the score.</p>
+    <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's scored from ingredient count on a fixed 1-to-15 scale, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is &mdash; an inference from the label, same as everything else here &mdash; not a stand-in for someone actually racing on it.</p>
   </section>
 
   <section>
