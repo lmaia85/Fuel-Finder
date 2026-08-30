@@ -105,6 +105,14 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
   .submenu button em{font-size:11px}
 }
 
+/* breadcrumb */
+.crumbs{display:flex;align-items:center;gap:8px;padding:20px 0 0;
+  font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint)}
+.crumbs a{color:var(--faint);text-decoration:none}
+.crumbs a:hover{color:var(--me)}
+.crumbs [aria-current="page"]{color:var(--dim)}
+.crumb-sep{color:var(--rule-2)}
+
 /* hero */
 .hero{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:44px;align-items:center;
   padding:44px 0 34px;border-bottom:1px solid var(--rule-2)}
