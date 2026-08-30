@@ -135,13 +135,26 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5.6vw,54px);l
 .sb-tile.tier-worst .sb-num{color:var(--worst)}
 .sb-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
 .sb-basis{flex-basis:100%;font-family:var(--mono);font-size:10.5px;color:var(--faint);
-  cursor:help;border-bottom:1px dotted var(--faint);width:fit-content}
+  display:flex;align-items:center;gap:5px}
 .sb-rows{background:var(--ground);display:flex;flex-direction:column;justify-content:center;flex:1}
 .sb-row{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;border-bottom:1px solid var(--rule)}
 .sb-row:last-child{border-bottom:0}
-.sb-row-label{font-family:var(--body);font-size:13px;color:var(--dim);cursor:help;
-  border-bottom:1px dotted var(--dim);width:fit-content}
+.sb-row-label{font-family:var(--body);font-size:13px;color:var(--dim);display:inline-flex;align-items:center;gap:5px}
 .sb-row-score{font-family:var(--mono);font-size:15px;color:var(--ink);font-weight:600}
+
+/* Info-icon tooltip: shows instantly on hover/focus via pure CSS, no
+   native title-attribute delay. Positioned below-left of the icon with
+   enough width to read comfortably without needing to guess at wrapping. */
+.info-ic{position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;border-radius:50%;border:1px solid var(--faint);color:var(--faint);
+  font-family:var(--mono);font-size:9px;line-height:1;cursor:help;flex:none}
+.info-ic:hover,.info-ic:focus{border-color:var(--me);color:var(--me)}
+.info-tip{display:none;position:absolute;z-index:30;top:calc(100% + 8px);left:0;
+  width:220px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule-2);
+  color:var(--ink);font-family:var(--body);font-size:12px;line-height:1.45;
+  letter-spacing:normal;text-transform:none;font-weight:400;
+  box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.info-ic:hover .info-tip,.info-ic:focus .info-tip{display:block}
 /* Fixed-height stage so every product (pouch, tube, flat sachet — all different
    native aspect ratios) reads at the same visual size, on a common backdrop
    with one soft contact shadow, rather than each photo floating at its own
