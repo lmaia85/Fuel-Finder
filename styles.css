@@ -339,7 +339,10 @@ footer b{color:var(--dim);font-weight:500}
 @media(min-width:1400px){.toc{display:flex}}
 
 /* home / landing page */
-.home-hero{padding:44px 0 36px;border-bottom:1px solid var(--rule-2)}
+/* No border-bottom here on purpose: the section right after already draws
+   its own rule next to the heading, and the two lines sat close enough
+   together to read as one broken divider instead of two intentional ones. */
+.home-hero{padding:44px 0 36px}
 .home-search-label{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.6vw,26px);
   line-height:1.15;letter-spacing:-.015em;margin:0;color:var(--ink)}
 .home-hero .thesis{margin:22px 0 0;max-width:60ch}
