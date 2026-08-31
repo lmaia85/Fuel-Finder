@@ -7,7 +7,7 @@ const { startServer } = require("./dev-server");
 const ROOT = path.join(__dirname, "..");
 const OUT = path.join(ROOT, "_site");
 
-const STATIC_FILES = ["index.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png"];
+const STATIC_FILES = ["index.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png", "CNAME"];
 const STATIC_DIRS = ["Product Photos"];
 
 /* Already-relative references (styles.css, Product Photos/x.png): prefix
@@ -23,7 +23,7 @@ const REL_ASSET_RE = /(href|src)="(?!https?:\/\/|\/\/|\/|#|mailto:|data:)([^"]+)
    Excludes "//" (protocol-relative), which is an external reference. */
 const ROOT_ASSET_RE = /(href|src)="\/(?!\/)([^"]*)"/g;
 
-const SITE_URL = process.env.SITE_URL || "https://lmaia85.github.io/Fuel-Finder";
+const SITE_URL = process.env.SITE_URL || "https://fuelfinder.fit";
 
 function buildSitemap(routes, baseUrl){
   /* "/" is a discovered route in its own right now, so it needs no special
