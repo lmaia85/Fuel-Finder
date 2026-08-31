@@ -1369,6 +1369,7 @@ function homeBentoHTML(){
 
   const cells = [`
     <a class="bc bc-hero bc-link" href="${sitePath(`/${hero.category}/${hero.id}/`)}" data-i="${PRODUCTS.indexOf(hero)}">
+      <img class="bc-photo" src="${sitePath(hero.photo)}" alt="" loading="eager">
       ${icon("star")}
       <span class="bc-kind">Popular pick</span>
       <span class="bc-name">${esc(hero.name)}</span>
@@ -1378,6 +1379,7 @@ function homeBentoHTML(){
 
   if(bestGel && bestGel !== hero) cells.push(`
     <a class="bc bc-bvg bc-link" href="${sitePath(`/${bestGel.category}/${bestGel.id}/`)}" data-i="${PRODUCTS.indexOf(bestGel)}">
+      <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
       ${icon("tag")}
       <span class="bc-kind">Best value gel</span>
       <span class="bc-name">${esc(bestGel.name)}</span>
@@ -1385,6 +1387,7 @@ function homeBentoHTML(){
     </a>`);
   if(bestDrink && bestDrink !== hero) cells.push(`
     <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
+      <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
       ${icon("tag")}
       <span class="bc-kind">Best value drink mix</span>
       <span class="bc-name">${esc(bestDrink.name)}</span>
@@ -1429,6 +1432,25 @@ function homeBentoHTML(){
   </section>`;
 }
 
+function recentlyReviewedHTML(){
+  const recent = PRODUCTS.filter(p => p.reviewed).slice().sort((a, b) => b.reviewed.localeCompare(a.reviewed)).slice(0, 5);
+  if(!recent.length) return "";
+  return `
+  <section>
+    <div class="sh"><h2>Recently reviewed</h2><span class="rule"></span></div>
+    <div class="recent-grid">
+      ${recent.map(p => `
+      <a class="recent-card bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
+        <img class="recent-photo" src="${sitePath(p.photo)}" alt="" loading="lazy">
+        <span class="recent-kind">${CATEGORY_LABEL[p.category]}</span>
+        <span class="recent-name">${esc(p.name)}</span>
+        <span class="recent-brand">${esc(p.brand)}</span>
+        <span class="recent-date">${formatReviewDate(p.reviewed)}</span>
+      </a>`).join("")}
+    </div>
+  </section>`;
+}
+
 function renderHome(){
   document.title = "Fuel Finder — Endurance nutrition reviews";
   clearNavHighlights();
@@ -1441,9 +1463,15 @@ function renderHome(){
       <input id="siteSearch" placeholder="Search any gel, drink mix, or electrolyte" autocomplete="off">
       <div class="site-search-results" id="siteSearchResults"></div>
     </div>
-    <p class="home-hero-note">Built from declared nutrition panels, not marketing copy. ${PRODUCTS.length} products reviewed so far, every one scored the same way.</p>
+    <div class="trust-badges">
+      <span class="tb">No affiliate links</span>
+      <span class="tb">No sponsorships</span>
+      <span class="tb">Absolute scoring</span>
+      <span class="tb">${PRODUCTS.length} products reviewed</span>
+    </div>
   </div>
-  ${homeBentoHTML()}`;
+  ${homeBentoHTML()}
+  ${recentlyReviewedHTML()}`;
   window.scrollTo(0,0);
 }
 
