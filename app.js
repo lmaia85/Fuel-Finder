@@ -980,8 +980,8 @@ page.addEventListener("click", e => {
     return;
   }
 
-  const hlCard = e.target.closest(".hl-card");
-  if(hlCard && hlCard.dataset.i !== undefined){ e.preventDefault(); select(+hlCard.dataset.i); return; }
+  const bcLink = e.target.closest(".bc-link");
+  if(bcLink && bcLink.dataset.i !== undefined){ e.preventDefault(); select(+bcLink.dataset.i); return; }
 
   const result = e.target.closest(".site-search-results button[data-i]");
   if(result){ select(+result.dataset.i); return; }
@@ -1328,38 +1328,100 @@ function categoryCardsHTML(){
   </div>`;
 }
 
-/* Homepage highlights: a couple of computed picks (cheapest per gram of
-   carb, per category that has one) plus curated "popular" picks (the
-   `popular:true` flag in the catalog, an editorial call — real usage data
-   isn't something a static client-only site has access to). Returns ""
-   when there's nothing to show yet rather than an empty section. */
 function bestValueInCategory(cat){
   const items = PRODUCTS.filter(p => p.category === cat && typeof p.perGram === "number");
   if(!items.length) return null;
   return items.reduce((best, p) => p.perGram < best.perGram ? p : best);
 }
 
-function homeHighlightsHTML(){
-  const cards = [];
+/* Small hand-drawn inline icons, not an icon-font or CDN library — this
+   site's only network calls are the ones documented at the top of
+   index.html (fonts, GoatCounter, Frankfurter, product photos), and an
+   icon CDN would be a fifth. currentColor so a cell just sets color. */
+const ICON = {
+  star: '<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/>',
+  tag: '<path d="M3 3h8l10 10-8 8L3 11V3z"/><circle cx="7.8" cy="7.8" r="1.3" fill="currentColor" stroke="none"/>',
+  zap: '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>',
+  droplet: '<path d="M12 3c4 5 7 8.5 7 12a7 7 0 0 1-14 0c0-3.5 3-7 7-12z"/>',
+  flask: '<path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.3 8.7l-1.8 4.8-4.8 1.8 1.8-4.8z"/>'
+};
+function icon(name){
+  return `<svg class="cell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
+}
+
+/* Homepage discovery grid: one dominant curated "popular" pick (the
+   `popular:true` flag in the catalog, an editorial call since a static
+   client-only site has no real usage data to rank by), two computed
+   best-value picks (cheapest per gram of carb), a scale stat, and the
+   three category browse links plus the quiz, all as one asymmetric grid
+   instead of a flat row of identical cards. */
+function homeBentoHTML(){
   const bestGel = bestValueInCategory("gel");
-  if(bestGel) cards.push({ kind: "Best value &mdash; gel", p: bestGel, stat: `${moneyPrecise(bestGel.perGram, 3)}/g carb` });
   const bestDrink = bestValueInCategory("drink");
-  if(bestDrink) cards.push({ kind: "Best value &mdash; drink mix", p: bestDrink, stat: `${moneyPrecise(bestDrink.perGram, 3)}/g carb` });
-  PRODUCTS.filter(p => p.popular).forEach(p => {
-    cards.push({ kind: "Popular pick", p, stat: "Editor's pick" });
-  });
-  if(!cards.length) return "";
+  const hero = PRODUCTS.find(p => p.popular) || bestGel || bestDrink || PRODUCTS[0];
+  const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
+  const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
+  const electrolyteCount = PRODUCTS.filter(p => p.category === "electrolyte").length;
+
+  const cells = [`
+    <a class="bc bc-hero bc-link" href="${sitePath(`/${hero.category}/${hero.id}/`)}" data-i="${PRODUCTS.indexOf(hero)}">
+      ${icon("star")}
+      <span class="bc-kind">Popular pick</span>
+      <span class="bc-name">${esc(hero.name)}</span>
+      <span class="bc-hero-brand">${esc(hero.brand)}</span>
+      <p class="bc-hero-note">The most recognized name in the category, and one of the highest glucose:fructose ratios we've tested.</p>
+    </a>`];
+
+  if(bestGel && bestGel !== hero) cells.push(`
+    <a class="bc bc-bvg bc-link" href="${sitePath(`/${bestGel.category}/${bestGel.id}/`)}" data-i="${PRODUCTS.indexOf(bestGel)}">
+      ${icon("tag")}
+      <span class="bc-kind">Best value gel</span>
+      <span class="bc-name">${esc(bestGel.name)}</span>
+      <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
+    </a>`);
+  if(bestDrink && bestDrink !== hero) cells.push(`
+    <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
+      ${icon("tag")}
+      <span class="bc-kind">Best value drink mix</span>
+      <span class="bc-name">${esc(bestDrink.name)}</span>
+      <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
+    </a>`);
+
+  cells.push(`
+    <div class="bc bc-figure">
+      <span class="bc-num">${PRODUCTS.length}</span>
+      <span class="bc-figure-label">Products reviewed across gels, drink mixes and electrolytes, every one scored the same way.</span>
+    </div>`);
+
+  cells.push(`
+    <a class="bc bc-gel" href="${sitePath("/find/gel/")}" data-fc-link="gel">
+      ${icon("zap")}
+      <span class="bc-kind">Gels</span>
+      <span class="bc-stat">${gelCount} reviewed</span>
+    </a>`);
+  cells.push(`
+    <a class="bc bc-drk" href="${sitePath("/find/drink/")}" data-fc-link="drink">
+      ${icon("droplet")}
+      <span class="bc-kind">Drink mixes</span>
+      <span class="bc-stat">${drinkCount} reviewed</span>
+    </a>`);
+  cells.push(`
+    <a class="bc bc-ele" href="${sitePath("/find/electrolyte/")}" data-fc-link="electrolyte">
+      ${icon("flask")}
+      <span class="bc-kind">Electrolytes</span>
+      <span class="bc-stat">${electrolyteCount} reviewed</span>
+    </a>`);
+  cells.push(`
+    <a class="bc bc-cta" href="${sitePath("/find/")}" data-page="find">
+      ${icon("compass")}
+      <span class="bc-kind">Not sure?</span>
+      <span class="bc-stat">Take the Find Your Fuel quiz</span>
+    </a>`);
+
   return `
   <div class="sh"><h2>From the catalog</h2><span class="rule"></span></div>
-  <div class="home-highlights">
-    ${cards.map(c => `
-    <a class="hl-card" href="${sitePath(`/${c.p.category}/${c.p.id}/`)}" data-i="${PRODUCTS.indexOf(c.p)}">
-      <span class="hl-kind">${c.kind}</span>
-      <span class="hl-name">${esc(c.p.name)}</span>
-      <span class="hl-brand">${esc(c.p.brand)}</span>
-      <span class="hl-stat">${esc(c.stat)}</span>
-    </a>`).join("")}
-  </div>`;
+  <div class="bento">${cells.join("")}</div>`;
 }
 
 function renderHome(){
@@ -1369,15 +1431,14 @@ function renderHome(){
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
     <p class="eye">Endurance nutrition, reviewed on the numbers</p>
-    <h1>Fuel Finder</h1>
-    <p class="thesis">Gel, drink mix and electrolyte reviews built from declared nutrition panels, not marketing copy.</p>
+    <h1 class="home-search-label">Search for your fueling product</h1>
     <div class="home-search">
       <input id="siteSearch" placeholder="Search any gel, drink mix, or electrolyte" autocomplete="off">
       <div class="site-search-results" id="siteSearchResults"></div>
     </div>
+    <p class="home-hero-note">Built from declared nutrition panels, not marketing copy. ${PRODUCTS.length} products reviewed so far, every one scored the same way.</p>
   </div>
-  ${homeHighlightsHTML()}
-  ${categoryCardsHTML()}`;
+  ${homeBentoHTML()}`;
   window.scrollTo(0,0);
 }
 
@@ -1389,35 +1450,35 @@ function renderAbout(){
   <div class="home-hero">
     <p class="eye">Why this site exists</p>
     <h1>About Fuel Finder</h1>
-    <p class="thesis">Gel, drink mix and electrolyte packaging all makes the same claims in different words. Fuel Finder reads past the marketing copy to the one thing every product actually discloses &mdash; its nutrition panel &mdash; and compares products on that alone.</p>
+    <p class="thesis">Pick up any gel or drink mix and the packaging tells you it's the best one. We got tired of trying to compare those claims to each other, so we started pulling the numbers straight off the label instead. That's really the whole idea behind this site.</p>
   </div>
 
   <section>
     <div class="sh"><h2>The problem</h2><span class="rule"></span></div>
-    <p class="thesis">Every gel calls itself "fast-absorbing." Every drink mix calls itself "optimal hydration." None of that is measurable, and none of it helps you choose between two products sitting side by side on a shelf. What's actually measurable &mdash; carbs per serving, sodium, glucose:fructose ratio, caffeine, cost &mdash; is on the label already. This site just puts it in one place and scores it the same way for everything, so a claim on the front of the packet isn't the thing deciding what you buy.</p>
+    <p class="thesis">Read enough gel packaging and you start seeing the same words everywhere: "fast-absorbing," "optimal," "engineered for performance." None of it means anything you can actually measure, and none of it helps when you're standing in front of two products trying to decide between them. What you can measure is already printed on the label: carbs per serving, sodium, the glucose to fructose ratio, caffeine, cost. We take that and score it the same way for every product, so the packaging stops being the thing making the decision for you.</p>
   </section>
 
   <section>
     <div class="sh"><h2>What actually differs between products</h2><span class="rule"></span></div>
-    <p class="thesis">Most of what separates one gel or drink mix from another comes down to a handful of things:</p>
+    <p class="thesis">Once you get past the marketing, most gels and drink mixes really only differ on a handful of things:</p>
     <ul class="thesis" style="padding-left:1.2em">
-      <li><b>Carb density.</b> How many grams of carbohydrate you get per serving &mdash; it decides how many sachets or scoops it takes to hit your target intake for the hour.</li>
-      <li><b>Glucose:fructose ratio.</b> A single carb source (glucose or maltodextrin alone) caps how much your gut can absorb per hour. A blended ratio uses two different transporters at once, which is why the highest-intake products on the market are almost always blends, not single-source.</li>
-      <li><b>Sodium.</b> Some products bundle meaningful sodium into every serving; others carry effectively none and expect you to get it from a separate electrolyte source. Neither is wrong, but it changes what else you need to be carrying.</li>
-      <li><b>Caffeine.</b> Present by design in some products, absent by design in others &mdash; useful late in a race, unwanted if you're already caffeinated or racing at night.</li>
-      <li><b>Ingredient count.</b> A shorter, simpler label is generally easier on the stomach at hour three than a long one, which is what this site's gut-comfort figure is a proxy for.</li>
+      <li><b>Carb density.</b> How many grams of carbohydrate you're getting per serving. It's what decides whether you need four gels an hour or six to hit your target.</li>
+      <li><b>Glucose to fructose ratio.</b> A single carb source, usually just maltodextrin, caps out lower than a blend does. Glucose and fructose use two different transporters in your gut, so a blended product can move more carbohydrate per hour than a single-source one can. That's why almost everything built for really high intake is a blend.</li>
+      <li><b>Sodium.</b> Some products build in a real dose of sodium every serving. Others carry almost none and assume you're getting it elsewhere. Neither way is wrong, it just changes what else you need to be carrying with you.</li>
+      <li><b>Caffeine.</b> In some products by design, left out of others by design. Handy in the back half of a long race, unwelcome if you're already wired or running at 4am.</li>
+      <li><b>Ingredient count.</b> A shorter label tends to sit easier on the stomach a few hours in. It's not a guarantee, but it's the reasoning behind the gut-comfort figure on every gel page.</li>
     </ul>
-    <p class="thesis">Every product page breaks these out individually, not just as a single blended score, so you can weigh the ones that matter to you.</p>
+    <p class="thesis">Every product page breaks these out on their own instead of folding them into one number, so you can weigh whichever ones matter for your race.</p>
   </section>
 
   <section>
     <div class="sh"><h2>How we stay unbiased</h2><span class="rule"></span></div>
-    <p class="thesis">No product on this site paid to be here, ranks higher for being a bigger brand, or links out through an affiliate program &mdash; we don't earn anything when you click through or buy. Scores are calculated against a fixed scale decided in advance, not relative to whatever else is in the catalog at the time, so adding a new product never quietly changes another one's score. The full mechanics of how that works are on the <a href="${sitePath("/methodology/")}" data-page="methodology">Methodology</a> page.</p>
+    <p class="thesis">Nobody paid to be listed here, and nothing ranks higher for being a bigger name. We don't run affiliate links either, so there's no reason for us to point you toward whatever pays best. Scores are set against a fixed scale we decided on ahead of time, not against whatever else happens to be in the catalog that week, so adding a new product never quietly moves anyone else's number. If you want the full mechanics of how a score actually gets built, that's on the <a href="${sitePath("/methodology/")}" data-page="methodology">Methodology</a> page.</p>
   </section>
 
   <section>
     <div class="sh"><h2>Not sure where to start?</h2><span class="rule"></span></div>
-    <p class="thesis">Answer a few questions about how you actually plan to use it in the <a href="${sitePath("/find/")}" data-page="find">Find Your Fuel</a> quiz, and it'll rank the catalog against your answers instead of a generic average.</p>
+    <p class="thesis">Answer a few questions in the <a href="${sitePath("/find/")}" data-page="find">Find Your Fuel</a> quiz about how you're actually planning to use it, and it'll rank the catalog against your answers instead of a flat average.</p>
   </section>`;
   window.scrollTo(0,0);
 }
