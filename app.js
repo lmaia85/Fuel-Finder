@@ -1342,8 +1342,11 @@ const ICON = {
   star: '<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/>',
   tag: '<path d="M3 3h8l10 10-8 8L3 11V3z"/><circle cx="7.8" cy="7.8" r="1.3" fill="currentColor" stroke="none"/>',
   zap: '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>',
+  sachet: '<path d="M8.5 3c-1 0-1.5 1-1.5 2v2c-1.2.8-2 2.2-2 4v7c0 1.9 1.3 2.9 3 3.1 2.6.3 5.4.3 8 0 1.7-.2 3-1.2 3-3.1v-7c0-1.8-.8-3.2-2-4V5c0-1-.5-2-1.5-2-.7 0-1.3.4-1.7 1-.4-.6-1-1-1.7-1s-1.3.4-1.6 1c-.4-.6-1-1-1.7-1z"/><path d="M9 18.3c1.3.4 2.7.4 4 0" stroke-width="1.3"/><path d="M13 8.2 10 13h2l-1 3.8 3.5-5.3H12z" fill="currentColor" stroke="none"/>',
   droplet: '<path d="M12 3c4 5 7 8.5 7 12a7 7 0 0 1-14 0c0-3.5 3-7 7-12z"/>',
   flask: '<path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/>',
+  bottle: '<rect x="10.3" y="2.2" width="3.4" height="2.2" rx="0.6"/><path d="M10.3 4.6h3.4c0 .9 0 1.4.9 2 1.1.8 1.4 2 1.4 3.4v8.5c0 1.5-1.2 2.4-3 2.5-1.4.1-2.6.1-4 0-1.8-.1-3-1-3-2.5V10c0-1.4.3-2.6 1.4-3.4.9-.6.9-1.1.9-2z"/><path d="M7.6 14.6c1.1.6 2.2-.6 3.3 0s2.2.6 3.3 0" stroke-width="1.3"/>',
+  glass: '<path d="M8 4h8l-1.2 14.6c-.1 1.3-1.3 2.4-2.8 2.4s-2.7-1.1-2.8-2.4z"/><path d="M12 8.8v4.4M9.9 11h4.2" stroke-width="1.4"/><circle cx="9.6" cy="6.6" r=".5" fill="currentColor" stroke="none"/><circle cx="14.3" cy="7.2" r=".4" fill="currentColor" stroke="none"/>',
   compass: '<circle cx="12" cy="12" r="9"/><path d="M15.3 8.7l-1.8 4.8-4.8 1.8 1.8-4.8z"/>'
 };
 function icon(name){
@@ -1396,19 +1399,19 @@ function homeBentoHTML(){
 
   cells.push(`
     <a class="bc bc-gel" href="${sitePath("/find/gel/")}" data-fc-link="gel">
-      ${icon("zap")}
+      ${icon("sachet")}
       <span class="bc-kind">Gels</span>
       <span class="bc-stat">${gelCount} reviewed</span>
     </a>`);
   cells.push(`
     <a class="bc bc-drk" href="${sitePath("/find/drink/")}" data-fc-link="drink">
-      ${icon("droplet")}
+      ${icon("bottle")}
       <span class="bc-kind">Drink mixes</span>
       <span class="bc-stat">${drinkCount} reviewed</span>
     </a>`);
   cells.push(`
     <a class="bc bc-ele" href="${sitePath("/find/electrolyte/")}" data-fc-link="electrolyte">
-      ${icon("flask")}
+      ${icon("glass")}
       <span class="bc-kind">Electrolytes</span>
       <span class="bc-stat">${electrolyteCount} reviewed</span>
     </a>`);
@@ -1420,8 +1423,10 @@ function homeBentoHTML(){
     </a>`);
 
   return `
-  <div class="sh"><h2>From the catalog</h2><span class="rule"></span></div>
-  <div class="bento">${cells.join("")}</div>`;
+  <section>
+    <div class="sh"><h2>From the catalog</h2><span class="rule"></span></div>
+    <div class="bento">${cells.join("")}</div>
+  </section>`;
 }
 
 function renderHome(){
