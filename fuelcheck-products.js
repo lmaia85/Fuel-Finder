@@ -7,7 +7,7 @@
 
 const PRODUCTS = [
 {
-  category:"gel",
+  category:"gel", popular:true,
   id:"maurten-gel-100", code:"MAU", short:"Gel 100", name:"Maurten Gel 100", brand:"Maurten",
   reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Maurten_GEL_100/descpage-MAU100.html", price:4.00}],
