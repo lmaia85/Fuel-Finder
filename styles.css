@@ -432,21 +432,33 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
 .bc-name{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);letter-spacing:-.01em}
 .bc-stat{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-top:auto;padding-top:10px}
 
-.bc-hero{grid-area:hero;background:var(--band);border-color:var(--me);padding:26px 150px 26px 26px}
+.bc-hero{grid-area:hero;background:var(--band);border-color:var(--me);padding:26px 210px 26px 26px}
 .bc-hero .bc-name{font-size:clamp(22px,2.4vw,28px);margin-top:10px}
 .bc-hero-brand{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .bc-hero-note{font-family:var(--body);font-size:13px;color:var(--dim);margin:12px 0 0;line-height:1.5;max-width:30ch}
+/* Centered on the cell's full height rather than pinned to the bottom
+   corner — this cell is tall enough (2x2) that a corner placement left
+   it looking stranded down in the whitespace below the text. */
+.bc-hero .bc-photo{position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  width:170px;height:170px;object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 10px 16px rgba(0,0,0,.5))}
 
 .bc-bvg{grid-area:bvg} .bc-bvd{grid-area:bvd}
-.bc-bvg,.bc-bvd{padding-right:60px}
-/* Photo thumbnails on the three product-linking cells — pinned to a
-   corner rather than in normal flow, so a long name/note never has to
-   fight the image for space; the extra right padding above reserves
-   that corner instead. */
-.bc-photo{position:absolute;object-fit:contain;pointer-events:none;
-  filter:drop-shadow(0 8px 14px rgba(0,0,0,.5))}
-.bc-hero .bc-photo{right:18px;bottom:18px;width:120px;height:120px}
-.bc-bvg .bc-photo,.bc-bvd .bc-photo{right:12px;top:12px;width:40px;height:40px}
+/* Photo sits in normal flow across the top, same language as the
+   recently-reviewed cards below — the earlier corner-pinned thumbnail
+   collided with the tag icon in the same small space and read as
+   cluttered rather than as a product shot. */
+.bc-bvg .bc-photo,.bc-bvd .bc-photo{width:100%;height:64px;object-fit:contain;
+  margin:-4px 0 6px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+/* The hero cell goes from spanning 2 wide columns down to 1 narrow one at
+   this width (see the .bento media query above), so the photo's reserved
+   right-hand padding — sized for the wide desktop cell — needs to shrink
+   with it or the text column gets crushed. Placed after the base .bc-hero
+   rules on purpose: same specificity, so source order is what wins. */
+@media(max-width:520px){
+  .bc-hero{padding:24px 120px 24px 24px}
+  .bc-hero .bc-photo{width:100px;height:100px;right:14px}
+}
 
 .bc-figure{grid-area:figure;flex-direction:row;align-items:center;gap:20px;background:var(--ground)}
 .bc-num{font-family:var(--display);font-weight:800;font-size:clamp(40px,5vw,56px);color:var(--me);
