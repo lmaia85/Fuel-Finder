@@ -1380,7 +1380,6 @@ function homeBentoHTML(){
   if(bestGel && bestGel !== hero) cells.push(`
     <a class="bc bc-bvg bc-link" href="${sitePath(`/${bestGel.category}/${bestGel.id}/`)}" data-i="${PRODUCTS.indexOf(bestGel)}">
       <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
-      ${icon("tag")}
       <span class="bc-kind">Best value gel</span>
       <span class="bc-name">${esc(bestGel.name)}</span>
       <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
@@ -1388,7 +1387,6 @@ function homeBentoHTML(){
   if(bestDrink && bestDrink !== hero) cells.push(`
     <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
       <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
-      ${icon("tag")}
       <span class="bc-kind">Best value drink mix</span>
       <span class="bc-name">${esc(bestDrink.name)}</span>
       <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
