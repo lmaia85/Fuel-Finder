@@ -25,7 +25,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          SITE_URL: https://lmaia85.github.io/Fuel-Finder
+          SITE_URL: https://fuelfinder.fit
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
