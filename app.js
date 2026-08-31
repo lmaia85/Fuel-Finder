@@ -766,7 +766,6 @@ function clearNavHighlights(){
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.remove("on"));
   document.getElementById("find-link").classList.remove("on");
   document.getElementById("calc-link").classList.remove("on");
-  document.getElementById("about-link").classList.remove("on");
   closeMobileNav();
   setShareMeta(null);
   setRobotsMeta(null);
@@ -843,13 +842,14 @@ document.querySelectorAll(".nv > a").forEach(link => {
   });
 });
 
-/* These two live as literal href="/find/" / href="/calculator/" in
+/* These live as literal href="/find/", href="/calculator/" etc. in
    index.html, which isn't templated at build time and so can't know the
    mount point. Point them at the real one now that it's known — this also
    keeps middle-click / open-in-new-tab honest, not just the click handler. */
 document.getElementById("find-link").setAttribute("href", sitePath("/find/"));
 document.getElementById("calc-link").setAttribute("href", sitePath("/calculator/"));
-document.getElementById("about-link").setAttribute("href", sitePath("/methodology/"));
+document.getElementById("footer-about-link").setAttribute("href", sitePath("/about/"));
+document.getElementById("footer-methodology-link").setAttribute("href", sitePath("/methodology/"));
 
 document.getElementById("find-link").addEventListener("click", e => {
   e.preventDefault();
@@ -861,7 +861,12 @@ document.getElementById("calc-link").addEventListener("click", e => {
   try{ history.pushState(null, "", sitePath("/calculator/")); }catch(err){}
   renderCalculator();
 });
-document.getElementById("about-link").addEventListener("click", e => {
+document.getElementById("footer-about-link").addEventListener("click", e => {
+  e.preventDefault();
+  try{ history.pushState(null, "", sitePath("/about/")); }catch(err){}
+  renderAbout();
+});
+document.getElementById("footer-methodology-link").addEventListener("click", e => {
   e.preventDefault();
   try{ history.pushState(null, "", sitePath("/methodology/")); }catch(err){}
   renderMethodology();
@@ -958,6 +963,25 @@ page.addEventListener("click", e => {
     renderFinder(cat);
     return;
   }
+
+  /* In-body links inside dynamically-rendered content (e.g. the About page's
+     prose linking to Methodology/Find Your Fuel) — unlike the header/footer
+     nav, this markup is torn down and rebuilt on every render(), so it can't
+     hold its own addEventListener the way footer-about-link etc. do. */
+  const pageLink = e.target.closest("[data-page]");
+  if(pageLink){
+    e.preventDefault();
+    const dest = { about: ["/about/", renderAbout], methodology: ["/methodology/", renderMethodology],
+                    find: ["/find/", () => renderFinder()], calculator: ["/calculator/", renderCalculator] }[pageLink.dataset.page];
+    if(dest){
+      try{ history.pushState(null, "", sitePath(dest[0])); }catch(err){}
+      dest[1]();
+    }
+    return;
+  }
+
+  const hlCard = e.target.closest(".hl-card");
+  if(hlCard && hlCard.dataset.i !== undefined){ e.preventDefault(); select(+hlCard.dataset.i); return; }
 
   const result = e.target.closest(".site-search-results button[data-i]");
   if(result){ select(+result.dataset.i); return; }
@@ -1304,6 +1328,40 @@ function categoryCardsHTML(){
   </div>`;
 }
 
+/* Homepage highlights: a couple of computed picks (cheapest per gram of
+   carb, per category that has one) plus curated "popular" picks (the
+   `popular:true` flag in the catalog, an editorial call — real usage data
+   isn't something a static client-only site has access to). Returns ""
+   when there's nothing to show yet rather than an empty section. */
+function bestValueInCategory(cat){
+  const items = PRODUCTS.filter(p => p.category === cat && typeof p.perGram === "number");
+  if(!items.length) return null;
+  return items.reduce((best, p) => p.perGram < best.perGram ? p : best);
+}
+
+function homeHighlightsHTML(){
+  const cards = [];
+  const bestGel = bestValueInCategory("gel");
+  if(bestGel) cards.push({ kind: "Best value &mdash; gel", p: bestGel, stat: `${moneyPrecise(bestGel.perGram, 3)}/g carb` });
+  const bestDrink = bestValueInCategory("drink");
+  if(bestDrink) cards.push({ kind: "Best value &mdash; drink mix", p: bestDrink, stat: `${moneyPrecise(bestDrink.perGram, 3)}/g carb` });
+  PRODUCTS.filter(p => p.popular).forEach(p => {
+    cards.push({ kind: "Popular pick", p, stat: "Editor's pick" });
+  });
+  if(!cards.length) return "";
+  return `
+  <div class="sh"><h2>From the catalog</h2><span class="rule"></span></div>
+  <div class="home-highlights">
+    ${cards.map(c => `
+    <a class="hl-card" href="${sitePath(`/${c.p.category}/${c.p.id}/`)}" data-i="${PRODUCTS.indexOf(c.p)}">
+      <span class="hl-kind">${c.kind}</span>
+      <span class="hl-name">${esc(c.p.name)}</span>
+      <span class="hl-brand">${esc(c.p.brand)}</span>
+      <span class="hl-stat">${esc(c.stat)}</span>
+    </a>`).join("")}
+  </div>`;
+}
+
 function renderHome(){
   document.title = "Fuel Finder — Endurance nutrition reviews";
   clearNavHighlights();
@@ -1318,14 +1376,55 @@ function renderHome(){
       <div class="site-search-results" id="siteSearchResults"></div>
     </div>
   </div>
+  ${homeHighlightsHTML()}
   ${categoryCardsHTML()}`;
+  window.scrollTo(0,0);
+}
+
+function renderAbout(){
+  document.title = "About — Fuel Finder";
+  clearNavHighlights();
+  document.getElementById("toc").style.display = "none";
+  document.getElementById("page").innerHTML = `
+  <div class="home-hero">
+    <p class="eye">Why this site exists</p>
+    <h1>About Fuel Finder</h1>
+    <p class="thesis">Gel, drink mix and electrolyte packaging all makes the same claims in different words. Fuel Finder reads past the marketing copy to the one thing every product actually discloses &mdash; its nutrition panel &mdash; and compares products on that alone.</p>
+  </div>
+
+  <section>
+    <div class="sh"><h2>The problem</h2><span class="rule"></span></div>
+    <p class="thesis">Every gel calls itself "fast-absorbing." Every drink mix calls itself "optimal hydration." None of that is measurable, and none of it helps you choose between two products sitting side by side on a shelf. What's actually measurable &mdash; carbs per serving, sodium, glucose:fructose ratio, caffeine, cost &mdash; is on the label already. This site just puts it in one place and scores it the same way for everything, so a claim on the front of the packet isn't the thing deciding what you buy.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>What actually differs between products</h2><span class="rule"></span></div>
+    <p class="thesis">Most of what separates one gel or drink mix from another comes down to a handful of things:</p>
+    <ul class="thesis" style="padding-left:1.2em">
+      <li><b>Carb density.</b> How many grams of carbohydrate you get per serving &mdash; it decides how many sachets or scoops it takes to hit your target intake for the hour.</li>
+      <li><b>Glucose:fructose ratio.</b> A single carb source (glucose or maltodextrin alone) caps how much your gut can absorb per hour. A blended ratio uses two different transporters at once, which is why the highest-intake products on the market are almost always blends, not single-source.</li>
+      <li><b>Sodium.</b> Some products bundle meaningful sodium into every serving; others carry effectively none and expect you to get it from a separate electrolyte source. Neither is wrong, but it changes what else you need to be carrying.</li>
+      <li><b>Caffeine.</b> Present by design in some products, absent by design in others &mdash; useful late in a race, unwanted if you're already caffeinated or racing at night.</li>
+      <li><b>Ingredient count.</b> A shorter, simpler label is generally easier on the stomach at hour three than a long one, which is what this site's gut-comfort figure is a proxy for.</li>
+    </ul>
+    <p class="thesis">Every product page breaks these out individually, not just as a single blended score, so you can weigh the ones that matter to you.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>How we stay unbiased</h2><span class="rule"></span></div>
+    <p class="thesis">No product on this site paid to be here, ranks higher for being a bigger brand, or links out through an affiliate program &mdash; we don't earn anything when you click through or buy. Scores are calculated against a fixed scale decided in advance, not relative to whatever else is in the catalog at the time, so adding a new product never quietly changes another one's score. The full mechanics of how that works are on the <a href="${sitePath("/methodology/")}" data-page="methodology">Methodology</a> page.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Not sure where to start?</h2><span class="rule"></span></div>
+    <p class="thesis">Answer a few questions about how you actually plan to use it in the <a href="${sitePath("/find/")}" data-page="find">Find Your Fuel</a> quiz, and it'll rank the catalog against your answers instead of a generic average.</p>
+  </section>`;
   window.scrollTo(0,0);
 }
 
 function renderMethodology(){
   document.title = "Methodology — Fuel Finder";
   clearNavHighlights();
-  document.getElementById("about-link").classList.add("on");
   document.getElementById("toc").style.display = "none";
   const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
   const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
@@ -1495,6 +1594,7 @@ function routeFromPath(){
   if(fm){ renderFinder(fm[1]); return; }
   if(h === "calculator"){ renderCalculator(); return; }
   if(h === "methodology"){ renderMethodology(); return; }
+  if(h === "about"){ renderAbout(); return; }
   const m = h.match(/^([a-z]+)\/(.+)$/);
   if(m){
     const p = PRODUCTS.find(x => x.category === m[1] && x.id === m[2]);

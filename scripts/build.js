@@ -125,6 +125,7 @@ async function discoverRoutes(page, port){
     })),
     { urlPath: "/calculator/", filePath: "calculator/index.html", depth: 1 },
     { urlPath: "/methodology/", filePath: "methodology/index.html", depth: 1 },
+    { urlPath: "/about/", filePath: "about/index.html", depth: 1 },
     { urlPath: "/requests/", filePath: "requests/index.html", depth: 1 }
   ];
 }
