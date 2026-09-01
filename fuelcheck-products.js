@@ -131,7 +131,7 @@ const PRODUCTS = [
   id:"gu-roctane", code:"ROC", short:"Roctane Energy Gel", name:"GU Roctane Energy Gel", brand:"GU Energy Labs",
   reviewed:"2026-08-26",
   buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/GU_Roctane_Energy_Gel/descpage-GUR24.html", price:3.00}],
-  photo:"Product Photos/gu-roctane-energy-gel.png",
+  photo:"Product Photos/gu-roctane-energy-gel.webp",
   serving:"32 g sachet", kcal:100, carbs:21, sugars:6, sodium:125, caffeine:0,
   price:3.00, boxPrice:72.00, boxQty:24,
   ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
@@ -173,22 +173,6 @@ const PRODUCTS = [
   cons:["No glucose-to-fructose ratio: the carb source is maltodextrin plus cane sugar (sucrose), not a declared glucose:fructose blend.","$0.069 a gram ties Hammer for second-cheapest here, not a mid-pack price, but it's no cheaper than Hammer, which also brings caffeine and less sugar.","24 g a sachet means over 3.7 an hour to hold 90 g/hr."],
   yes:["You want a short, mostly-organic ingredient list at a mid-range price.","You value sodium in the gel itself over a stated carb ratio."],
   no:["You're chasing the lowest cost per gram in the category.","You specifically want a declared, verifiable absorption ratio."]
-},
-{
-  category:"gel", servingWord:"sachet",
-  id:"hammer-gel-espresso", code:"HAM", short:"Hammer Gel Espresso", name:"Hammer Gel Espresso", brand:"Hammer Nutrition",
-  reviewed:"2026-08-26",
-  buy:[{retailer:"Hammer Nutrition", url:"https://hammernutrition.com/products/hammer-gel", price:1.60}],
-  photo:"Product Photos/hammer-gel-espresso.webp",
-  serving:"33 g sachet", kcal:95, carbs:21, sugars:3, sodium:40, caffeine:50,
-  price:1.46, boxPrice:34.95, boxQty:24,
-  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
-  ingredients:"Maltodextrin, Water, Tapioca Syrup, EnergySmart (Rice Syrup, Grape Juice Concentrate), Cocoa Powder, Natural Flavor, Coffee, Salt, Caffeine, Ascorbic Acid, Potassium Sorbate, L-Leucine, L-Alanine, L-Valine, Potassium Carbonate, L-Isoleucine",
-  thesis:"Hammer's proprietary rice-syrup-and-grape-juice blend keeps sugars down to 3 g out of 21 g carbohydrate, the lowest sugar content of any gel here, at <b>the cheapest box price in the category</b> after SiS.",
-  pros:["$0.069 a gram, second-cheapest here.","Only 3 g of sugars per sachet, the lowest of any gel reviewed.","50 mg of caffeine and a genuine espresso flavor, not a vague 'coffee' note."],
-  cons:["No glucose-to-fructose ratio: Hammer's EnergySmart blend is proprietary and not broken out into a declared carb ratio.","Caffeine is fixed into this flavor; Hammer's non-caffeinated flavors are separate SKUs.","40 mg of sodium is on the low end, similar to Maurten's."],
-  yes:["Low sugar content matters to you specifically.","You want caffeine and a low price in the same sachet."],
-  no:["You need a non-caffeinated option in this exact flavor.","You want a stated, verifiable carb ratio."]
 },
 {
   category:"gel", servingWord:"sachet",
@@ -237,22 +221,6 @@ const PRODUCTS = [
   cons:["At $0.363 a gram of carbohydrate, more than five times SiS Beta Fuel's price for the same nutrient.","Only 6 mg of sodium, the lowest of any gel reviewed by a wide margin.","Contains tree nuts, a real constraint for some athletes; high fat content is atypical for a during-effort gel and may sit heavier on some stomachs than a standard carb gel."],
   yes:["You want a genuinely whole-food fuel and are prepared to pay for it.","You're fuelling at a lower carbohydrate rate and want fat-derived calories alongside it."],
   no:["You have a tree nut allergy.","You need to hold 90 g/hr of carbohydrate; the low carb-per-sachet and high price make this an expensive way to do it."]
-},
-{
-  category:"gel", servingWord:"sachet",
-  id:"untapped-maple", code:"UNT", short:"Maple Energy Gel", name:"UnTapped Maple-Based Energy Gel", brand:"UnTapped",
-  reviewed:"2026-08-26",
-  buy:[{retailer:"The Run House", url:"https://therunhouse.com/products/untapped-maple-untapped-energy-gel-1-oz", price:2.20}],
-  photo:"Product Photos/untapped-maple-energy-gel.webp",
-  serving:"38 g sachet", kcal:100, carbs:26, sugars:26, sodium:5, caffeine:0,
-  price:2.25, boxPrice:44.95, boxQty:20,
-  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
-  ingredients:"Organic Pure Vermont Maple Syrup",
-  thesis:"A single ingredient &mdash; organic Vermont maple syrup &mdash; and nothing else, at <b>$0.087 a gram</b>, a genuinely short answer to the question of what's actually in a gel.",
-  pros:["One ingredient. The shortest label of any gel we've reviewed, by a wide margin.","USDA organic, single-origin Vermont maple syrup.","$0.087 a gram, close to the cheaper end of the field."],
-  cons:["No glucose-to-fructose ratio: maple syrup's sugar composition is whatever the tree and the season produced, not a controlled blend.","5 mg of sodium, functionally none.","Flavor is exactly and only maple, which some find fatiguing late in a long race."],
-  yes:["You want the shortest possible ingredient list and don't need a stated ratio.","You like maple flavor and want it unmixed with anything else."],
-  no:["You want a verified absorption ratio.","You need the gel to carry meaningful sodium."]
 },
 {
   category:"gel", servingWord:"sachet",
@@ -589,22 +557,6 @@ const PRODUCTS = [
   no:["You want a fast-digesting, fat-free gel for high-intensity racing.","You need a stated, verifiable glucose:fructose ratio to plan your intake rate."]
 },
 {
-  category:"gel", 
-  id:"untapped-coffee", code:"UTC", short:"Coffee", name:"UnTapped Coffee", brand:"UnTapped",
-  reviewed:"2026-08-28",
-  buy:[{retailer:"UnTapped", url:"https://untapped.cc/product/coffee-untapped-energy-gel/", price:2.49}],
-  photo:"Product Photos/untapped-coffee.webp",
-  serving:"38 g sachet", kcal:100, carbs:26, sugars:25, sodium:11, caffeine:27,
-  price:2.25, boxPrice:44.95, boxQty:20,
-  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
-  ingredients:"Organic Pure Vermont Maple Syrup, Coffee",
-  thesis:"The same single-source Vermont maple syrup as UnTapped's plain Maple gel, with 27 mg of caffeine from real coffee added at essentially <b>the same $0.086-a-gram price</b> as the non-caffeinated version.",
-  pros:["Two-ingredient label &mdash; organic Vermont maple syrup and coffee &mdash; carrying 27 mg of caffeine from a real source rather than an isolate.","$0.086 a gram of carbohydrate, matching UnTapped's own non-caffeinated Maple gel almost exactly.","11 mg of sodium, a small but real step up from the plain Maple gel's 5 mg."],
-  cons:["No glucose-to-fructose ratio: maple syrup's sugar profile isn't a controlled blend.","27 mg of caffeine is fixed into every sachet; there's no non-caffeinated version of this specific flavor.","25 g of sugars out of 26 g total carbohydrate is essentially all simple sugar, with nothing metered by a slower-digesting carb source."],
-  yes:["You want caffeine from real coffee rather than an extract, at no price premium over the plain gel.","You like UnTapped's short-ingredient approach and want a jump-start flavor for early starts."],
-  no:["You're caffeine-sensitive or racing late in the day.","You want a declared, verifiable absorption ratio."]
-},
-{
   category:"drink", servingWord:"scoop", 
   id:"gu-roctane-drink-mix", code:"GRD", short:"Roctane Drink Mix", name:"GU Roctane Energy Drink Mix", brand:"GU Energy Labs",
   reviewed:"2026-08-28",
@@ -619,22 +571,6 @@ const PRODUCTS = [
   cons:["No glucose:fructose ratio stated or computable, the same gap as the Roctane gel.","Amino-acid dosing at these levels lacks strong single-race ergogenic evidence, the same caveat noted for the gel.","In the 10-pack of single 65 g packets, cost rises to about $4.00 a serving, 78% more than buying the 24-serving canister."],
   yes:["You already use and like the Roctane gel's amino profile and want it in drink form.","You want a low cost per gram of carbohydrate with real sodium built in."],
   no:["You want a stated, verifiable glucose:fructose ratio.","You only want single-serve packets, where the per-serving price nearly doubles."]
-},
-{
-  category:"drink", servingWord:"scoop", 
-  id:"hammer-heed", code:"HEED", short:"HEED", name:"Hammer Nutrition HEED", brand:"Hammer Nutrition",
-  reviewed:"2026-08-28",
-  buy:[{retailer:"Hammer Nutrition", url:"https://www.hammernutrition.com/products/heed", price:37.95, pack:"32-serving container"}],
-  photo:"Product Photos/hammer-heed.webp",
-  serving:"1 scoop (30 g) in 12\u201320 fl oz water", kcal:110, carbs:28, sugars:2, sodium:150, caffeine:0,
-  price:1.19, boxPrice:37.95, boxQty:32,
-  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
-  ingredients:"Tapioca Maltodextrin, Xylitol, Natural Flavors, Sodium Phosphate, Potassium Amino Acid Chelate, Magnesium Amino Acid Chelate, Salt, Stevia Leaf Extract, Monk Fruit Extract, Ascorbic Acid, Calcium Phosphate, L-Carnosine, Glycine, Calcium Glycinate Chelate, L-Tyrosine, Manganese Amino Acid Chelate, Chromium Amino Acid Chelate",
-  thesis:"Sweetened with xylitol, stevia and monk fruit instead of sugar, HEED carries just <b>2 g of sugars in a 28 g carbohydrate scoop</b> \u2014 the lowest sugar share of any drink mix in this catalog, even below Skratch's low-sweetness Cluster Dextrin mix at 4 g of 50 g.",
-  pros:["2 g of sugars per scoop, the lowest sugar-to-carb ratio of any drink mix reviewed.","150 mg of sodium plus declared potassium, magnesium and calcium, not just a single mineral.","No added sugars: sweetness comes entirely from xylitol, stevia and monk fruit extract."],
-  cons:["No glucose:fructose ratio: tapioca maltodextrin is the only carbohydrate source, the same gap as Tailwind's dextrose-only mix.","$0.042 a gram, slightly more than Tailwind's $0.041 for a similarly single-source carb blend.","Contains xylitol, which Hammer's own packaging and FAQ warn is unsafe for dogs."],
-  yes:["You want the least sweet, lowest-sugar drink mix in the field.","You want a fuller electrolyte spread (sodium, potassium, magnesium, calcium) than a single-mineral mix."],
-  no:["You want a stated glucose:fructose ratio for a defined absorption ceiling.","You keep dogs around your gear and want to avoid xylitol entirely."]
 },
 {
   category:"drink", servingWord:"sachet", 
@@ -667,22 +603,6 @@ const PRODUCTS = [
   cons:["2:1 is the older generation of ratio science, the same ceiling as PowerBar's own PowerGel and NEVERSECOND's C30/C90.","No official US retailer: PowerBar sells this only through its DACH-region (Germany/Austria/Switzerland) store, priced in EUR.","20 g of sugars out of 29 g carbohydrate is the sweetest-tasting profile of any drink mix here, more sugar-forward than Skratch or HEED."],
   yes:["You're comparison-shopping on cost per gram and value is a top priority.","You want a high, stated sodium dose and don't mind ordering from a European retailer."],
   no:["You need guaranteed US retail availability and domestic shipping.","You want the field-leading 1:0.8 / 1:0.77 ratio rather than 2:1."]
-},
-{
-  category:"drink", servingWord:"sachet", 
-  id:"untapped-hydration-drink", code:"UTH", short:"MapleAid", name:"UnTapped Hydration Drink Mix", brand:"UnTapped",
-  reviewed:"2026-08-28",
-  buy:[{retailer:"UnTapped", url:"https://untapped.cc/product/mapleaid/", price:44.95, pack:"20-packet carton"}],
-  photo:"Product Photos/untapped-hydration-drink.webp",
-  serving:"1 packet (32 g / 0.8 fl oz), taken directly or mixed into water", kcal:80, carbs:20, sugars:18, sodium:250, caffeine:0,
-  price:2.25, boxPrice:44.95, boxQty:20,
-  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
-  ingredients:"Organic Maple Syrup, Sea Salt",
-  thesis:"Two ingredients \u2014 organic maple syrup and sea salt \u2014 branded MapleAid, deliver <b>250 mg of sodium in a single 32 g packet</b>, fifty times the 5 mg in UnTapped's own Maple gel, while keeping the same short label the brand is known for.",
-  pros:["Two ingredients, tied with UnTapped's own Maple gel for the shortest label of any product in this catalog.","250 mg of sodium per packet from sea salt alone, a real electrolyte dose rather than a token amount.","USDA organic, single-origin Vermont maple syrup, the same sourcing as UnTapped's gel line."],
-  cons:["$0.112 a gram of carbohydrate, the most expensive drink mix in this catalog on cost-per-gram \u2014 it's priced and formulated as a hydration product, not a carb-loading one.","No glucose:fructose ratio: maple syrup's sugar composition is whatever the tree and season produced, the same gap as UnTapped's gel.","No stated water-dilution ratio on the packet or product page; you have to decide how much to cut it yourself."],
-  yes:["You want a genuinely short-label sodium source and already like UnTapped's maple gels.","You're looking for a real sodium dose (250 mg) in a small, packable format."],
-  no:["You want the drink to be your primary carbohydrate source; 20 g a packet is light for that.","You want explicit mixing instructions rather than figuring out your own dilution."]
 },
 {
   category:"electrolyte", servingWord:"tablet", 
@@ -744,21 +664,6 @@ const PRODUCTS = [
   cons:["19 g of carbs per scoop is overkill next to a near-zero-carb electrolyte tablet like Precision's PH 500 (3 g)","Sodium is the only electrolyte broken out on the label; potassium, calcium, and magnesium are present but not given per-serving mg amounts","At roughly $1.20 a serving, more expensive per serving than GU's $0.67 Hydration Tabs"],
   yes:["You want a sports drink that delivers real carbohydrate alongside electrolytes during 1-2 hour efforts","You prefer whole-ingredient formulas (cane sugar, real fruit powder) over synthetic sweeteners"],
   no:["You're doing fasted or low-carb training and want Precision's 3 g-carb PH 500 or a zero-sugar tablet instead","You need documented mg-level potassium, calcium, and magnesium numbers for a race plan; Skratch doesn't break them out per serving"]
-},
-{
-  category:"electrolyte", servingWord:"tablet", 
-  id:"hammer-endurolytes-fizz", code:"HEF", short:"Endurolytes Fizz", name:"Hammer Nutrition Endurolytes Fizz", brand:"Hammer Nutrition",
-  reviewed:"2026-08-28",
-  buy:[{retailer:"Hammer Nutrition", url:"https://hammernutrition.com/products/endurolytes-fizz", price:6.95, pack:"tube of 13 (Grape)"}],
-  photo:"Product Photos/hammer-endurolytes-fizz.webp",
-  serving:"1 tablet per water bottle (dosed at \u00bd tablet per 50\u201360 lb bodyweight per hour)", kcal:7, carbs:1, sodium:200, potassium:100, calcium:100, magnesium:50, caffeine:0,
-  price:0.53, boxPrice:6.95, boxQty:13,
-  ingredients:"Sodium Bicarbonate, Calcium Carbonate, Calcium Chloride, Magnesium Carbonate, Magnesium Oxide, Potassium Bicarbonate, Manganese Gluconate, Vitamin B6 (Pyridoxine Hydrochloride), Citric Acid, Sorbitol, Natural Flavor, Stevia Leaf Extract, Avocado Oil, Monk Fruit",
-  thesis:"A full four-electrolyte tablet \u2014 200 mg sodium, 100 mg calcium, 50 mg magnesium \u2014 plus a declared 13 mg (650% DV) of vitamin B-6 that nothing else in this set quantifies, at <b>$2.67 per 1000 mg of sodium</b>, the highest cost-per-dose of any electrolyte product here.",
-  pros:["100 mg of calcium a tablet, second only to SiS GO Hydro's 102 mg.","50 mg of magnesium, tied with 4Endurance for the second-highest dose behind LMNT's 60 mg.","Breaks in half at the center for a smaller, titratable dose \u2014 a physical feature none of the other tablets here have."],
-  cons:["$2.67 per 1000 mg of sodium is the most expensive way to that dose in this set, ahead of Nuun Sport's $2.50.","200 mg of sodium a tablet is mid-pack; you need five tablets to match LMNT's single-stick dose.","Carbohydrate is only declared as \"<1 g,\" not an exact figure, unlike SiS GO Hydro's stated 0.9 g."],
-  yes:["You want calcium and magnesium alongside sodium in one tablet and don't mind paying the field's highest per-dose cost for it.","You want a tablet you can physically split for a smaller dose."],
-  no:["You're optimizing purely for cost per 1000 mg of sodium.","You want a single tablet to carry a large sodium dose; 200 mg means many tablets across a long day."]
 },
 {
   category:"electrolyte", servingWord:"tablet", 
