@@ -1393,12 +1393,6 @@ function homeBentoHTML(){
     </a>`);
 
   cells.push(`
-    <div class="bc bc-figure">
-      <span class="bc-num">${PRODUCTS.length}</span>
-      <span class="bc-figure-label">Products reviewed across gels, drink mixes and electrolytes, every one scored the same way.</span>
-    </div>`);
-
-  cells.push(`
     <a class="bc bc-gel" href="${sitePath("/find/gel/")}" data-fc-link="gel">
       ${icon("sachet")}
       <span class="bc-kind">Gels</span>
@@ -1455,17 +1449,10 @@ function renderHome(){
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
-    <p class="eye">Endurance nutrition, reviewed on the numbers</p>
     <h1 class="home-search-label">Search for your fueling product</h1>
     <div class="home-search">
       <input id="siteSearch" placeholder="Search any gel, drink mix, or electrolyte" autocomplete="off">
       <div class="site-search-results" id="siteSearchResults"></div>
-    </div>
-    <div class="trust-badges">
-      <span class="tb">No affiliate links</span>
-      <span class="tb">No sponsorships</span>
-      <span class="tb">Absolute scoring</span>
-      <span class="tb">${PRODUCTS.length} products reviewed</span>
     </div>
   </div>
   ${homeBentoHTML()}

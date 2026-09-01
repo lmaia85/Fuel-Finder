@@ -350,9 +350,6 @@ footer b{color:var(--dim);font-weight:500}
 .home-search input{width:100%;background:var(--panel);border:1px solid var(--rule-2);color:var(--ink);
   font-family:var(--mono);font-size:13px;padding:14px 16px;outline:none}
 .home-search input:focus{border-color:var(--me)}
-.trust-badges{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
-.tb{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
-  border:1px solid var(--rule-2);border-radius:100px;padding:6px 12px}
 .site-search-results:empty{display:none}
 .site-search-results button{display:block;width:100%;text-align:left;appearance:none;cursor:pointer;
   background:var(--panel);border:1px solid var(--rule-2);border-top:0;padding:10px 14px;
@@ -400,21 +397,22 @@ footer b{color:var(--dim);font-weight:500}
   color:var(--faint);margin-top:10px}
 
 /* homepage discovery grid ("From the catalog") — an asymmetric bento
-   layout: one dominant curated pick, two computed value picks, a scale
-   stat, and the three category/quiz links, instead of a flat row of
-   identical cards. Single border-radius across every cell on purpose. */
+   layout: three equally-tall flagship cells (one dominant curated pick,
+   two computed value picks) plus the category/quiz links below, instead
+   of a flat row of identical cards. Single border-radius across every
+   cell on purpose. */
 .bento{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0 0;
   grid-template-areas:
-    "hero hero bvg    bvd"
-    "hero hero figure figure"
-    "gel  drk  ele    cta"}
+    "hero hero bvg bvd"
+    "hero hero bvg bvd"
+    "gel  drk  ele cta"}
 @media(max-width:800px){
   .bento{grid-template-columns:repeat(2,1fr);
-    grid-template-areas:"hero hero" "bvg bvd" "figure figure" "gel drk" "ele cta"}
+    grid-template-areas:"hero hero" "bvg bvd" "gel drk" "ele cta"}
 }
 @media(max-width:520px){
   .bento{grid-template-columns:1fr;
-    grid-template-areas:"hero" "bvg" "bvd" "figure" "gel" "drk" "ele" "cta"}
+    grid-template-areas:"hero" "bvg" "bvd" "gel" "drk" "ele" "cta"}
 }
 .bc{position:relative;background:var(--panel);border:1px solid var(--rule-2);border-radius:14px;
   padding:20px 22px;display:flex;flex-direction:column;gap:6px;text-decoration:none;overflow:hidden;
@@ -444,12 +442,15 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
   filter:drop-shadow(0 10px 16px rgba(0,0,0,.5))}
 
 .bc-bvg{grid-area:bvg} .bc-bvd{grid-area:bvd}
+.bc-bvg,.bc-bvd{padding:22px 24px 24px}
 /* Photo sits in normal flow across the top, same language as the
    recently-reviewed cards below — the earlier corner-pinned thumbnail
    collided with the tag icon in the same small space and read as
-   cluttered rather than as a product shot. */
-.bc-bvg .bc-photo,.bc-bvd .bc-photo{width:100%;height:64px;object-fit:contain;
-  margin:-4px 0 6px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+   cluttered rather than as a product shot. Taller now that these cells
+   span the hero's full height instead of just its top row. */
+.bc-bvg .bc-photo,.bc-bvd .bc-photo{width:100%;height:130px;object-fit:contain;
+  margin:0 0 12px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
+.bc-bvg .bc-name,.bc-bvd .bc-name{font-size:17px}
 /* The hero cell goes from spanning 2 wide columns down to 1 narrow one at
    this width (see the .bento media query above), so the photo's reserved
    right-hand padding — sized for the wide desktop cell — needs to shrink
@@ -459,11 +460,6 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
   .bc-hero{padding:24px 120px 24px 24px}
   .bc-hero .bc-photo{width:100px;height:100px;right:14px}
 }
-
-.bc-figure{grid-area:figure;flex-direction:row;align-items:center;gap:20px;background:var(--ground)}
-.bc-num{font-family:var(--display);font-weight:800;font-size:clamp(40px,5vw,56px);color:var(--me);
-  letter-spacing:-.02em;line-height:1;flex:none}
-.bc-figure-label{font-family:var(--body);font-size:13px;color:var(--dim);line-height:1.45;max-width:34ch}
 
 .bc-gel{grid-area:gel} .bc-drk{grid-area:drk} .bc-ele{grid-area:ele}
 .bc-cta{grid-area:cta;background:var(--ground)}
