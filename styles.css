@@ -483,6 +483,7 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
   display:flex;align-items:center;justify-content:center;transition:border-color .2s ease,color .2s ease}
 .recent-nav:hover{border-color:var(--me);color:var(--me)}
 .recent-nav svg{width:16px;height:16px}
+.recent-nav.at-edge{display:none}
 @media(max-width:600px){.recent-nav{display:none}}
 
 /* gel finder quiz */
