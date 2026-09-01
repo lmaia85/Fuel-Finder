@@ -1504,7 +1504,27 @@ function renderHome(){
   </div>
   ${homeBentoHTML()}
   ${recentlyReviewedHTML()}`;
+  initRecentSlider();
   window.scrollTo(0,0);
+}
+
+/* Hides whichever arrow points past an edge already reached, instead of
+   showing a control that would do nothing if clicked. Re-checked on every
+   scroll (including the smooth-scroll animation an arrow click starts),
+   so it stays correct through both button clicks and touch/trackpad swipe. */
+function initRecentSlider(){
+  document.querySelectorAll(".recent-slider").forEach(slider => {
+    const track = slider.querySelector(".recent-track");
+    const prev = slider.querySelector(".recent-prev");
+    const next = slider.querySelector(".recent-next");
+    if(!track || !prev || !next) return;
+    const update = () => {
+      prev.classList.toggle("at-edge", track.scrollLeft <= 1);
+      next.classList.toggle("at-edge", track.scrollLeft + track.clientWidth >= track.scrollWidth - 1);
+    };
+    track.addEventListener("scroll", update, { passive: true });
+    update();
+  });
 }
 
 function renderAbout(){
