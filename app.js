@@ -1006,6 +1006,20 @@ page.addEventListener("click", e => {
     return;
   }
 
+  const accHead = e.target.closest(".acc-head");
+  if(accHead){
+    const item = accHead.closest(".acc-item");
+    const wasOpen = item.classList.contains("open");
+    /* Single-open accordion: opening one closes any other in the same
+       group, so the page stays as short as the reference image showed. */
+    item.parentElement.querySelectorAll(".acc-item.open").forEach(other => {
+      if(other !== item){ other.classList.remove("open"); other.querySelector(".acc-head").setAttribute("aria-expanded", "false"); }
+    });
+    item.classList.toggle("open", !wasOpen);
+    accHead.setAttribute("aria-expanded", String(!wasOpen));
+    return;
+  }
+
   const result = e.target.closest(".site-search-results button[data-i]");
   if(result){ select(+result.dataset.i); return; }
 
@@ -1408,6 +1422,7 @@ function homeBentoHTML(){
       <span class="bc-kind">Best value gel</span>
       <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
       <span class="bc-name">${esc(bestGel.name)}</span>
+      <span class="bc-hero-brand">${esc(bestGel.brand)}</span>
       <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
       <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every gel we've reviewed, recalculated as the catalog grows.</p>
     </a>`);
@@ -1417,6 +1432,7 @@ function homeBentoHTML(){
       <span class="bc-kind">Best value drink mix</span>
       <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
       <span class="bc-name">${esc(bestDrink.name)}</span>
+      <span class="bc-hero-brand">${esc(bestDrink.brand)}</span>
       <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
       <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every drink mix we've reviewed, recalculated as the catalog grows.</p>
     </a>`);
@@ -1539,6 +1555,34 @@ function renderMethodology(){
   const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
   const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
   const electrolyteCount = PRODUCTS.filter(p => p.category === "electrolyte").length;
+
+  const sections = [
+    { title: "Where the data comes from", body: `
+      <p class="thesis">Carbohydrate, sodium, calories and every other figure is read directly off the product's own label &mdash; the same panel you'd read on the packet. We don't estimate a number because a competitor discloses it and this product doesn't.</p>
+      <p class="thesis">The one figure that sometimes needs interpretation is the glucose:fructose ratio, since not every brand states it outright. Each product's ratio is tagged with where it actually came from:</p>
+      <ul class="thesis" style="padding-left:1.2em">
+        <li><b>Stated</b> &mdash; the brand publishes the ratio directly.</li>
+        <li><b>Derived</b> &mdash; computed from ingredient percentages the brand does disclose.</li>
+        <li><b>Estimated</b> &mdash; inferred from what's on the panel when neither of the above is available. It's marked as an estimate everywhere it appears, but it scores the same as a Stated ratio &mdash; there's no confidence discount built into the number itself.</li>
+        <li><b>Not disclosed</b> &mdash; the brand doesn't say, and we don't guess.</li>
+      </ul>` },
+    { title: "How scores are calculated", body: `
+      <p class="thesis">Every score on this site is absolute, not relative &mdash; each dimension (absorption rate, carb density, sodium, cost per gram, gut comfort for gels, potassium/calcium/magnesium for electrolytes) is scored against a fixed scale, not against whatever else happens to be in the catalog. A 90 means the same thing today as it will after the next product is added; scores only change when a product's own declared data changes.</p>
+      <p class="thesis">Where real sports-nutrition reference points exist, the fixed scale is anchored to them: carb density tops out at 90 g, matching the upper end of the range cited for multi-transportable-carb intake; sodium scales top out at 1000 mg, the upper end of what's typically lost to sweat in an hour; potassium and magnesium follow the same logic at smaller scales. Hover any dimension label on a product page for its specific scale and reasoning.</p>
+      <p class="thesis">Some dimensions don't have a physiological anchor to reach for and say so plainly: both cost dimensions are scored against a market-based price range, not a nutrition benchmark, and calcium's scale is anchored to this catalog's practical ceiling rather than sweat-loss research, since calcium loss during exercise is minor and isn't really a target most products are optimizing for.</p>
+      <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it &mdash; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose. Whenever that's happened, the product page says so directly: "Based on N of X measures" next to the score.</p>
+      <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's scored from ingredient count on a fixed 1-to-15 scale, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is &mdash; an inference from the label, same as everything else here &mdash; not a stand-in for someone actually racing on it.</p>` },
+    { title: "Pricing", body: `
+      <p class="thesis">Prices are tracked from a specific retailer, linked directly on every product page, and reflect what that retailer listed as of the review date shown at the top of the page. Prices move; we don't re-check every listing daily, so treat the number as a recent snapshot and the link as the source of truth.</p>
+      <p class="thesis">None of the links on this site are affiliate links. We don't earn anything when you click through or buy, and that's on purpose &mdash; it removes any incentive to rank a product higher because it pays better.</p>` },
+    { title: "Photos", body: `
+      <p class="thesis">Product photos are sourced only from the official brand site or an authorized retailer &mdash; never stock photography, never a competitor's marketing image. Where a brand's own photography wasn't clean enough to use as-is, we've edited the background, never the product itself.</p>` },
+    { title: "Review dates", body: `
+      <p class="thesis">The date on each product page reflects when that product's written review &mdash; its verdict, pros, cons and data &mdash; was last actually verified or revised, not when the page was last deployed. A photo swap or a copy-editing pass elsewhere on the site doesn't move a product's review date; a change to what the review actually claims does.</p>` },
+    { title: "The catalog today", body: `
+      <p class="thesis">${gelCount} gels, ${drinkCount} drink mixes and ${electrolyteCount} electrolyte products, and growing. Don't see something you use? Search for it &mdash; if it's not here yet, that tells us it should be.</p>` }
+  ];
+
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
     <p class="eye">How this site works</p>
@@ -1546,47 +1590,20 @@ function renderMethodology(){
     <p class="thesis">Every number on this site comes from a product's own declared nutrition or supplement panel. Nothing is estimated unless it's labeled as an estimate, and nothing here is sponsored.</p>
   </div>
 
-  <section>
-    <div class="sh"><h2>Where the data comes from</h2><span class="rule"></span></div>
-    <p class="thesis">Carbohydrate, sodium, calories and every other figure is read directly off the product's own label &mdash; the same panel you'd read on the packet. We don't estimate a number because a competitor discloses it and this product doesn't.</p>
-    <p class="thesis">The one figure that sometimes needs interpretation is the glucose:fructose ratio, since not every brand states it outright. Each product's ratio is tagged with where it actually came from:</p>
-    <ul class="thesis" style="padding-left:1.2em">
-      <li><b>Stated</b> &mdash; the brand publishes the ratio directly.</li>
-      <li><b>Derived</b> &mdash; computed from ingredient percentages the brand does disclose.</li>
-      <li><b>Estimated</b> &mdash; inferred from what's on the panel when neither of the above is available. It's marked as an estimate everywhere it appears, but it scores the same as a Stated ratio &mdash; there's no confidence discount built into the number itself.</li>
-      <li><b>Not disclosed</b> &mdash; the brand doesn't say, and we don't guess.</li>
-    </ul>
-  </section>
-
-  <section>
-    <div class="sh"><h2>How scores are calculated</h2><span class="rule"></span></div>
-    <p class="thesis">Every score on this site is absolute, not relative &mdash; each dimension (absorption rate, carb density, sodium, cost per gram, gut comfort for gels, potassium/calcium/magnesium for electrolytes) is scored against a fixed scale, not against whatever else happens to be in the catalog. A 90 means the same thing today as it will after the next product is added; scores only change when a product's own declared data changes.</p>
-    <p class="thesis">Where real sports-nutrition reference points exist, the fixed scale is anchored to them: carb density tops out at 90 g, matching the upper end of the range cited for multi-transportable-carb intake; sodium scales top out at 1000 mg, the upper end of what's typically lost to sweat in an hour; potassium and magnesium follow the same logic at smaller scales. Hover any dimension label on a product page for its specific scale and reasoning.</p>
-    <p class="thesis">Some dimensions don't have a physiological anchor to reach for and say so plainly: both cost dimensions are scored against a market-based price range, not a nutrition benchmark, and calcium's scale is anchored to this catalog's practical ceiling rather than sweat-loss research, since calcium loss during exercise is minor and isn't really a target most products are optimizing for.</p>
-    <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it &mdash; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose. Whenever that's happened, the product page says so directly: "Based on N of X measures" next to the score.</p>
-    <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's scored from ingredient count on a fixed 1-to-15 scale, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is &mdash; an inference from the label, same as everything else here &mdash; not a stand-in for someone actually racing on it.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>Pricing</h2><span class="rule"></span></div>
-    <p class="thesis">Prices are tracked from a specific retailer, linked directly on every product page, and reflect what that retailer listed as of the review date shown at the top of the page. Prices move; we don't re-check every listing daily, so treat the number as a recent snapshot and the link as the source of truth.</p>
-    <p class="thesis">None of the links on this site are affiliate links. We don't earn anything when you click through or buy, and that's on purpose &mdash; it removes any incentive to rank a product higher because it pays better.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>Photos</h2><span class="rule"></span></div>
-    <p class="thesis">Product photos are sourced only from the official brand site or an authorized retailer &mdash; never stock photography, never a competitor's marketing image. Where a brand's own photography wasn't clean enough to use as-is, we've edited the background, never the product itself.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>Review dates</h2><span class="rule"></span></div>
-    <p class="thesis">The date on each product page reflects when that product's written review &mdash; its verdict, pros, cons and data &mdash; was last actually verified or revised, not when the page was last deployed. A photo swap or a copy-editing pass elsewhere on the site doesn't move a product's review date; a change to what the review actually claims does.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>The catalog today</h2><span class="rule"></span></div>
-    <p class="thesis">${gelCount} gels, ${drinkCount} drink mixes and ${electrolyteCount} electrolyte products, and growing. Don't see something you use? Search for it &mdash; if it's not here yet, that tells us it should be.</p>
-  </section>`;
+  <div class="accordion">
+    ${sections.map((s, i) => `
+    <div class="acc-item${i === 0 ? " open" : ""}">
+      <h2 class="acc-item-heading">
+        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="${i === 0}" aria-controls="acc-panel-${i}" id="acc-head-${i}">
+          <span class="acc-title">${esc(s.title)}</span>
+          <span class="acc-toggle" aria-hidden="true"></span>
+        </button>
+      </h2>
+      <div class="acc-panel" id="acc-panel-${i}" role="region" aria-labelledby="acc-head-${i}">
+        <div class="acc-panel-in">${s.body}</div>
+      </div>
+    </div>`).join("")}
+  </div>`;
   window.scrollTo(0,0);
 }
 
