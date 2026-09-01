@@ -281,7 +281,21 @@ function convert(usd){
   return rate ? usd * rate : usd;
 }
 function money(n){ return CURRENCY_SYMBOL[currentCurrency] + convert(n).toFixed(2); }
-function moneyPrecise(n, decimals){ return CURRENCY_SYMBOL[currentCurrency] + convert(n).toFixed(decimals); }
+/* Every current call site is a cost-comparison figure (per gram, per
+   1000mg sodium) that's almost always well under one unit of currency --
+   "$0.063" reads like a typo next to a real sticker price, "6.3 cents" is
+   what someone would actually say. Only kicks in below 1 unit; a value
+   that happens to cross it (e.g. an expensive electrolyte's cost/1000mg)
+   still gets normal $/£/€ formatting. GBP uses "p" (pence), not "cents". */
+function moneyPrecise(n, decimals){
+  const v = convert(n);
+  if(v < 1){
+    let cents = (v * 100).toFixed(1);
+    if(cents.endsWith(".0")) cents = cents.slice(0, -2);
+    return currentCurrency === "GBP" ? `${cents}p` : `${cents} cents`;
+  }
+  return CURRENCY_SYMBOL[currentCurrency] + v.toFixed(decimals);
+}
 
 /* Re-paints whatever page the URL says we're on, preserving scroll —
    used after a currency change (user-driven) or the FX rates arriving
@@ -1378,62 +1392,62 @@ function homeBentoHTML(){
   const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
   const electrolyteCount = PRODUCTS.filter(p => p.category === "electrolyte").length;
 
-  const cells = [`
+  const flagships = [`
     <a class="bc bc-hero bc-link" href="${sitePath(`/${hero.category}/${hero.id}/`)}" data-i="${PRODUCTS.indexOf(hero)}">
-      <img class="bc-photo" src="${sitePath(hero.photo)}" alt="" loading="eager">
       ${icon("star")}
       <span class="bc-kind">Popular pick</span>
+      <img class="bc-photo" src="${sitePath(hero.photo)}" alt="" loading="eager">
       <span class="bc-name">${esc(hero.name)}</span>
       <span class="bc-hero-brand">${esc(hero.brand)}</span>
       <p class="bc-hero-note">The most recognized name in the category, and one of the highest glucose:fructose ratios we've tested.</p>
     </a>`];
 
-  if(bestGel && bestGel !== hero) cells.push(`
+  if(bestGel && bestGel !== hero) flagships.push(`
     <a class="bc bc-bvg bc-link" href="${sitePath(`/${bestGel.category}/${bestGel.id}/`)}" data-i="${PRODUCTS.indexOf(bestGel)}">
       ${icon("tag")}
       <span class="bc-kind">Best value gel</span>
       <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
       <span class="bc-name">${esc(bestGel.name)}</span>
       <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
+      <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every gel we've reviewed, recalculated as the catalog grows.</p>
     </a>`);
-  if(bestDrink && bestDrink !== hero) cells.push(`
+  if(bestDrink && bestDrink !== hero) flagships.push(`
     <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
       ${icon("tag")}
       <span class="bc-kind">Best value drink mix</span>
       <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
       <span class="bc-name">${esc(bestDrink.name)}</span>
       <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
+      <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every drink mix we've reviewed, recalculated as the catalog grows.</p>
     </a>`);
 
-  cells.push(`
+  const categories = [`
     <a class="bc bc-gel" href="${sitePath("/find/gel/")}" data-fc-link="gel">
       ${icon("sachet")}
       <span class="bc-kind">Gels</span>
       <span class="bc-stat">${gelCount} reviewed</span>
-    </a>`);
-  cells.push(`
+    </a>`, `
     <a class="bc bc-drk" href="${sitePath("/find/drink/")}" data-fc-link="drink">
       ${icon("bottle")}
       <span class="bc-kind">Drink mixes</span>
       <span class="bc-stat">${drinkCount} reviewed</span>
-    </a>`);
-  cells.push(`
+    </a>`, `
     <a class="bc bc-ele" href="${sitePath("/find/electrolyte/")}" data-fc-link="electrolyte">
       ${icon("glass")}
       <span class="bc-kind">Electrolytes</span>
       <span class="bc-stat">${electrolyteCount} reviewed</span>
-    </a>`);
-  cells.push(`
+    </a>`, `
     <a class="bc bc-cta" href="${sitePath("/find/")}" data-page="find">
       ${icon("compass")}
       <span class="bc-kind">Not sure?</span>
       <span class="bc-stat">Take the Find Your Fuel quiz</span>
-    </a>`);
+    </a>`];
 
   return `
   <section>
     <div class="sh"><h2>From the catalog</h2><span class="rule"></span></div>
-    <div class="bento">${cells.join("")}</div>
+    <div class="bento-flagship">${flagships.join("")}</div>
+    <div class="bento">${categories.join("")}</div>
   </section>`;
 }
 
