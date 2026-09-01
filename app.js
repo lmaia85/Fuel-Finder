@@ -983,6 +983,15 @@ page.addEventListener("click", e => {
   const bcLink = e.target.closest(".bc-link");
   if(bcLink && bcLink.dataset.i !== undefined){ e.preventDefault(); select(+bcLink.dataset.i); return; }
 
+  const recentNav = e.target.closest(".recent-nav");
+  if(recentNav){
+    const track = recentNav.parentElement.querySelector(".recent-track");
+    const card = track?.querySelector(".recent-card");
+    const step = card ? card.getBoundingClientRect().width + 14 : 300;
+    track?.scrollBy({ left: recentNav.classList.contains("recent-prev") ? -step * 2 : step * 2, behavior: "smooth" });
+    return;
+  }
+
   const result = e.target.closest(".site-search-results button[data-i]");
   if(result){ select(+result.dataset.i); return; }
 
@@ -1347,7 +1356,9 @@ const ICON = {
   flask: '<path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/>',
   bottle: '<rect x="10.3" y="2.2" width="3.4" height="2.2" rx="0.6"/><path d="M10.3 4.6h3.4c0 .9 0 1.4.9 2 1.1.8 1.4 2 1.4 3.4v8.5c0 1.5-1.2 2.4-3 2.5-1.4.1-2.6.1-4 0-1.8-.1-3-1-3-2.5V10c0-1.4.3-2.6 1.4-3.4.9-.6.9-1.1.9-2z"/><path d="M7.6 14.6c1.1.6 2.2-.6 3.3 0s2.2.6 3.3 0" stroke-width="1.3"/>',
   glass: '<path d="M8 4h8l-1.2 14.6c-.1 1.3-1.3 2.4-2.8 2.4s-2.7-1.1-2.8-2.4z"/><path d="M12 8.8v4.4M9.9 11h4.2" stroke-width="1.4"/><circle cx="9.6" cy="6.6" r=".5" fill="currentColor" stroke="none"/><circle cx="14.3" cy="7.2" r=".4" fill="currentColor" stroke="none"/>',
-  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.3 8.7l-1.8 4.8-4.8 1.8 1.8-4.8z"/>'
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.3 8.7l-1.8 4.8-4.8 1.8 1.8-4.8z"/>',
+  chevronLeft: '<path d="M15 5l-7 7 7 7"/>',
+  chevronRight: '<path d="M9 5l7 7-7 7"/>'
 };
 function icon(name){
   return `<svg class="cell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
@@ -1379,15 +1390,17 @@ function homeBentoHTML(){
 
   if(bestGel && bestGel !== hero) cells.push(`
     <a class="bc bc-bvg bc-link" href="${sitePath(`/${bestGel.category}/${bestGel.id}/`)}" data-i="${PRODUCTS.indexOf(bestGel)}">
-      <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
+      ${icon("tag")}
       <span class="bc-kind">Best value gel</span>
+      <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
       <span class="bc-name">${esc(bestGel.name)}</span>
       <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
     </a>`);
   if(bestDrink && bestDrink !== hero) cells.push(`
     <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
-      <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
+      ${icon("tag")}
       <span class="bc-kind">Best value drink mix</span>
+      <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
       <span class="bc-name">${esc(bestDrink.name)}</span>
       <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
     </a>`);
@@ -1425,20 +1438,24 @@ function homeBentoHTML(){
 }
 
 function recentlyReviewedHTML(){
-  const recent = PRODUCTS.filter(p => p.reviewed).slice().sort((a, b) => b.reviewed.localeCompare(a.reviewed)).slice(0, 5);
+  const recent = PRODUCTS.filter(p => p.reviewed).slice().sort((a, b) => b.reviewed.localeCompare(a.reviewed)).slice(0, 12);
   if(!recent.length) return "";
   return `
   <section>
     <div class="sh"><h2>Recently reviewed</h2><span class="rule"></span></div>
-    <div class="recent-grid">
-      ${recent.map(p => `
-      <a class="recent-card bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
-        <img class="recent-photo" src="${sitePath(p.photo)}" alt="" loading="lazy">
-        <span class="recent-kind">${CATEGORY_LABEL[p.category]}</span>
-        <span class="recent-name">${esc(p.name)}</span>
-        <span class="recent-brand">${esc(p.brand)}</span>
-        <span class="recent-date">${formatReviewDate(p.reviewed)}</span>
-      </a>`).join("")}
+    <div class="recent-slider">
+      <button type="button" class="recent-nav recent-prev" aria-label="Scroll left">${icon("chevronLeft")}</button>
+      <div class="recent-track">
+        ${recent.map(p => `
+        <a class="recent-card bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
+          <img class="recent-photo" src="${sitePath(p.photo)}" alt="" loading="lazy">
+          <span class="recent-kind">${CATEGORY_LABEL[p.category]}</span>
+          <span class="recent-name">${esc(p.name)}</span>
+          <span class="recent-brand">${esc(p.brand)}</span>
+          <span class="recent-date">${formatReviewDate(p.reviewed)}</span>
+        </a>`).join("")}
+      </div>
+      <button type="button" class="recent-nav recent-next" aria-label="Scroll right">${icon("chevronRight")}</button>
     </div>
   </section>`;
 }
