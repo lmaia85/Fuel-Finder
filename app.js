@@ -1033,6 +1033,21 @@ page.addEventListener("click", e => {
     return;
   }
 
+  const lbTab = e.target.closest("[data-lb-cat]");
+  if(lbTab){
+    const cat = lbTab.dataset.lbCat;
+    if(cat === leaderboardCat) return;
+    leaderboardCat = cat;
+    lbTab.closest(".lb-tabs").querySelectorAll(".lb-tab").forEach(t => {
+      const on = t.dataset.lbCat === cat;
+      t.classList.toggle("active", on);
+      t.setAttribute("aria-selected", String(on));
+    });
+    document.getElementById("lbIndicator").style.transform = `translateX(${LB_CATS.indexOf(cat) * 100}%)`;
+    document.getElementById("lbList").innerHTML = leaderboardRowsHTML(cat);
+    return;
+  }
+
   const accHead = e.target.closest(".acc-head");
   if(accHead){
     const item = accHead.closest(".acc-item");
@@ -1428,6 +1443,45 @@ function icon(name){
   return `<svg class="cell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
 }
 
+/* Homepage leaderboard: top 5 by score within a category, switchable via
+   a tab strip. State lives here rather than in the URL — it's a lightweight
+   homepage toggle, not a distinct page, so it resets on navigation/reload
+   the same way calcAnswers does for the calculator. */
+const LB_CATS = ["gel", "drink", "electrolyte"];
+const LB_LABEL = {gel: "gels", drink: "drink mixes", electrolyte: "electrolytes"};
+let leaderboardCat = "gel";
+
+function topScoredInCategory(cat, n){
+  return PRODUCTS.filter(p => p.category === cat && p.overallScore !== null)
+    .slice().sort((a, b) => b.overallScore - a.overallScore).slice(0, n);
+}
+
+function leaderboardRowsHTML(cat){
+  return topScoredInCategory(cat, 5).map((p, i) => `
+    <a class="lb-row bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
+      <span class="lb-rank">${i + 1}</span>
+      <img class="lb-thumb" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
+      <span class="lb-mid">
+        <span class="lb-name">${esc(p.name)}</span>
+        <span class="lb-meta">${esc(p.brand)}</span>
+      </span>
+      <span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>
+    </a>`).join("");
+}
+
+function leaderboardHTML(){
+  return `
+  <section>
+    <div class="sh"><h2>Leaderboard</h2><span class="rule"></span></div>
+    <div class="lb-tabs" role="tablist">
+      <div class="lb-tab-indicator" id="lbIndicator" style="transform:translateX(${LB_CATS.indexOf(leaderboardCat) * 100}%)"></div>
+      ${LB_CATS.map((cat, i) => `
+      <button type="button" class="lb-tab${cat === leaderboardCat ? " active" : ""}" role="tab" aria-selected="${cat === leaderboardCat}" data-lb-cat="${cat}">${CATEGORY_PLURAL[cat][0].toUpperCase() + CATEGORY_PLURAL[cat].slice(1)}</button>`).join("")}
+    </div>
+    <div class="lb-list" id="lbList">${leaderboardRowsHTML(leaderboardCat)}</div>
+  </section>`;
+}
+
 /* Homepage discovery grid: one dominant curated "popular" pick (the
    `popular:true` flag in the catalog, an editorial call since a static
    client-only site has no real usage data to rank by), two computed
@@ -1519,7 +1573,8 @@ function homeBentoHTML(){
   <section>
     <div class="sh"><h2>Highest rated</h2><span class="rule"></span></div>
     <div class="bento-flagship">${rated.join("")}</div>
-  </section>` : ""}`;
+  </section>` : ""}
+  ${leaderboardHTML()}`;
 }
 
 function recentlyReviewedHTML(){

@@ -460,6 +460,34 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
 
 .bc-cta{background:var(--ground)}
 
+/* homepage leaderboard — top 5 by score, switchable by category via a
+   sliding-pill toggle. The indicator's overshoot and the row stagger both
+   reuse curves already established elsewhere on the site (.cell-icon's
+   hover bounce, .bc's entrance stagger) rather than inventing new motion
+   language just for this section. */
+.lb-tabs{display:flex;background:var(--panel);border:1px solid var(--rule-2);border-radius:999px;
+  padding:4px;margin:20px 0 18px;position:relative;max-width:420px}
+.lb-tab{flex:1;text-align:center;font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--dim);padding:9px 4px;border-radius:999px;cursor:pointer;
+  position:relative;z-index:1;transition:color .2s ease;user-select:none;appearance:none;background:none;border:0}
+.lb-tab.active{color:#04060B}
+.lb-tab-indicator{position:absolute;top:4px;bottom:4px;left:4px;width:calc(33.333% - 5.333px);
+  background:var(--me);border-radius:999px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:0}
+.lb-list{background:var(--panel);border:1px solid var(--rule-2);border-radius:14px;overflow:hidden;max-width:640px}
+.lb-row{display:flex;align-items:center;gap:16px;padding:12px 20px;text-decoration:none;color:var(--ink);
+  border-bottom:1px solid var(--rule);animation:bcIn .4s cubic-bezier(.16,1,.3,1) both}
+.lb-row:last-child{border-bottom:0}
+.lb-row:hover{background:var(--sunk)}
+.lb-row:nth-child(1){animation-delay:0ms} .lb-row:nth-child(2){animation-delay:40ms}
+.lb-row:nth-child(3){animation-delay:80ms} .lb-row:nth-child(4){animation-delay:120ms}
+.lb-row:nth-child(5){animation-delay:160ms}
+.lb-rank{font-family:var(--mono);font-size:13px;color:var(--faint);width:16px;flex:none}
+.lb-thumb{width:40px;height:40px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.lb-mid{flex:1;min-width:0}
+.lb-name{font-family:var(--display);font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-meta{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+@media(max-width:800px){.lb-tabs,.lb-list{max-width:none}}
+
 /* homepage "Recently reviewed" strip — a horizontally-scrolling track
    (native touch/trackpad swipe) with click-to-page arrow buttons, rather
    than a static grid, so it scales past however many cards fit on one
