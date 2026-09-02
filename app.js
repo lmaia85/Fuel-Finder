@@ -863,14 +863,12 @@ document.getElementById("menuToggle").addEventListener("click", () => {
   document.getElementById("siteNav").classList.contains("mnav-open") ? closeMobileNav() : openMobileNav();
 });
 
-/* The category label navigates straight to /gels/ etc. — the dropdown is
-   a hover/focus preview on desktop (already handled by :hover and
-   :focus-within in CSS, no JS needed for that) plus an explicit .nv-toggle
-   button for anyone who wants to browse brands without leaving the page
-   first, touch devices especially, since they have no hover to preview
-   with. Splitting these into two controls is what lets a plain click on
-   the label go straight to the category page instead of only opening
-   the panel. */
+/* The category label navigates straight to /gels/ etc. The brand
+   dropdown is a hover/focus preview on desktop only (:hover and
+   :focus-within in CSS reveal .dd, no JS needed) -- touch devices have
+   no hover to preview with, so on mobile a tap just goes straight to
+   the category page, which is a full replacement for browsing brands
+   there anyway. */
 document.querySelectorAll(".nv > a[data-cat]").forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
@@ -878,17 +876,6 @@ document.querySelectorAll(".nv > a[data-cat]").forEach(link => {
     const cat = link.dataset.cat;
     try{ history.pushState(null, "", sitePath(`/${CATEGORY_PAGE_SLUG[cat]}/`)); }catch(err){}
     renderCategoryPage(cat);
-  });
-});
-
-document.querySelectorAll(".nv-toggle").forEach(btn => {
-  btn.addEventListener("click", e => {
-    e.stopPropagation();
-    const nv = btn.parentElement;
-    const wasOpen = nv.classList.contains("open");
-    closeMenu();
-    nv.classList.toggle("open", !wasOpen);
-    btn.setAttribute("aria-expanded", String(!wasOpen));
   });
 });
 

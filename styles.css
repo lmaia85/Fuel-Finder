@@ -54,17 +54,7 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 .nav a.on{color:var(--ink)}
 
 /* two-level menu: Gels > brand > product */
-.nv{position:relative;display:flex;align-items:center;gap:2px}
-/* Separate from the label so a click on "Gels" navigates while this
-   toggles the brand dropdown -- desktop doesn't strictly need it (hover
-   and :focus-within already reveal .dd for free) but it's the only way
-   a touch device, with no hover to preview with, can see the dropdown
-   without leaving the page. */
-.nv-toggle{appearance:none;background:none;border:0;cursor:pointer;color:var(--faint);
-  padding:6px 4px;display:flex;align-items:center;flex:none}
-.nv-toggle i{font-style:normal;display:inline-block;transition:transform .15s,color .15s}
-.nv-toggle:hover i{color:var(--ink)}
-.nv-toggle[aria-expanded="true"] i{transform:rotate(90deg);color:var(--me)}
+.nv{position:relative}
 .dd{display:none;position:absolute;left:-14px;top:100%;min-width:210px;z-index:40;
   background:var(--panel);border:1px solid var(--rule-2);padding:5px 0}
 .nv:hover .dd,.nv:focus-within .dd,.nv.open .dd{display:block}
@@ -118,10 +108,6 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
   .nav > *{border-bottom:1px solid var(--rule)}
   .nav > *:last-child{border-bottom:0}
   .nav a{padding:16px 0;font-size:12px}
-  .nv{justify-content:space-between}
-  .nv > a{flex:1;padding:16px 0}
-  .nv-toggle{padding:16px 4px 16px 12px}
-  .nv-toggle i{font-size:13px}
   .dd{position:static;min-width:0;background:none;border:0;padding:0 0 6px}
   .br-toggle{padding:13px 4px;font-size:12px}
   .submenu{position:static;left:auto;top:auto;min-width:0;
