@@ -863,14 +863,32 @@ document.getElementById("menuToggle").addEventListener("click", () => {
   document.getElementById("siteNav").classList.contains("mnav-open") ? closeMobileNav() : openMobileNav();
 });
 
-document.querySelectorAll(".nv > a").forEach(link => {
+/* The category label navigates straight to /gels/ etc. — the dropdown is
+   a hover/focus preview on desktop (already handled by :hover and
+   :focus-within in CSS, no JS needed for that) plus an explicit .nv-toggle
+   button for anyone who wants to browse brands without leaving the page
+   first, touch devices especially, since they have no hover to preview
+   with. Splitting these into two controls is what lets a plain click on
+   the label go straight to the category page instead of only opening
+   the panel. */
+document.querySelectorAll(".nv > a[data-cat]").forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
-    const nv = link.parentElement;
+    closeMenu();
+    const cat = link.dataset.cat;
+    try{ history.pushState(null, "", sitePath(`/${CATEGORY_PAGE_SLUG[cat]}/`)); }catch(err){}
+    renderCategoryPage(cat);
+  });
+});
+
+document.querySelectorAll(".nv-toggle").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const nv = btn.parentElement;
     const wasOpen = nv.classList.contains("open");
     closeMenu();
     nv.classList.toggle("open", !wasOpen);
-    link.setAttribute("aria-expanded", String(!wasOpen));
+    btn.setAttribute("aria-expanded", String(!wasOpen));
   });
 });
 
@@ -1593,7 +1611,7 @@ function categoryCardsHTML(){
         <h2>${label[0].toUpperCase()+label.slice(1)}</h2>
         <p>${items.length} reviewed</p>
         ${items.length
-          ? `<a href="${sitePath(`/find/${cat}/`)}" class="home-go" data-fc-link="${cat}">Browse ${label}</a>`
+          ? `<a href="${sitePath(`/${CATEGORY_PAGE_SLUG[cat]}/`)}" class="home-go" data-page="${CATEGORY_PAGE_SLUG[cat]}">Browse ${label}</a>`
           : `<p class="home-soon">Coming soon</p>`}
       </div>`;
     }).join("")}
@@ -1736,17 +1754,17 @@ function homeBentoHTML(){
     </a>`);
 
   const categories = [`
-    <a class="bc bc-gel" href="${sitePath("/find/gel/")}" data-fc-link="gel">
+    <a class="bc bc-gel" href="${sitePath("/gels/")}" data-page="gels">
       ${icon("sachet")}
       <span class="bc-kind">Gels</span>
       <span class="bc-stat">${gelCount} reviewed</span>
     </a>`, `
-    <a class="bc bc-drk" href="${sitePath("/find/drink/")}" data-fc-link="drink">
+    <a class="bc bc-drk" href="${sitePath("/drink-mixes/")}" data-page="drink-mixes">
       ${icon("bottle")}
       <span class="bc-kind">Drink mixes</span>
       <span class="bc-stat">${drinkCount} reviewed</span>
     </a>`, `
-    <a class="bc bc-ele" href="${sitePath("/find/electrolyte/")}" data-fc-link="electrolyte">
+    <a class="bc bc-ele" href="${sitePath("/electrolytes/")}" data-page="electrolytes">
       ${icon("glass")}
       <span class="bc-kind">Electrolytes</span>
       <span class="bc-stat">${electrolyteCount} reviewed</span>
