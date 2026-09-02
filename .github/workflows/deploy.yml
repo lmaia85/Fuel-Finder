@@ -26,6 +26,7 @@ jobs:
       - run: npm run build
         env:
           SITE_URL: https://fuelfinder.fit
+      - run: npm run check-images
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

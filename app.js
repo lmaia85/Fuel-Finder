@@ -236,6 +236,15 @@ function field(cap){
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
+/* Naive +s pluralization broke on "pouch" ("pouchs"). Covers the servingWord
+   values actually in the catalog (sachet, scoop, stick, tablet, pouch) via
+   the general English ch/sh/s/x/z -> "es" rule rather than a per-word list,
+   so it also holds for whatever unit word gets added next. */
+const pluralize = (word, count = 2) => {
+  if(count === 1) return word;
+  return /(ch|sh|s|x|z)$/i.test(word) ? word + "es" : word + "s";
+};
+
 /* A small "?" that shows its definition instantly on hover/focus via CSS
    (no native title-attribute delay, no JS). tabindex makes it keyboard
    reachable; aria-label carries the text to screen readers even without
@@ -462,7 +471,7 @@ function table(cur){
      `What one costs. Not comparable across ${unit} sizes.`],
     ["Cost per gram", p=>moneyPrecise(p.perGram, 3), p=>p.perGram, "lo",
      `The only price that compares across ${unit} sizes.`],
-    [`${unit[0].toUpperCase()+unit.slice(1)}s for 90 g/hr`, p=>p.perHour.toFixed(1), p=>p.perHour, "lo",
+    [`${pluralize(unit[0].toUpperCase()+unit.slice(1))} for 90 g/hr`, p=>p.perHour.toFixed(1), p=>p.perHour, "lo",
      `How many you open an hour to hold a 90 g/hr target.`]
   ];
   rows.unshift(["Overall score", p=>p.overallScore===null?"n/d":p.overallScore, p=>p.overallScore, "hi",
@@ -909,7 +918,17 @@ document.addEventListener("click", e=>{
 });
 
 document.addEventListener("keydown", e=>{
-  if(e.key === "Escape"){ closeMenu(); closeMobileNav(); }
+  if(e.key === "Escape"){
+    const openTrigger = document.querySelector(".nv.open > a");
+    const mobileWasOpen = document.getElementById("siteNav").classList.contains("mnav-open");
+    closeMenu();
+    closeMobileNav();
+    /* Closing without moving focus back drops a keyboard user wherever the
+       flyout happened to be, often behind the collapsed menu. Send it back
+       to whichever trigger they opened. */
+    if(openTrigger) openTrigger.focus();
+    else if(mobileWasOpen) document.getElementById("menuToggle").focus();
+  }
 });
 
 document.querySelector(".nav").addEventListener("click", e=>{
@@ -1317,7 +1336,7 @@ function calcResultsHTML(){
     <tbody>${rows.map(r => `
       <tr>
         <th><button class="home-go calc-link" data-i="${PRODUCTS.indexOf(r.p)}">${esc(r.p.name)}</button></th>
-        <td>${total > 0 ? `${r.count} ${esc(r.unit)}${r.count === 1 ? "" : "s"}` : "—"}</td>
+        <td>${total > 0 ? `${r.count} ${esc(pluralize(r.unit, r.count))}` : "—"}</td>
         <td>${total > 0 ? money(r.cost) : "—"}</td>
       </tr>`).join("")}</tbody>
   </table></div>`;
@@ -1422,7 +1441,7 @@ function homeBentoHTML(){
     <a class="bc bc-hero bc-link" href="${sitePath(`/${hero.category}/${hero.id}/`)}" data-i="${PRODUCTS.indexOf(hero)}">
       ${icon("star")}
       <span class="bc-kind">Popular pick</span>
-      <img class="bc-photo" src="${sitePath(hero.photo)}" alt="" loading="eager">
+      <img class="bc-photo" src="${sitePath(hero.photo)}" alt="${esc(hero.name)} package" loading="eager">
       <span class="bc-name">${esc(hero.name)}</span>
       <span class="bc-hero-brand">${esc(hero.brand)}</span>
       <p class="bc-hero-note">The most recognized name in the category, and one of the highest glucose:fructose ratios we've tested.</p>
@@ -1432,7 +1451,7 @@ function homeBentoHTML(){
     <a class="bc bc-bvg bc-link" href="${sitePath(`/${bestGel.category}/${bestGel.id}/`)}" data-i="${PRODUCTS.indexOf(bestGel)}">
       ${icon("tag")}
       <span class="bc-kind">Best value gel</span>
-      <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="" loading="lazy">
+      <img class="bc-photo" src="${sitePath(bestGel.photo)}" alt="${esc(bestGel.name)} package" loading="eager">
       <span class="bc-name">${esc(bestGel.name)}</span>
       <span class="bc-hero-brand">${esc(bestGel.brand)}</span>
       <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
@@ -1442,7 +1461,7 @@ function homeBentoHTML(){
     <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
       ${icon("tag")}
       <span class="bc-kind">Best value drink mix</span>
-      <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="" loading="lazy">
+      <img class="bc-photo" src="${sitePath(bestDrink.photo)}" alt="${esc(bestDrink.name)} package" loading="eager">
       <span class="bc-name">${esc(bestDrink.name)}</span>
       <span class="bc-hero-brand">${esc(bestDrink.brand)}</span>
       <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
@@ -1490,7 +1509,7 @@ function recentlyReviewedHTML(){
       <div class="recent-track">
         ${recent.map(p => `
         <a class="recent-card bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
-          <img class="recent-photo" src="${sitePath(p.photo)}" alt="" loading="lazy">
+          <img class="recent-photo" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
           <span class="recent-kind">${CATEGORY_LABEL[p.category]}</span>
           <span class="recent-name">${esc(p.name)}</span>
           <span class="recent-brand">${esc(p.brand)}</span>
@@ -1510,7 +1529,7 @@ function renderHome(){
   <div class="home-hero">
     <h1 class="home-search-label">Search for your fueling product</h1>
     <div class="home-search">
-      <input id="siteSearch" placeholder="Search any gel, drink mix, or electrolyte" autocomplete="off">
+      <input id="siteSearch" placeholder="Search any gel, mix or electrolyte" autocomplete="off">
       <div class="site-search-results" id="siteSearchResults"></div>
     </div>
   </div>
