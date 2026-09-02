@@ -243,6 +243,42 @@ section{padding:36px 0;border-bottom:1px solid var(--rule)}
 .acc-panel-in .thesis:last-child{margin-bottom:26px}
 
 /* table */
+/* Category pages (/gels/, /drink-mixes/, /electrolytes/) -- a full,
+   sortable table over the whole category, product-per-row rather than
+   the comparison table's product-per-column shape (which only reads at
+   2-5 items, not 19). */
+.cat-intro{max-width:70ch}
+.cat-outro{margin:32px 0 0}
+.cat-callouts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:24px 0 0}
+.cat-callout{background:var(--panel);border:1px solid var(--rule-2);border-radius:14px;
+  padding:20px 22px;display:flex;flex-direction:column;gap:4px;text-decoration:none;
+  transition:border-color .2s ease,transform .2s ease}
+.cat-callout:hover{border-color:var(--me);transform:translateY(-2px)}
+.cat-callout-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--faint)}
+.cat-callout-name{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink)}
+.cat-callout-stat{font-family:var(--mono);font-size:19px;color:var(--me);font-weight:600}
+@media(max-width:800px){.cat-callouts{grid-template-columns:1fr}}
+
+.cat-table thead th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--faint);text-align:left;padding:12px 14px;
+  border-bottom:1px solid var(--rule-2);white-space:nowrap}
+.cat-table thead th.sortable{cursor:pointer;user-select:none}
+.cat-table thead th.sortable:hover{color:var(--ink)}
+.cat-table thead th.sortable::after{content:"";display:inline-block;margin-left:5px;
+  vertical-align:middle;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:5px solid currentColor;opacity:.3}
+.cat-table thead th.sortable:hover::after{opacity:.6}
+.cat-table thead th.sorted-desc::after{opacity:1;border-top:5px solid currentColor;border-bottom:0}
+.cat-table thead th.sorted-asc::after{opacity:1;border-top:0;border-bottom:5px solid currentColor}
+.cat-table tbody th,.cat-table tbody td{padding:11px 14px;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:12.5px;color:var(--ink);text-align:left;font-weight:400}
+.cat-table tbody tr:hover{background:var(--sunk)}
+.cat-table-name{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink);
+  font-family:var(--display);font-weight:700;font-size:13.5px;white-space:normal}
+.cat-table-brand{font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--faint);font-weight:400}
+
 .tw{overflow-x:auto;border:1px solid var(--rule-2)}
 /* table-layout:fixed + explicit col widths (see .labelcol/.gelcol below) so a
    column's width never depends on how many others are in the table — adding

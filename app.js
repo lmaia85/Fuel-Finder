@@ -36,6 +36,7 @@ function formatReviewDate(iso){
 
 const CATEGORY_LABEL = {gel:"gel", drink:"drink mix", electrolyte:"electrolyte"};
 const CATEGORY_PLURAL = {gel:"gels", drink:"drink mixes", electrolyte:"electrolytes"};
+const CATEGORY_PAGE_SLUG = {gel: "gels", drink: "drink-mixes", electrolyte: "electrolytes"};
 /* Past six columns the table gets cramped and hard to actually compare —
    cap it here rather than let it grow unbounded. */
 const MAX_COMPARE = 6;
@@ -882,7 +883,7 @@ document.getElementById("calc-link").setAttribute("href", sitePath("/calculator/
 document.getElementById("footer-about-link").setAttribute("href", sitePath("/about/"));
 document.getElementById("footer-methodology-link").setAttribute("href", sitePath("/methodology/"));
 document.getElementById("home-link").setAttribute("href", sitePath("/"));
-document.querySelectorAll(".nv > a[data-cat]").forEach(a => a.setAttribute("href", sitePath(`/find/${a.dataset.cat}/`)));
+document.querySelectorAll(".nv > a[data-cat]").forEach(a => a.setAttribute("href", sitePath(`/${CATEGORY_PAGE_SLUG[a.dataset.cat]}/`)));
 
 document.getElementById("find-link").addEventListener("click", e => {
   e.preventDefault();
@@ -1015,7 +1016,10 @@ page.addEventListener("click", e => {
   if(pageLink){
     e.preventDefault();
     const dest = { about: ["/about/", renderAbout], methodology: ["/methodology/", renderMethodology],
-                    find: ["/find/", () => renderFinder()], calculator: ["/calculator/", renderCalculator] }[pageLink.dataset.page];
+                    find: ["/find/", () => renderFinder()], calculator: ["/calculator/", renderCalculator],
+                    gels: ["/gels/", () => renderCategoryPage("gel")],
+                    "drink-mixes": ["/drink-mixes/", () => renderCategoryPage("drink")],
+                    electrolytes: ["/electrolytes/", () => renderCategoryPage("electrolyte")] }[pageLink.dataset.page];
     if(dest){
       try{ history.pushState(null, "", sitePath(dest[0])); }catch(err){}
       dest[1]();
@@ -1047,6 +1051,20 @@ page.addEventListener("click", e => {
     });
     document.getElementById("lbIndicator").style.transform = `translateX(${LB_CATS.indexOf(cat) * 100}%)`;
     document.getElementById("lbList").innerHTML = leaderboardRowsHTML(cat);
+    return;
+  }
+
+  const sortTh = e.target.closest("[data-cat-sort]");
+  if(sortTh){
+    const idx = +sortTh.dataset.catSort;
+    categorySort = categorySort.colIndex === idx
+      ? {colIndex: idx, dir: categorySort.dir === "desc" ? "asc" : "desc"}
+      : {colIndex: idx, dir: "desc"};
+    sortTh.parentElement.querySelectorAll("[data-cat-sort]").forEach(th => {
+      th.classList.remove("sorted-asc", "sorted-desc");
+    });
+    sortTh.classList.add("sorted-" + categorySort.dir);
+    document.getElementById("catTableBody").innerHTML = categoryTableRowsHTML(categoryPageCat);
     return;
   }
 
@@ -1292,6 +1310,160 @@ function itemListSchema(cat){
     }))
   };
   return JSON.stringify(obj).replace(/<\//g, "<\\/");
+}
+
+/* Category landing pages (/gels/, /drink-mixes/, /electrolytes/) — the
+   pages that can actually rank for "best energy gel" and similar, since
+   the 41 individual product pages target brand names, not the category.
+   Distinct from /find/{cat}/: that page is the interactive quiz tool,
+   this one is a static, sortable comparison over the whole category with
+   its own framing copy, meant to be landed on directly from search.
+   CATEGORY_PAGE_SLUG lives up with CATEGORY_LABEL/CATEGORY_PLURAL near
+   the top of the file since the nav-link setup code below runs at
+   module load, before this block would otherwise be defined. */
+const CATEGORY_PAGE_TITLE = {
+  gel: "Energy gels, compared on the numbers",
+  drink: "Drink mixes, compared on the numbers",
+  electrolyte: "Electrolyte products, compared on the numbers"
+};
+const CATEGORY_PAGE_DESC = {
+  gel: "19 energy gels compared on glucose:fructose ratio, cost per gram of carbohydrate, and score — sortable, no affiliate links.",
+  drink: "12 endurance drink mixes compared on ratio, sodium, cost per gram, and score — sortable, no affiliate links.",
+  electrolyte: "10 electrolyte products compared on sodium dose, cost per 1000mg sodium, and score — sortable, no affiliate links."
+};
+const CATEGORY_PAGE_INTRO = {
+  gel: `Every gel on this page claims to be the best fuel for endurance racing. The label rarely says why. Two numbers explain most of the real difference: the glucose-to-fructose ratio, which sets how much carbohydrate your gut can actually absorb in an hour, and cost per gram, the only price that's comparable once sachets range from 22&nbsp;g to 90&nbsp;g. A 1:0.8 blend supports a meaningfully higher intake rate than one built on maltodextrin alone or an older 2:1 ratio &mdash; the field's ceiling sits around 90&nbsp;g/hr, and the table below shows exactly where each product lands against it. Sodium is shown when a gel carries any, though most carry little to none on purpose; that's what a dedicated electrolyte product is for, which is also why gels aren't scored against a sodium target here. Sort any column, or run a duration through the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a> to see how many sachets an effort actually needs.`,
+  drink: `Drink mixes do a job a gel doesn't have to: carry fluid, and in most formulas, meaningful sodium alongside the carbohydrate. That's the real axis of difference below &mdash; a 90&nbsp;g sachet built for a bottle isn't comparable to a 22&nbsp;g one meant to be sipped concentrated, so cost per gram of carbohydrate is the number that travels across serving sizes, same as it is for gels. The glucose-to-fructose ratio still governs how much of that carbohydrate an hour your gut can move; the field's ceiling is around 90&nbsp;g/hr, the same anchor used throughout this site. Sodium is shown per serving and, unlike gels, does factor into a drink mix's score, since carrying electrolytes alongside fuel is closer to the point of a drink mix than a gel. Sort by any column, or run a duration through the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a> to see how many scoops or sachets an effort actually needs.`,
+  electrolyte: `Electrolyte products are built to replace sodium, not carbohydrate &mdash; most carry next to none &mdash; so the price that matters here is cost per 1000&nbsp;mg of sodium, not per gram of anything. That number varies more than the marketing suggests: some tablets carry triple the sodium of others at a similar price, and box size changes the per-dose math more than flavor does. Potassium, calcium and magnesium are shown too, when a product declares them &mdash; the gel and drink mix pages on this site set electrolyte content aside for exactly this category to cover. Sort the table by sodium dose, by cost, or by score to see the field from whichever angle actually matters for your race.`
+};
+
+function categoryTableCols(cat){
+  if(cat === "electrolyte"){
+    return [
+      ["Sodium", p => `${p.sodium} mg`, p => p.sodium, "hi"],
+      ["Potassium", p => p.potassium==null ? "not declared" : `${p.potassium} mg`, p => p.potassium ?? -1, "hi"],
+      ["Calcium", p => p.calcium==null ? "not declared" : `${p.calcium} mg`, p => p.calcium ?? -1, "hi"],
+      ["Magnesium", p => p.magnesium==null ? "not declared" : `${p.magnesium} mg`, p => p.magnesium ?? -1, "hi"],
+      ["Carbohydrate", p => `${p.carbs} g`, p => p.carbs, "lo"],
+      ["Price", p => money(p.price), p => p.price, "lo"],
+      ["Cost / 1000mg Na", p => p.costPer1000Na==null ? "n/d" : moneyPrecise(p.costPer1000Na, 2), p => p.costPer1000Na ?? Infinity, "lo"],
+      ["Score", p => p.overallScore==null ? "n/d" : p.overallScore, p => p.overallScore ?? -1, "hi"]
+    ];
+  }
+  return [
+    ["Carbohydrate", p => `${p.carbs} g`, p => p.carbs, "hi"],
+    ["Ratio", p => p.ratio, p => p.ratioScore, "hi"],
+    ["Provenance", p => p.ratioProv, null, null],
+    ["Sodium", p => p.sodium===null ? "not declared" : `${p.sodium} mg`, p => p.sodium ?? -1, "hi"],
+    ["Price", p => money(p.price), p => p.price, "lo"],
+    ["Cost / gram", p => moneyPrecise(p.perGram, 3), p => p.perGram, "lo"],
+    ["For 90 g/hr", p => `${p.perHour.toFixed(1)} ${pluralize(p.servingWord || "sachet", p.perHour)}`, p => p.perHour, "lo"],
+    ["Score", p => p.overallScore==null ? "n/d" : p.overallScore, p => p.overallScore ?? -1, "hi"]
+  ];
+}
+
+let categorySort = {colIndex: -1, dir: "desc"};
+let categoryPageCat = null;
+
+function categoryTableRowsHTML(cat){
+  const cols = categoryTableCols(cat);
+  const items = PRODUCTS.filter(p => p.category === cat);
+  const {colIndex, dir} = categorySort;
+  const sorted = colIndex === -1
+    ? items.slice().sort((a,b) => (b.overallScore ?? -1) - (a.overallScore ?? -1))
+    : items.slice().sort((a,b) => {
+        const [,,key] = cols[colIndex];
+        const av = key(a), bv = key(b);
+        return dir === "asc" ? (av > bv ? 1 : av < bv ? -1 : 0) : (av < bv ? 1 : av > bv ? -1 : 0);
+      });
+  return sorted.map(p => `
+    <tr>
+      <th><a href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}" class="bc-link cat-table-name">${esc(p.name)}<span class="cat-table-brand">${esc(p.brand)}</span></a></th>
+      ${cols.map(([,fmt]) => `<td>${fmt(p)}</td>`).join("")}
+    </tr>`).join("");
+}
+
+function categoryTableHTML(cat){
+  const cols = categoryTableCols(cat);
+  return `
+  <div class="tw"><table class="cat-table">
+    <colgroup><col class="labelcol">${cols.map(()=>"<col>").join("")}</colgroup>
+    <thead><tr>
+      <th>Product</th>
+      ${cols.map(([label,,key], i) => key
+        ? `<th class="sortable${categorySort.colIndex===i?" sorted-"+categorySort.dir:""}" data-cat-sort="${i}">${esc(label)}</th>`
+        : `<th>${esc(label)}</th>`).join("")}
+    </tr></thead>
+    <tbody id="catTableBody">${categoryTableRowsHTML(cat)}</tbody>
+  </table></div>`;
+}
+
+function categoryCalloutsHTML(cat){
+  const items = PRODUCTS.filter(p => p.category === cat);
+  if(cat === "electrolyte"){
+    const cheapest = items.filter(p => p.costPer1000Na!=null).reduce((b,p) => p.costPer1000Na < b.costPer1000Na ? p : b);
+    const highestNa = items.reduce((b,p) => p.sodium > b.sodium ? p : b);
+    return `<div class="cat-callouts">
+      <a class="cat-callout bc-link" href="${sitePath(`/electrolyte/${cheapest.id}/`)}" data-i="${PRODUCTS.indexOf(cheapest)}">
+        <span class="cat-callout-label">Cheapest per 1000mg sodium</span>
+        <span class="cat-callout-name">${esc(cheapest.name)}</span>
+        <span class="cat-callout-stat">${moneyPrecise(cheapest.costPer1000Na, 2)}</span>
+      </a>
+      <a class="cat-callout bc-link" href="${sitePath(`/electrolyte/${highestNa.id}/`)}" data-i="${PRODUCTS.indexOf(highestNa)}">
+        <span class="cat-callout-label">Highest sodium dose</span>
+        <span class="cat-callout-name">${esc(highestNa.name)}</span>
+        <span class="cat-callout-stat">${highestNa.sodium} mg</span>
+      </a>
+    </div>`;
+  }
+  const cheapest = items.reduce((b,p) => p.perGram < b.perGram ? p : b);
+  const highestRatio = items.reduce((b,p) => p.ratioScore > b.ratioScore ? p : b);
+  return `<div class="cat-callouts">
+    <a class="cat-callout bc-link" href="${sitePath(`/${cat}/${cheapest.id}/`)}" data-i="${PRODUCTS.indexOf(cheapest)}">
+      <span class="cat-callout-label">Cheapest per gram</span>
+      <span class="cat-callout-name">${esc(cheapest.name)}</span>
+      <span class="cat-callout-stat">${moneyPrecise(cheapest.perGram, 3)}</span>
+    </a>
+    <a class="cat-callout bc-link" href="${sitePath(`/${cat}/${highestRatio.id}/`)}" data-i="${PRODUCTS.indexOf(highestRatio)}">
+      <span class="cat-callout-label">Highest ratio</span>
+      <span class="cat-callout-name">${esc(highestRatio.name)}</span>
+      <span class="cat-callout-stat">${highestRatio.ratio}</span>
+    </a>
+  </div>`;
+}
+
+function setPageMeta(title, desc){
+  document.title = title;
+  [["meta[name='description']","content",desc],
+   ["meta[property='og:title']","content",title],
+   ["meta[property='og:description']","content",desc],
+   ["meta[name='twitter:title']","content",title],
+   ["meta[name='twitter:description']","content",desc]
+  ].forEach(([sel,attr,val]) => { const el = document.querySelector(sel); if(el) el.setAttribute(attr, val); });
+}
+
+function renderCategoryPage(cat){
+  categorySort = {colIndex: -1, dir: "desc"};
+  categoryPageCat = cat;
+  clearNavHighlights();
+  document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.toggle("on", a.dataset.cat === cat));
+  setPageMeta(`${CATEGORY_PAGE_TITLE[cat]} — Fuel Finder`, CATEGORY_PAGE_DESC[cat]);
+  document.getElementById("toc").style.display = "none";
+  const count = PRODUCTS.filter(p => p.category === cat).length;
+  document.getElementById("page").innerHTML = `
+  <script type="application/ld+json">${itemListSchema(cat)}<\/script>
+  <div class="home-hero">
+    <p class="eye">${count} ${esc(CATEGORY_PLURAL[cat])} reviewed</p>
+    <h1>${esc(CATEGORY_PAGE_TITLE[cat])}</h1>
+    <p class="thesis cat-intro">${CATEGORY_PAGE_INTRO[cat]}</p>
+  </div>
+  ${categoryCalloutsHTML(cat)}
+  <section id="cat-table-section">
+    <div class="sh"><h2>Full comparison</h2><span class="rule"></span></div>
+    ${categoryTableHTML(cat)}
+  </section>
+  <p class="thesis cat-outro">Not sure which of these fits? <a href="${sitePath(`/find/${cat}/`)}" data-fc-link="${cat}">Answer a few questions</a> and we'll rank the catalog for your race instead of just the numbers.</p>`;
+  window.scrollTo(0,0);
 }
 
 function renderFinder(cat){
@@ -1749,9 +1921,9 @@ function renderMethodology(){
 
   <div class="accordion">
     ${sections.map((s, i) => `
-    <div class="acc-item${i === 0 ? " open" : ""}">
+    <div class="acc-item">
       <h2 class="acc-item-heading">
-        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="${i === 0}" aria-controls="acc-panel-${i}" id="acc-head-${i}">
+        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="false" aria-controls="acc-panel-${i}" id="acc-head-${i}">
           <span class="acc-title">${esc(s.title)}</span>
           <span class="acc-toggle" aria-hidden="true"></span>
         </button>
@@ -1878,6 +2050,8 @@ function routeFromPath(){
   if(fm){ renderFinder(fm[1]); return; }
   if(h === "calculator"){ renderCalculator(); return; }
   if(h === "methodology"){ renderMethodology(); return; }
+  const catBySlug = Object.entries(CATEGORY_PAGE_SLUG).find(([,slug]) => slug === h);
+  if(catBySlug){ renderCategoryPage(catBySlug[0]); return; }
   if(h === "about"){ renderAbout(); return; }
   const m = h.match(/^([a-z]+)\/(.+)$/);
   if(m){
