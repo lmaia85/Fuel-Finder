@@ -813,14 +813,14 @@ function buildMenu(category){
     <div class="br">
       <button type="button" class="br-toggle" aria-expanded="false">${esc(brand)} <i>&rsaquo;</i></button>
       <div class="submenu">${brands[brand].map(p =>
-        `<button data-i="${PRODUCTS.indexOf(p)}">${esc(p.short)} <em>${p.category==="electrolyte"?`${p.sodium} mg`:`${p.carbs} g`}</em></button>`).join("")}</div>
+        `<a href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">${esc(p.short)} <em>${p.category==="electrolyte"?`${p.sodium} mg`:`${p.carbs} g`}</em></a>`).join("")}</div>
     </div>`).join("");
 }
 ["gel","drink","electrolyte"].forEach(buildMenu);
 
 function select(i){
   const p = PRODUCTS[i];
-  document.querySelectorAll(".dd button[data-i]").forEach(b => b.setAttribute("aria-current", +b.dataset.i === i));
+  document.querySelectorAll(".dd a[data-i]").forEach(b => b.setAttribute("aria-current", +b.dataset.i === i));
   clearNavHighlights();
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.toggle("on", a.dataset.cat === p.category));
   const ids = compareIds[p.category];
@@ -881,6 +881,8 @@ document.getElementById("find-link").setAttribute("href", sitePath("/find/"));
 document.getElementById("calc-link").setAttribute("href", sitePath("/calculator/"));
 document.getElementById("footer-about-link").setAttribute("href", sitePath("/about/"));
 document.getElementById("footer-methodology-link").setAttribute("href", sitePath("/methodology/"));
+document.getElementById("home-link").setAttribute("href", sitePath("/"));
+document.querySelectorAll(".nv > a[data-cat]").forEach(a => a.setAttribute("href", sitePath(`/find/${a.dataset.cat}/`)));
 
 document.getElementById("find-link").addEventListener("click", e => {
   e.preventDefault();
@@ -949,7 +951,7 @@ document.querySelector(".nav").addEventListener("click", e=>{
     tog.setAttribute("aria-expanded", String(!wasOpen));
     return;
   }
-  const b = e.target.closest(".dd button"); if(!b) return;
+  const b = e.target.closest(".dd a[data-i]"); if(!b) return;
   e.preventDefault();
   select(+b.dataset.i);
   closeMenu();
@@ -1241,13 +1243,26 @@ function finderStatsHTML(cat, p){
     <span>Cost/1000mg Na <b>${p.costPer1000Na==null?"n/d":moneyPrecise(p.costPer1000Na, 2)}</b></span>`;
 }
 
+/* Always renders the full category -- previously this returned nothing
+   but a prompt until a quiz question was answered, so a crawler (and a
+   browser without JS) saw zero product links here. Answering questions
+   now re-ranks the top 3 by match rather than swapping an empty state
+   for a filtered one, and everything that isn't a top-3 match stays
+   visible below instead of disappearing -- filtering that hides 80%+ of
+   the catalog on one answer, with no way to see what got excluded or
+   why, is worse than just ranking. */
 function finderResultsHTML(){
-  if(!finderHasAnswer()){
-    return `<p class="buy-empty">Answer a question above to see your matches.</p>`;
-  }
-  const matches = findMatches(finderAnswers);
   const cat = finderAnswers.category;
-  return `<div class="fr-grid">${matches.map((m,i) => { const p = m.p; return `
+  const hasAnswer = finderHasAnswer();
+  const top3 = hasAnswer
+    ? findMatches(finderAnswers)
+    : topScoredInCategory(cat, 3).map(p => ({p}));
+  const shown = new Set(top3.map(m => m.p.id));
+  const rest = PRODUCTS.filter(p => p.category === cat && !shown.has(p.id))
+    .slice().sort((a,b) => (b.overallScore ?? -1) - (a.overallScore ?? -1));
+
+  return `
+  <div class="fr-grid">${top3.map((m,i) => { const p = m.p; return `
     <div class="fr-card">
       <div class="fr-rank">${i+1}</div>
       <div class="fr-body">
@@ -1256,7 +1271,10 @@ function finderResultsHTML(){
         <div class="fr-stats">${finderStatsHTML(cat, p)}</div>
       </div>
       <button class="home-go fr-go" data-i="${PRODUCTS.indexOf(p)}">View review &rarr;</button>
-    </div>`; }).join("")}</div>`;
+    </div>`; }).join("")}</div>
+  ${rest.length ? `
+  <p class="sub fr-rest-head">${hasAnswer ? "The rest of the catalog, ranked by score below your top 3 matches." : "The rest of the catalog, ranked by score."}</p>
+  <div class="lb-list">${productRowsHTML(rest)}</div>` : ""}`;
 }
 
 /* The full category, not whatever the quiz currently has filtered down to
@@ -1456,8 +1474,8 @@ function topScoredInCategory(cat, n){
     .slice().sort((a, b) => b.overallScore - a.overallScore).slice(0, n);
 }
 
-function leaderboardRowsHTML(cat){
-  return topScoredInCategory(cat, 5).map((p, i) => `
+function productRowsHTML(products){
+  return products.map((p, i) => `
     <a class="lb-row bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
       <span class="lb-rank">${i + 1}</span>
       <img class="lb-thumb" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
@@ -1465,8 +1483,12 @@ function leaderboardRowsHTML(cat){
         <span class="lb-name">${esc(p.name)}</span>
         <span class="lb-meta">${esc(p.brand)}</span>
       </span>
-      <span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>
+      ${p.overallScore===null?"":`<span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>`}
     </a>`).join("");
+}
+
+function leaderboardRowsHTML(cat){
+  return productRowsHTML(topScoredInCategory(cat, 5));
 }
 
 function leaderboardHTML(){
