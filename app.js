@@ -1401,6 +1401,12 @@ function bestValueInCategory(cat){
   return items.reduce((best, p) => p.perGram < best.perGram ? p : best);
 }
 
+function highestRatedInCategory(cat){
+  const items = PRODUCTS.filter(p => p.category === cat && p.overallScore !== null);
+  if(!items.length) return null;
+  return items.reduce((best, p) => p.overallScore > best.overallScore ? p : best);
+}
+
 /* Small hand-drawn inline icons, not an icon-font or CDN library — this
    site's only network calls are the ones documented at the top of
    index.html (fonts, GoatCounter, Frankfurter, product photos), and an
@@ -1435,6 +1441,20 @@ function homeBentoHTML(){
   const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
   const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
   const electrolyteCount = PRODUCTS.filter(p => p.category === "electrolyte").length;
+
+  const topGel = highestRatedInCategory("gel");
+  const topDrink = highestRatedInCategory("drink");
+  const topElectrolyte = highestRatedInCategory("electrolyte");
+  const RATED_KIND = {gel: "gel", drink: "drink mix", electrolyte: "electrolyte"};
+  const rated = [topGel, topDrink, topElectrolyte].filter(Boolean).map(p => `
+    <a class="bc bc-rated bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
+      ${icon("flask")}
+      <span class="bc-kind">Highest rated ${RATED_KIND[p.category]}</span>
+      <img class="bc-photo" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
+      <span class="bc-name">${esc(p.name)} <span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span></span>
+      <span class="bc-hero-brand">${esc(p.brand)}</span>
+      <p class="bc-hero-note">The highest overall score of any ${RATED_KIND[p.category]} we've reviewed, averaged from what it declares against a fixed scale &mdash; not against the rest of the catalog.</p>
+    </a>`);
 
   const flagships = [`
     <a class="bc bc-hero bc-link" href="${sitePath(`/${hero.category}/${hero.id}/`)}" data-i="${PRODUCTS.indexOf(hero)}">
@@ -1494,7 +1514,12 @@ function homeBentoHTML(){
     <div class="sh"><h2>From the catalog</h2><span class="rule"></span></div>
     <div class="bento-flagship">${flagships.join("")}</div>
     <div class="bento">${categories.join("")}</div>
-  </section>`;
+  </section>
+  ${rated.length ? `
+  <section>
+    <div class="sh"><h2>Highest rated</h2><span class="rule"></span></div>
+    <div class="bento-flagship">${rated.join("")}</div>
+  </section>` : ""}`;
 }
 
 function recentlyReviewedHTML(){
@@ -1508,6 +1533,7 @@ function recentlyReviewedHTML(){
       <div class="recent-track">
         ${recent.map(p => `
         <a class="recent-card bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
+          ${p.overallScore===null?"":`<span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>`}
           <img class="recent-photo" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
           <span class="recent-kind">${CATEGORY_LABEL[p.category]}</span>
           <span class="recent-name">${esc(p.name)}</span>
