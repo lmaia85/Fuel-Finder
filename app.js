@@ -131,18 +131,18 @@ const SCORE_DIMS = {
     ["rate", "Absorption rate", p=>p.ratioScore, 0, 100, "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio (1:0.8 tops out this scale); an Estimated ratio counts the same as a Stated one here."],
     ["dens", "Carb density", p=>p.carbs, 0, 90, "How much fuel one sachet carries. 90 g is the ceiling here, matching the top of the range cited for multi-transportable-carb intake."],
     ["sod",  "Sodium", p=>p.sodium, 0, 1000, "Sodium carried by the gel itself, on a scale topping out at 1000 mg — the upper end of what's typically lost to sweat in an hour."],
-    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from $0.15/g (0) to $0.02/g (100)."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from {{money:0.15}}/g (0) to {{money:0.02}}/g (100)."],
     ["gut",  "Gut comfort", p=>p.gut, 0, 100, "A proxy, not a taste or tolerance test: shorter ingredient lists score higher, from 15 ingredients (0) to 1 (100). Nobody has actually run these through anyone's gut for this score."]
   ],
   drink: [
     ["rate", "Absorption rate", p=>p.ratioScore, 0, 100, "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio (1:0.8 tops out this scale); an Estimated ratio counts the same as a Stated one here."],
     ["dens", "Carb density", p=>p.carbs, 0, 90, "How much fuel one scoop or sachet carries. 90 g is the ceiling here, matching the top of the range cited for multi-transportable-carb intake."],
     ["sod",  "Sodium", p=>p.sodium, 0, 1000, "Sodium carried by the mix itself, on a scale topping out at 1000 mg — the upper end of what's typically lost to sweat in an hour."],
-    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from $0.15/g (0) to $0.02/g (100)."]
+    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from {{money:0.15}}/g (0) to {{money:0.02}}/g (100)."]
   ],
   electrolyte: [
     ["sod",  "Sodium dose", p=>p.sodium, 0, 1000, "Sodium per serving, on a scale topping out at 1000 mg — a single dose covering the top of what's typically lost to sweat in an hour."],
-    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, 3.00, 1.00, "What it costs to get 1000 mg of sodium from this product. Not physiological -- a market-based scale from $3.00 (0) to $1.00 (100)."],
+    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, 3.00, 1.00, "What it costs to get 1000 mg of sodium from this product. Not physiological -- a market-based scale from {{money:3.00}} (0) to {{money:1.00}} (100)."],
     ["pot",  "Potassium", p=>p.potassium, 0, 200, "Potassium per serving, on a scale topping out at 200 mg — roughly the upper end of typical hourly sweat loss."],
     ["cal",  "Calcium", p=>p.calcium, 0, 100, "Calcium per serving. Weaker grounding than sodium/potassium -- sweat calcium loss is minor and not really a primary target during exercise; the 100 mg ceiling is this catalog's practical high end, not a physiological one."],
     ["mag",  "Magnesium", p=>p.magnesium, 0, 60, "Magnesium per serving, on a scale topping out at 60 mg, roughly matching cited hourly sweat-loss ranges."]
@@ -297,6 +297,13 @@ function moneyPrecise(n, decimals){
   return CURRENCY_SYMBOL[currentCurrency] + v.toFixed(decimals);
 }
 
+/* Product copy (thesis/pros/cons/yes/no) embeds prices as {{money:N}}
+   tokens rather than hardcoded "$N" so they convert with the currency
+   switcher like every number in the tables already does. */
+function renderMoney(str){
+  return str.replace(/\{\{money:(\d+(?:\.\d+)?)\}\}/g, (_, n) => moneyPrecise(Number(n), 2));
+}
+
 /* Re-paints whatever page the URL says we're on, preserving scroll —
    used after a currency change (user-driven) or the FX rates arriving
    late (network-driven), neither of which should jump the page to top
@@ -349,7 +356,7 @@ const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from d
    so nothing else clears a previous product's tags on the way out. */
 function setShareMeta(p){
   const title = p ? p.name + " — Fuel Finder" : "Fuel Finder — Endurance nutrition reviews";
-  const desc = p ? stripHtml(p.thesis) : DEFAULT_DESCRIPTION;
+  const desc = p ? stripHtml(renderMoney(p.thesis)) : DEFAULT_DESCRIPTION;
   [["meta[name='description']","content",desc],
    ["meta[property='og:title']","content",title],
    ["meta[property='og:description']","content",desc],
@@ -485,7 +492,7 @@ function table(cur){
     let b=null,w=null;
     if(key){ const v=set.map(key).filter(x=>x!==null&&x!==undefined);
       if(v.length>1){ b = dir==="hi"?Math.max(...v):Math.min(...v); w = dir==="hi"?Math.min(...v):Math.max(...v);} }
-    return `<tr><th><span class="rowlab">${l}</span><span class="rowdef">${esc(def)}</span></th>` + set.map(p=>{
+    return `<tr><th><span class="rowlab">${l}</span><span class="rowdef">${esc(renderMoney(def))}</span></th>` + set.map(p=>{
       const v = key?key(p):null; let c = p.id===cur.id?"this":"";
       if(v!==null&&v!==undefined&&b!==null){ if(v===b)c+=" best"; else if(v===w)c+=" worst"; }
       return `<td${c?` class="${c.trim()}"`:""}>${fmt(p)}</td>`;
@@ -548,7 +555,7 @@ function reviewSchema(p){
         worstRating: 0
       }
     }),
-    reviewBody: stripHtml(p.thesis)
+    reviewBody: stripHtml(renderMoney(p.thesis))
   };
   /* Escape "</" so a stray closing script tag inside any field can't break
      out of the element this gets embedded in via innerHTML below. */
@@ -597,7 +604,7 @@ function render(p){
       <p class="eye">During-effort fuel &middot; ${CATEGORY_LABEL[p.category]} &middot; reviewed ${formatReviewDate(p.reviewed)}</p>
       <h1>${esc(p.name)}${p.overallScore===null?"":` <span class="score-badge tier-${scoreTier(p.overallScore)}" title="Overall score among ${CATEGORY_PLURAL[p.category]}, averaged from what this product declares">${p.overallScore}</span>`}</h1>
       <p class="meta">${esc(p.brand)} &nbsp;/&nbsp; ${esc(p.serving)} &nbsp;/&nbsp; ${p.category==="electrolyte"?`${p.sodium} mg sodium`:`${p.carbs} g carbohydrate`} &nbsp;/&nbsp; ${money(p.price)}</p>
-      <p class="thesis">${p.thesis}</p>
+      <p class="thesis">${renderMoney(p.thesis)}</p>
     </div>
     <div class="shot-stage">
     ${p.photo
@@ -624,7 +631,7 @@ function render(p){
   ${p.overallScore===null ? "" : `
   <section id="score-breakdown">
     <div class="sh"><h2>Score breakdown</h2><span class="rule"></span></div>
-    <p class="sub">The overall score is the average of what's below, each measured against every other ${CATEGORY_LABEL[p.category]} we've reviewed.</p>
+    <p class="sub">Each dimension below is scored 0 to 100 against a fixed scale, not against the rest of the catalog, so adding a product never moves this number. The overall score is the average of the dimensions this product declares data for. <a href="${sitePath("/methodology/")}" data-page="methodology">How the scales are set &rarr;</a></p>
     <div class="sb-layout">
     <div class="sb-layout-left">
       <div class="sb">
@@ -634,7 +641,7 @@ function render(p){
           ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures ${infoTip("A dimension a product doesn't declare is left out of its average rather than counted against it -- so this score reflects fewer measures than a product with a full panel.")}</div>` : ""}
         </div>
         <div class="sb-rows">${p.scoreBreakdown.map(d => `
-          <div class="sb-row"><span class="sb-row-label">${esc(d.label)} ${infoTip(d.what)}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
+          <div class="sb-row"><span class="sb-row-label">${esc(d.label)} ${infoTip(renderMoney(d.what))}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
         </div>
       </div>
     </div>
@@ -671,14 +678,14 @@ function render(p){
   <section id="verdict">
     <div class="sh"><h2>Verdict</h2><span class="rule"></span><span class="n">what it does &middot; what it costs</span></div>
     <div class="pc">
-      <div class="pcx up"><h3>What it does well</h3><ul>${p.pros.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
-      <div class="pcx dn"><h3>What it costs you</h3><ul>${p.cons.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="pcx up"><h3>What it does well</h3><ul>${p.pros.map(x=>`<li>${esc(renderMoney(x))}</li>`).join("")}</ul></div>
+      <div class="pcx dn"><h3>What it costs you</h3><ul>${p.cons.map(x=>`<li>${esc(renderMoney(x))}</li>`).join("")}</ul></div>
     </div>
   </section>
 
   <section id="buy">
     <div class="sh"><h2>Where to buy</h2><span class="rule"></span></div>
-    <p class="sub">Prices and links as last checked.</p>
+    <p class="sub">Prices and links as last checked. The price next to the name above is per unit at the cheapest box size we track &mdash; a single-unit price below may run higher.</p>
     ${p.buy && p.buy.length ? `<div class="buy">${p.buy.map(b => `
       <a class="buy-row" href="${esc(b.url)}" target="_blank" rel="noopener">
         <span class="buy-retailer">${esc(b.retailer)}</span>
@@ -691,8 +698,8 @@ function render(p){
     <div class="sh"><h2>Who this is for</h2><span class="rule"></span><span class="n">the numbers, applied</span></div>
     <p class="sub">The field tells you what it is. This is who should act on it.</p>
     <div class="pc">
-      <div class="pcx wy"><h3>Worth the money if</h3><ul>${p.yes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
-      <div class="pcx wn"><h3>Look elsewhere if</h3><ul>${p.no.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="pcx wy"><h3>Worth the money if</h3><ul>${p.yes.map(x=>`<li>${esc(renderMoney(x))}</li>`).join("")}</ul></div>
+      <div class="pcx wn"><h3>Look elsewhere if</h3><ul>${p.no.map(x=>`<li>${esc(renderMoney(x))}</li>`).join("")}</ul></div>
     </div>
   </section>
 
@@ -1267,7 +1274,7 @@ function renderFinder(cat){
 const CALC_TOLERANCE = [
   ["new", "New to this", 45],
   ["some", "Some experience", 75],
-  ["experienced", "Very experienced", 105]
+  ["experienced", "Very experienced", 90]
 ];
 const CALC_HOURS = [...Array(16).keys()];       // 0–15 hr
 const CALC_MINS = [0, 15, 30, 45];
@@ -1290,11 +1297,14 @@ function calcResultsHTML(){
     return {p, unit, count, cost: count * p.price};
   }).sort((a,b) => a.cost - b.cost);
 
+  const durLabel = `${calcAnswers.hours} hr${calcAnswers.minutes ? ` ${calcAnswers.minutes} min` : ""}`;
   return `
   <div class="pcell calc-total">
     <div class="k">Carbohydrate needed for this effort</div>
     <div class="v num">${total}<small>g</small></div>
+    <div class="calc-rate">${calcTargetRate()} g/hr &times; ${durLabel}</div>
   </div>
+  <p class="calc-note">This is a reference range from the sports-nutrition literature, not a personal prescription &mdash; body mass, gut training and heat all shift what an individual can actually absorb. <a href="${sitePath("/methodology/")}" data-page="methodology">How these rates are set &rarr;</a></p>
   <div class="fq-opts calc-fueltype">
     <button type="button" class="fq-opt${calcAnswers.category==="gel"?" on":""}" data-cf="category" data-cv="gel">Gels</button>
     <button type="button" class="fq-opt${calcAnswers.category==="drink"?" on":""}" data-cf="category" data-cv="drink">Isotonic drinks</button>
@@ -1592,6 +1602,9 @@ function renderMethodology(){
       <p class="thesis">Some dimensions don't have a physiological anchor to reach for and say so plainly: both cost dimensions are scored against a market-based price range, not a nutrition benchmark, and calcium's scale is anchored to this catalog's practical ceiling rather than sweat-loss research, since calcium loss during exercise is minor and isn't really a target most products are optimizing for.</p>
       <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it &mdash; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose. Whenever that's happened, the product page says so directly: "Based on N of X measures" next to the score.</p>
       <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's scored from ingredient count on a fixed 1-to-15 scale, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is &mdash; an inference from the label, same as everything else here &mdash; not a stand-in for someone actually racing on it.</p>` },
+    { title: "The fueling calculator", body: `
+      <p class="thesis">The calculator's three experience tiers map to 45, 75 and 90 g/hr of carbohydrate &mdash; the same 90 g/hr ceiling the carb-density score is anchored to above, so nothing here recommends a rate the scoring scale treats as out of range.</p>
+      <p class="thesis">These are reference points from the sports-nutrition literature on gut-trained athletes, not a personal prescription: body mass, gut training, heat and individual tolerance all shift what any one person can actually absorb, and the calculator doesn't ask about any of them. Treat the total it gives you as a starting point to test in training, not a number to hit on race day the first time you try it.</p>` },
     { title: "Pricing", body: `
       <p class="thesis">Prices are tracked from a specific retailer, linked directly on every product page, and reflect what that retailer listed as of the review date shown at the top of the page. Prices move; we don't re-check every listing daily, so treat the number as a recent snapshot and the link as the source of truth.</p>
       <p class="thesis">None of the links on this site are affiliate links. We don't earn anything when you click through or buy, and that's on purpose &mdash; it removes any incentive to rank a product higher because it pays better.</p>` },
