@@ -465,6 +465,8 @@ function table(cur){
     [`${unit[0].toUpperCase()+unit.slice(1)}s for 90 g/hr`, p=>p.perHour.toFixed(1), p=>p.perHour, "lo",
      `How many you open an hour to hold a 90 g/hr target.`]
   ];
+  rows.unshift(["Overall score", p=>p.overallScore===null?"n/d":p.overallScore, p=>p.overallScore, "hi",
+   "The same average shown at the top of each product's page: a plain average of the dimensions it declares data for, each scored against a fixed scale."]);
 
   /* At the cap there's nothing to add, so the column simply isn't there —
      no button, no message, no dashed slot implying more room exists. */
