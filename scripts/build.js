@@ -7,14 +7,14 @@ const { startServer } = require("./dev-server");
 const ROOT = path.join(__dirname, "..");
 const OUT = path.join(ROOT, "_site");
 
-const STATIC_FILES = ["index.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png", "CNAME"];
-const STATIC_DIRS = ["Product Photos"];
+const STATIC_FILES = ["index.html", "404.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png", "CNAME"];
+const STATIC_DIRS = ["img"];
 
-/* Already-relative references (styles.css, Product Photos/x.png): prefix
+/* Already-relative references (styles.css, img/products/x.webp): prefix
    them with enough "../" to climb back to the site root. */
 const REL_ASSET_RE = /(href|src)="(?!https?:\/\/|\/\/|\/|#|mailto:|data:)([^"]+)"/g;
 
-/* Site-root-absolute references (/Product Photos/x.png, /find/). The app
+/* Site-root-absolute references (/img/products/x.webp, /find/). The app
    itself thinks in site-root terms at runtime — it resolves those against
    the base path it derives from where app.js loaded — but a *generated*
    page must not, because it may be served from a project subpath. Strip the

@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "node scripts/dev-server.js",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "check-images": "node scripts/check-images.js"
   },
   "devDependencies": {
     "puppeteer": "^25.9.0",
