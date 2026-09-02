@@ -8,6 +8,14 @@
   --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box}
+/* Skips layout/paint for off-screen sections until they're scrolled near —
+   the homepage has grown to five stacked sections (search, flagship picks,
+   highest rated, leaderboard, recently reviewed), and without this the
+   browser keeps all of it "live" during scroll even though most is never
+   on screen at once. contain-intrinsic-size reserves roughly the right
+   amount of space so the page doesn't jump when a section is (un)rendered.
+   No-op in browsers that don't support it (Safari < 18). */
+.defer-render{content-visibility:auto;contain-intrinsic-size:auto 460px}
 /* Global keyboard-focus indicator. Several inputs/selects already set
    outline:none and swap in a border-color change instead — this doesn't
    fight that, it just makes sure every OTHER focusable element (nav
@@ -473,7 +481,7 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
 .lb-tab.active{color:#04060B}
 .lb-tab-indicator{position:absolute;top:4px;bottom:4px;left:4px;width:calc(33.333% - 5.333px);
   background:var(--me);border-radius:999px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:0}
-.lb-list{background:var(--panel);border:1px solid var(--rule-2);border-radius:14px;overflow:hidden;max-width:640px}
+.lb-list{background:var(--panel);border:1px solid var(--rule-2);border-radius:14px;overflow:hidden}
 .lb-row{display:flex;align-items:center;gap:16px;padding:12px 20px;text-decoration:none;color:var(--ink);
   border-bottom:1px solid var(--rule);animation:bcIn .4s cubic-bezier(.16,1,.3,1) both}
 .lb-row:last-child{border-bottom:0}
@@ -482,11 +490,11 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me);box-shadow:0 16px 3
 .lb-row:nth-child(3){animation-delay:80ms} .lb-row:nth-child(4){animation-delay:120ms}
 .lb-row:nth-child(5){animation-delay:160ms}
 .lb-rank{font-family:var(--mono);font-size:13px;color:var(--faint);width:16px;flex:none}
-.lb-thumb{width:40px;height:40px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.lb-thumb{width:40px;height:40px;object-fit:contain;flex:none}
 .lb-mid{flex:1;min-width:0}
 .lb-name{font-family:var(--display);font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lb-meta{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:2px}
-@media(max-width:800px){.lb-tabs,.lb-list{max-width:none}}
+@media(max-width:800px){.lb-tabs{max-width:none}}
 
 /* homepage "Recently reviewed" strip — a horizontally-scrolling track
    (native touch/trackpad swipe) with click-to-page arrow buttons, rather
