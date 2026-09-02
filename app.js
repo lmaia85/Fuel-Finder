@@ -1471,7 +1471,7 @@ function leaderboardRowsHTML(cat){
 
 function leaderboardHTML(){
   return `
-  <section>
+  <section class="defer-render">
     <div class="sh"><h2>Leaderboard</h2><span class="rule"></span></div>
     <div class="lb-tabs" role="tablist">
       <div class="lb-tab-indicator" id="lbIndicator" style="transform:translateX(${LB_CATS.indexOf(leaderboardCat) * 100}%)"></div>
@@ -1570,7 +1570,7 @@ function homeBentoHTML(){
     <div class="bento">${categories.join("")}</div>
   </section>
   ${rated.length ? `
-  <section>
+  <section class="defer-render">
     <div class="sh"><h2>Highest rated</h2><span class="rule"></span></div>
     <div class="bento-flagship">${rated.join("")}</div>
   </section>` : ""}
@@ -1581,7 +1581,7 @@ function recentlyReviewedHTML(){
   const recent = PRODUCTS.filter(p => p.reviewed).slice().sort((a, b) => b.reviewed.localeCompare(a.reviewed)).slice(0, 12);
   if(!recent.length) return "";
   return `
-  <section>
+  <section class="defer-render">
     <div class="sh"><h2>Recently reviewed</h2><span class="rule"></span></div>
     <div class="recent-slider">
       <button type="button" class="recent-nav recent-prev" aria-label="Scroll left">${icon("chevronLeft")}</button>
