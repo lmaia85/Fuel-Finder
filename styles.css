@@ -75,14 +75,14 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 .submenu{display:none;position:absolute;left:100%;top:-6px;min-width:200px;
   background:var(--panel);border:1px solid var(--rule-2);padding:5px 0}
 .br:hover .submenu,.br:focus-within .submenu,.br.open .submenu{display:block}
-.submenu button{appearance:none;background:none;border:0;cursor:pointer;width:100%;text-align:left;
-  padding:8px 14px;color:var(--dim);font-family:var(--mono);font-size:10.5px;
+.submenu a{appearance:none;background:none;border:0;cursor:pointer;width:100%;text-align:left;
+  text-decoration:none;padding:8px 14px;color:var(--dim);font-family:var(--mono);font-size:10.5px;
   letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
   display:flex;justify-content:space-between;gap:14px;align-items:baseline}
-.submenu button em{font-style:normal;color:var(--faint);font-size:10px;letter-spacing:.04em}
-.submenu button:hover{background:var(--ground);color:var(--ink)}
-.submenu button:hover em{color:var(--me)}
-.submenu button[aria-current="true"]{color:var(--me)}
+.submenu a em{font-style:normal;color:var(--faint);font-size:10px;letter-spacing:.04em}
+.submenu a:hover{background:var(--ground);color:var(--ink)}
+.submenu a:hover em{color:var(--me)}
+.submenu a[aria-current="true"]{color:var(--me)}
 
 /* mobile nav: a hamburger-toggled drawer that reuses the exact same
    Gels > brand > product open/aria-expanded state the desktop hover menu
@@ -116,8 +116,8 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
   .br-toggle{padding:13px 4px;font-size:12px}
   .submenu{position:static;left:auto;top:auto;min-width:0;
     background:none;border:0;padding:0 0 4px 14px}
-  .submenu button{padding:11px 4px;font-size:12.5px}
-  .submenu button em{font-size:11px}
+  .submenu a{padding:11px 4px;font-size:12.5px}
+  .submenu a em{font-size:11px}
 }
 
 /* breadcrumb */
