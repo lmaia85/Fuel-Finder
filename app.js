@@ -1711,7 +1711,6 @@ function homeBentoHTML(){
       <img class="bc-photo" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
       <span class="bc-name">${esc(p.name)}</span>
       <span class="bc-hero-brand">${esc(p.brand)}</span>
-      <p class="bc-hero-note">The highest overall score of any ${RATED_KIND[p.category]} we've reviewed, averaged from what it declares against a fixed scale -- not against the rest of the catalog.</p>
     </a>`);
 
   const flagships = [`
