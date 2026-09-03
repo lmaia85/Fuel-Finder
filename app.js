@@ -1804,13 +1804,11 @@ function renderHome(){
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
     <h1>Every gel says it's the best one.</h1>
-    <p class="thesis">We read the label instead: cost per gram of carbohydrate, glucose to fructose ratio, and sodium per serving, computed the same way for every product in the catalog. No affiliate links, no sponsorships -- nothing here is paid to rank higher.</p>
     <div class="home-search">
       <label for="siteSearch" class="home-search-label">Search the catalog</label>
       <input id="siteSearch" placeholder="e.g. Maurten, SiS Beta Fuel" autocomplete="off">
       <div class="site-search-results" id="siteSearchResults"></div>
     </div>
-    <p class="thesis home-proof"><b>6.3 to 36.2 cents</b> per gram of carbohydrate across the gels we've reviewed. Same nutrient, nearly six times the price.</p>
   </div>
   ${homeBentoHTML()}
   ${recentlyReviewedHTML()}`;
