@@ -527,9 +527,12 @@ function drawResults(q){
   const box = document.getElementById("fres"); if(!box) return;
   const pool = PRODUCTS.filter(p => p.category === CURRENT.category);
   const have = new Set(compareSet(CURRENT).map(p => p.id));
-  const s = q.trim().toLowerCase();
-  const hits = pool.filter(p => !have.has(p.id) &&
-    (p.name + " " + p.brand + " " + p.code).toLowerCase().includes(s));
+  const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = pool.filter(p => {
+    if(have.has(p.id)) return false;
+    const haystack = (p.name + " " + p.brand + " " + p.code).toLowerCase();
+    return tokens.every(t => haystack.includes(t));
+  });
   const label = CATEGORY_LABEL[CURRENT.category];
   box.innerHTML = hits.length
     ? hits.map(p => `<button data-add="${p.id}">${esc(p.name)}<span>${esc(p.brand)} &middot; ${p.category==="electrolyte"?`${p.sodium} mg Na`:`${p.carbs} g`} &middot; ${p.category==="electrolyte"?(p.costPer1000Na==null?"n/d":moneyPrecise(p.costPer1000Na, 2)+"/1000mg"):moneyPrecise(p.perGram, 3)+"/g"}</span></button>`).join("")
@@ -1125,6 +1128,12 @@ page.addEventListener("click", e => {
 page.addEventListener("input", e => {
   if(e.target.id === "fq") drawResults(e.target.value);
   if(e.target.id === "siteSearch") drawSiteSearch(e.target.value);
+  if(e.target.id === "searchPageInput"){
+    const q = e.target.value;
+    const dest = sitePath("/search/") + (q.trim() ? "?q=" + encodeURIComponent(q) : "");
+    try{ history.replaceState(null, "", dest); }catch(err){}
+    renderSearchResultsBody(q);
+  }
   if(e.target.id === "calcHoursSel" || e.target.id === "calcMinsSel"){
     calcAnswers.hours = Number(document.getElementById("calcHoursSel").value);
     calcAnswers.minutes = Number(document.getElementById("calcMinsSel").value);
@@ -1133,13 +1142,12 @@ page.addEventListener("input", e => {
 });
 page.addEventListener("keydown", e => {
   if(e.target.id === "adminPass" && e.key === "Enter"){ checkAdminPassword(); return; }
-  if(e.target.id !== "siteSearch" || e.key !== "Enter") return;
+  if((e.target.id !== "siteSearch" && e.target.id !== "searchPageInput") || e.key !== "Enter") return;
   const q = e.target.value.trim();
   if(!q) return;
-  const s = q.toLowerCase();
-  const hit = PRODUCTS.find(p => (p.name + " " + p.brand + " " + p.code).toLowerCase().includes(s));
-  if(hit) select(PRODUCTS.indexOf(hit));
-  else renderWaiting(q);
+  const dest = sitePath("/search/") + "?q=" + encodeURIComponent(q);
+  try{ history.pushState(null, "", dest); }catch(err){}
+  renderSearchResults();
 });
 
 /* Gel/drink/electrolyte finder: a short per-category quiz that scores
@@ -1967,17 +1975,80 @@ function renderWaiting(query){
   window.scrollTo(0,0);
 }
 
+/* Token match, not whole-string: "skratch labs" only found a product if
+   those two words appeared adjacent and in that exact order in the
+   joined name/brand/code text. Splitting the query and requiring each
+   token to match SOMEWHERE in that text (any order, not necessarily
+   adjacent) is what makes "labs skratch" or "super mix" find the same
+   product a straight substring search already found for "skratch". */
+function searchMatches(q){
+  const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if(!tokens.length) return [];
+  return PRODUCTS.filter(p => {
+    const haystack = (p.name + " " + p.brand + " " + p.code + " " + CATEGORY_LABEL[p.category]).toLowerCase();
+    return tokens.every(t => haystack.includes(t));
+  });
+}
+
 function drawSiteSearch(q){
   const box = document.getElementById("siteSearchResults");
   if(!box) return;
-  const s = q.trim().toLowerCase();
-  if(!s){ box.innerHTML = ""; return; }
-  const hits = PRODUCTS.filter(p =>
-    (p.name + " " + p.brand + " " + p.code).toLowerCase().includes(s)).slice(0, 8);
+  if(!q.trim()){ box.innerHTML = ""; return; }
+  const hits = searchMatches(q).slice(0, 8);
   box.innerHTML = hits.length
     ? hits.map(p => `<button data-i="${PRODUCTS.indexOf(p)}">${esc(p.name)}<span>${esc(p.brand)} &middot; ${CATEGORY_LABEL[p.category]}</span></button>`).join("")
     : `<p>No review of &ldquo;${esc(q.trim())}&rdquo; yet.<br>
          <button class="request-btn" data-request="${esc(q.trim())}">Request this one &rarr;</button></p>`;
+}
+
+/* A real, shareable/bookmarkable URL for a search -- previously the
+   dropdown under the homepage search box was the only surface, so
+   there was nowhere to land from a shared link, a bookmark, or (in
+   principle) a search engine's own search box. Reads ?q= on load;
+   typing further updates the URL in place via replaceState rather
+   than pushState, so retyping a search doesn't fill the back button
+   with one entry per keystroke. */
+function renderSearchResults(){
+  const q = new URLSearchParams(location.search).get("q") || "";
+  clearNavHighlights();
+  document.getElementById("toc").style.display = "none";
+  setPageMeta(
+    q ? `“${q}” search results - Fuel Finder` : "Search - Fuel Finder",
+    "Search every gel, drink mix, and electrolyte we've reviewed by name or brand."
+  );
+  document.getElementById("page").innerHTML = `
+  <div class="home-hero">
+    <p class="eye">Search</p>
+    <h1>Search the catalog</h1>
+    <div class="home-search">
+      <label for="searchPageInput" class="home-search-label">Search the catalog</label>
+      <input id="searchPageInput" placeholder="e.g. Maurten, SiS Beta Fuel" autocomplete="off" value="${esc(q)}">
+    </div>
+  </div>
+  <section id="search-results">
+    <div class="sh"><h2 id="searchResultsHeading"></h2><span class="rule"></span></div>
+    <div id="searchResultsBody"></div>
+  </section>`;
+  renderSearchResultsBody(q);
+  window.scrollTo(0,0);
+}
+
+function renderSearchResultsBody(q){
+  const heading = document.getElementById("searchResultsHeading");
+  const body = document.getElementById("searchResultsBody");
+  if(!heading || !body) return;
+  const trimmed = q.trim();
+  if(!trimmed){
+    heading.textContent = "Every product";
+    body.innerHTML = `<div class="lb-list">${productRowsHTML(PRODUCTS)}</div>`;
+    return;
+  }
+  const hits = searchMatches(q);
+  heading.textContent = `${hits.length} result${hits.length === 1 ? "" : "s"} for “${trimmed}”`;
+  body.innerHTML = hits.length
+    ? `<div class="lb-list">${productRowsHTML(hits)}</div>`
+    : `<p class="buy-empty">No review of &ldquo;${esc(trimmed)}&rdquo; yet.</p>
+       <button class="request-btn" data-request="${esc(trimmed)}">Request this one &rarr;</button>`;
 }
 
 /* Owner-only view of what RequestLog has collected — not linked from the
@@ -2062,6 +2133,7 @@ function routeFromPath(){
   const fm = h.match(/^find\/([a-z]+)$/);
   if(fm){ renderFinder(fm[1]); return; }
   if(h === "calculator"){ renderCalculator(); return; }
+  if(h === "search"){ renderSearchResults(); return; }
   if(h === "methodology"){ renderMethodology(); return; }
   const catBySlug = Object.entries(CATEGORY_PAGE_SLUG).find(([,slug]) => slug === h);
   if(catBySlug){ renderCategoryPage(catBySlug[0]); return; }
