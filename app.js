@@ -1732,7 +1732,7 @@ function homeBentoHTML(){
       <span class="bc-name">${esc(bestGel.name)}</span>
       <span class="bc-hero-brand">${esc(bestGel.brand)}</span>
       <span class="bc-stat">${moneyPrecise(bestGel.perGram, 3)}/g carb</span>
-      <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every gel we've reviewed, recalculated as the catalog grows.</p>
+      <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every gel we've reviewed.</p>
     </a>`);
   if(bestDrink && bestDrink !== hero) flagships.push(`
     <a class="bc bc-bvd bc-link" href="${sitePath(`/${bestDrink.category}/${bestDrink.id}/`)}" data-i="${PRODUCTS.indexOf(bestDrink)}">
@@ -1742,7 +1742,7 @@ function homeBentoHTML(){
       <span class="bc-name">${esc(bestDrink.name)}</span>
       <span class="bc-hero-brand">${esc(bestDrink.brand)}</span>
       <span class="bc-stat">${moneyPrecise(bestDrink.perGram, 3)}/g carb</span>
-      <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every drink mix we've reviewed, recalculated as the catalog grows.</p>
+      <p class="bc-hero-note">The cheapest way to get a gram of carbohydrate across every drink mix we've reviewed.</p>
     </a>`);
 
   const categories = [`
