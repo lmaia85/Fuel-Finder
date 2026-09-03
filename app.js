@@ -1189,14 +1189,16 @@ function finderHasAnswer(){
 
 function findMatches(answers){
   const cat = answers.category;
-  const catPool = PRODUCTS.filter(p => p.category === cat);
-  let pool = catPool;
+  const pool = PRODUCTS.filter(p => p.category === cat);
   const dims = [];
 
   if(cat === "gel"){
-    if(answers.caffeine === "want") pool = pool.filter(p => p.caffeine > 0);
-    else if(answers.caffeine === "avoid") pool = pool.filter(p => p.caffeine === 0);
-    if(!pool.length) pool = catPool;
+    /* Caffeine used to hard-filter the pool -- "want" could drop a
+       14-gel category down to 5 with the other 9 simply gone. Scored
+       like every other preference here instead, so a caffeine answer
+       re-ranks the full list rather than cutting it. */
+    if(answers.caffeine === "want") dims.push(["caf", p=>p.caffeine, "hi", 2]);
+    else if(answers.caffeine === "avoid") dims.push(["caf", p=>p.caffeine, "lo", 2]);
     dims.push(["gut", p=>p.gut, "hi", answers.sensitivity === "sensitive" ? 3 : 1]);
     if(answers.electrolytes === "yes") dims.push(["sod", p=>p.sodium, "hi", 3]);
     else if(answers.electrolytes === "no") dims.push(["sod", p=>p.sodium, "lo", 2]);
@@ -1237,7 +1239,7 @@ function findMatches(answers){
     return {p, matchScore: wsum ? total / wsum : 0};
   });
   scored.sort((a,b) => b.matchScore - a.matchScore || (b.p.overallScore ?? 0) - (a.p.overallScore ?? 0));
-  return scored.slice(0, 3);
+  return scored;
 }
 
 function finderQuizHTML(){
@@ -1266,26 +1268,23 @@ function finderStatsHTML(cat, p){
     <span>Cost/1000mg Na <b>${p.costPer1000Na==null?"n/d":moneyPrecise(p.costPer1000Na, 2)}</b></span>`;
 }
 
-/* Always renders the full category -- previously this returned nothing
-   but a prompt until a quiz question was answered, so a crawler (and a
-   browser without JS) saw zero product links here. Answering questions
-   now re-ranks the top 3 by match rather than swapping an empty state
-   for a filtered one, and everything that isn't a top-3 match stays
-   visible below instead of disappearing -- filtering that hides 80%+ of
-   the catalog on one answer, with no way to see what got excluded or
-   why, is worse than just ranking. */
+/* Always renders the full category, ranked -- previously this returned
+   nothing but a prompt until a quiz question was answered, so a crawler
+   (and a browser without JS) saw zero product links here. It also used
+   to split into a "top 3" card grid plus a separate compact list for
+   everything else; that's gone too, per direct feedback -- one ranked
+   list, same card treatment top to bottom, so nothing reads as
+   arbitrarily cut off at 3. */
 function finderResultsHTML(){
   const cat = finderAnswers.category;
-  const hasAnswer = finderHasAnswer();
-  const top3 = hasAnswer
+  const ranked = finderHasAnswer()
     ? findMatches(finderAnswers)
-    : topScoredInCategory(cat, 3).map(p => ({p}));
-  const shown = new Set(top3.map(m => m.p.id));
-  const rest = PRODUCTS.filter(p => p.category === cat && !shown.has(p.id))
-    .slice().sort((a,b) => (b.overallScore ?? -1) - (a.overallScore ?? -1));
+    : PRODUCTS.filter(p => p.category === cat)
+        .slice().sort((a,b) => (b.overallScore ?? -1) - (a.overallScore ?? -1))
+        .map(p => ({p}));
 
   return `
-  <div class="fr-grid">${top3.map((m,i) => { const p = m.p; return `
+  <div class="fr-grid">${ranked.map((m,i) => { const p = m.p; return `
     <div class="fr-card">
       <div class="fr-rank">${i+1}</div>
       <div class="fr-body">
@@ -1294,10 +1293,7 @@ function finderResultsHTML(){
         <div class="fr-stats">${finderStatsHTML(cat, p)}</div>
       </div>
       <button class="home-go fr-go" data-i="${PRODUCTS.indexOf(p)}">View review &rarr;</button>
-    </div>`; }).join("")}</div>
-  ${rest.length ? `
-  <p class="sub fr-rest-head">${hasAnswer ? "The rest of the catalog, ranked by score below your top 3 matches." : "The rest of the catalog, ranked by score."}</p>
-  <div class="lb-list">${productRowsHTML(rest)}</div>` : ""}`;
+    </div>`; }).join("")}</div>`;
 }
 
 /* The full category, not whatever the quiz currently has filtered down to
@@ -1490,7 +1486,7 @@ function renderFinder(cat){
     <div class="fq" id="finderQuizBody">${finderQuizHTML()}</div>
   </section>
   <section id="finder-results">
-    <div class="sh"><h2>Your matches</h2><span class="rule"></span></div>
+    <div class="sh"><h2>The right ${esc(CATEGORY_LABEL[finderAnswers.category])} for you</h2><span class="rule"></span></div>
     <div id="finderResultsBody">${finderResultsHTML()}</div>
   </section>`;
   window.scrollTo(0,0);
