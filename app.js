@@ -1698,9 +1698,10 @@ function homeBentoHTML(){
   const rated = [topGel, topDrink, topElectrolyte].filter(Boolean).map(p => `
     <a class="bc bc-rated bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
       ${icon("flask")}
+      <span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>
       <span class="bc-kind">Highest rated ${RATED_KIND[p.category]}</span>
       <img class="bc-photo" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
-      <span class="bc-name">${esc(p.name)} <span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span></span>
+      <span class="bc-name">${esc(p.name)}</span>
       <span class="bc-hero-brand">${esc(p.brand)}</span>
       <p class="bc-hero-note">The highest overall score of any ${RATED_KIND[p.category]} we've reviewed, averaged from what it declares against a fixed scale -- not against the rest of the catalog.</p>
     </a>`);
