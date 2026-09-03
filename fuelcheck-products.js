@@ -793,19 +793,21 @@ const PRODUCTS = [
   photo:"img/products/4endurance-nrgy-gel-22-5.webp",
   serving:"66 g gel", kcal:90, carbs:22.5, sugars:11, sodium:0, caffeine:0,
   price:1.32, boxPrice:23.75, boxQty:18,
-  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
+  ratio:"1 : 0.8", ratioProv:"Stated", ratioScore:95,
+  ratioWhy:"Package states a 1:0.8 maltodextrin-to-fructose ratio, the same blend Maurten discloses for Gel 100 (scored 95 here).",
   ingredients:"Water, Maltodextrin, Fructose, Gelling Agent (Gellan Gum, Xanthan Gum), Natural Flavoring, Acidity Regulators (Citric Acid, Sodium Citrate), Preservative (Potassium Sorbate)",
-  thesis:'Half the carbohydrate of the Nrgy Gel 45 in a smaller 66 g gel, with no stated glucose:fructose ratio and no sodium, at <b>{{money:0.059}} a gram of carbohydrate</b> -- roughly double the per-gram cost of its full-size sibling.',
+  thesis:'Half the carbohydrate of the Nrgy Gel 45 in a smaller 66 g gel, same stated 1:0.8 ratio and no sodium, at <b>{{money:0.059}} a gram of carbohydrate</b> -- roughly double the per-gram cost of its full-size sibling.',
   pros:[
     "66 g gel, the smallest and lightest of the four Nrgy-line gels in this batch.",
+    "Same stated 1:0.8 glucose:fructose ratio as the Nrgy Gel 45 and 45 Electrolyte-Free, just at a lower carb dose.",
     "0 g salt on the label, useful if you don't want any added sodium from your gel.",
     "22.5 g carbohydrate is a lighter dose without swallowing a full 45 g gel."],
   cons:[
-    "No glucose:fructose ratio disclosed, unlike the Nrgy Gel 45 and 45 Electrolyte-Free, which both state 1:0.8.",
     "{{money:0.059}} a gram of carbohydrate is roughly double the Nrgy Gel 45's {{money:0.030}}, though still cheaper than GU Roctane's {{money:0.143}}.",
+    "0 mg sodium means this can't be your sole electrolyte source in heat.",
     "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
   yes:["You want a smaller, lower-carb 4Endurance gel for lighter efforts.","You don't want any added sodium in your gel."],
-  no:["You want the ratio disclosure the rest of the Nrgy 45 line provides.","You need guaranteed US retail availability."]
+  no:["You want a bigger single dose without opening a second gel.","You need guaranteed US retail availability."]
 },
 {
   category:"gel", servingWord:"gel",
