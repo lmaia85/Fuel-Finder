@@ -694,6 +694,139 @@ const PRODUCTS = [
   cons:["Zero calcium, the same gap shared by every LMNT flavor here.","{{money:1.50}} a stick for 1000 mg of sodium is mid-pack cost; 4Endurance reaches 1000 mg at roughly {{money:1.08}} for the equivalent dose across four tablets.","1000 mg in a single stick may be more sodium than some athletes want in one dose."],
   yes:["You already use LMNT Citrus Salt and want flavor variety at the same sodium dose.","You want a large single dose of sodium with next to no carbohydrate."],
   no:["You want calcium in the same product.","You'd rather titrate sodium in smaller doses across the day."]
+},
+
+/* ---- third wave (catalog expansion, research-verified 2026-09-03) ---- */
+{
+  category:"gel", servingWord:"gel",
+  id:"4endurance-2to1-gel", code:"421G", short:"2:1 Gel", name:"2:1 Gel", brand:"4Endurance",
+  reviewed:"2026-09-03",
+  photo:"img/products/4endurance-2to1-gel.webp",
+  serving:"71 g gel", kcal:120, carbs:30, sugars:10, sodium:100, caffeine:0,
+  price:0.86, boxPrice:8.63, boxQty:10,
+  ratio:"1 : 0.5", ratioProv:"Stated", ratioScore:72,
+  ratioWhy:"Brand states 20 g maltodextrin (28% of the 71 g gel) to 10 g fructose (14%) -- a 2:1 glucose:fructose blend, expressed here as 1:0.5 to match this site's convention.",
+  ingredients:"Water, Maltodextrin (28%), Fructose (14%), Sodium Citrate, Citric Acid, Flavoring, Potassium Sorbate, Gellan Gum, Xanthan Gum",
+  thesis:'One of the few gels here with a glucose:fructose ratio stated down to the gram (20 g maltodextrin, 10 g fructose in a 71 g gel), at <b>{{money:0.029}} a gram of carbohydrate</b> -- cheaper per gram than 4Endurance\'s own 4Energy Gel.',
+  pros:[
+    "2:1 (glucose:fructose) ratio stated by gram on the label, not left to inference.",
+    "100 mg sodium per 71 g gel, more electrolyte content than several concentrated gels costing more.",
+    "{{money:0.029}} a gram of carbohydrate, the cheapest per-gram 4Endurance gel among those reviewed here."],
+  cons:[
+    "No independent scoring reference for this 1:0.5 blend the way Maurten's 1:0.8 has here -- take the 20 g/10 g breakdown as the brand's own math.",
+    "10 g of sugars out of 30 g carbs is the most sugar-dense of the 4Endurance gels covered in this batch.",
+    "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
+  yes:["You want a stated glucose:fructose ratio without paying Maurten or SiS Beta Fuel prices.","You're already ordering from 4Endurance and want the cheapest gel in their range per gram of carb."],
+  no:["You need a US retail supply chain.","You want electrolytes beyond sodium -- this gel carries no potassium, calcium, or magnesium."]
+},
+{
+  category:"gel", servingWord:"gel",
+  id:"4endurance-nrgy-gel-45", code:"4N45", short:"Nrgy Gel 45", name:"Nrgy Gel 45", brand:"4Endurance",
+  reviewed:"2026-09-03",
+  photo:"img/products/4endurance-nrgy-gel-45.webp",
+  serving:"75 g gel", kcal:180, carbs:45, sugars:22, sodium:460, caffeine:0,
+  price:1.35, boxPrice:21.59, boxQty:16,
+  ratio:"1 : 0.8", ratioProv:"Stated", ratioScore:95,
+  ratioWhy:"Brand states a 1:0.8 maltodextrin-to-fructose ratio -- the same ratio Maurten discloses for Gel 100, scored 95 in this catalog.",
+  ingredients:"Water, Maltodextrin, Fructose, Nduranz Electrolyte Mix® (Sodium Chloride, Sodium Citrate, Potassium Chloride, Tricalcium Citrate, Trimagnesium Citrate), Natural Flavoring, Acidity Regulators (Citric Acid, Sodium Citrate), Preservative (Potassium Sorbate)",
+  thesis:'A stated 1:0.8 glucose:fructose ratio -- the same blend Maurten uses -- at 45 g carbs and 460 mg sodium a gel, for <b>{{money:0.030}} a gram of carbohydrate</b>, about a fifth of Maurten Gel 100\'s {{money:0.15}}.',
+  pros:[
+    "1:0.8 maltodextrin:fructose ratio, stated by the brand -- the same ratio Maurten Gel 100 uses, at roughly a fifth of the per-gram cost.",
+    "460 mg sodium a gel, more than double SiS Beta Fuel's 30 mg at a similar 45 g carb load.",
+    "45 g carbohydrate in a single gel, more per serving than Beta Fuel's 40 g or Precision PF 30's 30 g."],
+  cons:[
+    "75 g gel weight and volume is bulky to carry and swallow relative to concentrated 40 g gels like Beta Fuel.",
+    "The combined 'Nduranz Electrolyte Mix' figure (1.09 g) isn't broken into individual potassium/calcium/magnesium amounts on the label.",
+    "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
+  yes:["You want the 1:0.8 ratio without Maurten pricing.","You want a gel that already carries meaningful sodium instead of relying on a separate source."],
+  no:["You want a compact, low-volume gel.","You need guaranteed US retail availability."]
+},
+{
+  category:"gel", servingWord:"gel",
+  id:"4endurance-nrgy-gel-45-electrolyte-free", code:"4N45E", short:"Nrgy 45 (No Electrolyte)", name:"Nrgy Gel 45 (Electrolyte-Free)", brand:"4Endurance",
+  reviewed:"2026-09-03",
+  photo:"img/products/4endurance-nrgy-gel-45-electrolyte-free.webp",
+  serving:"75 g gel", kcal:180, carbs:45, sugars:22, sodium:0, caffeine:0,
+  price:1.48, boxPrice:23.75, boxQty:16,
+  ratio:"1 : 0.8", ratioProv:"Stated", ratioScore:95,
+  ratioWhy:"Brand states a 1:0.8 maltodextrin-to-fructose ratio, identical to the standard Nrgy Gel 45 and to Maurten Gel 100 (scored 95 here).",
+  ingredients:"Water, Maltodextrin (35%), Fructose (27%), Acidity Regulator (Citric Acid), Preservative (Potassium Sorbate)",
+  thesis:'The electrolyte-free version of the Nrgy Gel 45 -- identical 45 g carbs and stated 1:0.8 ratio, but 0 mg sodium versus the standard version\'s 460 mg, at <b>{{money:0.033}} a gram</b>.',
+  pros:[
+    "Same 1:0.8 stated glucose:fructose ratio and 45 g carbohydrate as the standard Nrgy Gel 45.",
+    "Zero sodium, useful if you're dosing electrolytes separately and don't want to double up.",
+    "Five-ingredient label, the shortest of the six 4Endurance gels reviewed in this batch."],
+  cons:[
+    "0 mg sodium means this cannot be your sole electrolyte source in heat -- you need a separate tab or drink.",
+    "Costs {{money:1.48}} a gel versus {{money:1.35}} for the standard Nrgy Gel 45, despite dropping the electrolyte mix.",
+    "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
+  yes:["You already carry sodium elsewhere and want to control the dose separately.","You want the Nrgy 45 carb and ratio profile without added electrolytes."],
+  no:["You want one product to cover both carbs and sodium.","You need guaranteed US retail availability."]
+},
+{
+  category:"gel", servingWord:"gel",
+  id:"4endurance-nrgy-gel-45-caffeine", code:"4N45C", short:"Nrgy 45 Caffeine", name:"Nrgy Gel 45 with Caffeine", brand:"4Endurance",
+  reviewed:"2026-09-03",
+  photo:"img/products/4endurance-nrgy-gel-45-caffeine.webp",
+  serving:"75 g gel", kcal:180, carbs:45, sugars:22, sodium:460, caffeine:65,
+  price:1.55, boxPrice:24.83, boxQty:16,
+  ratio:"1 : 0.8", ratioProv:"Stated", ratioScore:95,
+  ratioWhy:"Brand states 'maltodextrin and fructose in a 1:0.8 ratio', identical to the standard Nrgy Gel 45 and to Maurten Gel 100 (scored 95 here).",
+  cafNote:"65 mg in Cherry and Mango flavors; the Coffee Amarena flavor carries 130 mg instead. caffeine field here uses the 65 mg figure as the more common case -- check flavor before counting on a specific dose.",
+  ingredients:"Water, Maltodextrin, Fructose, Nduranz Electrolyte Mix® (Sodium Chloride, Sodium Citrate, Potassium Chloride, Tricalcium Citrate, Trimagnesium Citrate), Natural Flavoring, Acidity Regulators (Citric Acid, Sodium Citrate), Preservative (Potassium Sorbate), Caffeine",
+  thesis:'The caffeinated Nrgy Gel 45 -- same 45 g carbs and 1:0.8 ratio as the standard version, with 65 mg caffeine in Cherry and Mango flavors (130 mg in Coffee Amarena), for <b>{{money:1.55}} a gel</b>.',
+  pros:[
+    "1:0.8 stated ratio and 45 g carbs, unchanged from the standard Nrgy Gel 45.",
+    "460 mg sodium a gel, the same electrolyte load as the non-caffeinated version.",
+    "Coffee Amarena flavor carries 130 mg caffeine, more per gel than Maurten Gel 100 Caf 100's 100 mg."],
+  cons:[
+    "Caffeine dose isn't uniform across the range: 65 mg in Cherry/Mango vs 130 mg in Coffee Amarena -- check the flavor before counting on a specific dose.",
+    "At {{money:1.55}} a gel it's the most expensive of the four Nrgy Gel 45 variants in this batch.",
+    "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
+  yes:["You want the Nrgy 45's carb and sodium profile with caffeine built in.","You want a higher caffeine dose than Maurten Caf 100 or NEVERSECOND C30+ and don't mind tracking it by flavor."],
+  no:["You want a consistent caffeine dose across every flavor you buy.","You need guaranteed US retail availability."]
+},
+{
+  category:"gel", servingWord:"gel",
+  id:"4endurance-nrgy-gel-22-5", code:"4N22", short:"Nrgy Gel 22.5", name:"Nrgy Gel 22.5", brand:"4Endurance",
+  reviewed:"2026-09-03",
+  photo:"img/products/4endurance-nrgy-gel-22-5.webp",
+  serving:"66 g gel", kcal:90, carbs:22.5, sugars:11, sodium:0, caffeine:0,
+  price:1.32, boxPrice:23.75, boxQty:18,
+  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
+  ingredients:"Water, Maltodextrin, Fructose, Gelling Agent (Gellan Gum, Xanthan Gum), Natural Flavoring, Acidity Regulators (Citric Acid, Sodium Citrate), Preservative (Potassium Sorbate)",
+  thesis:'Half the carbohydrate of the Nrgy Gel 45 in a smaller 66 g gel, with no stated glucose:fructose ratio and no sodium, at <b>{{money:0.059}} a gram of carbohydrate</b> -- roughly double the per-gram cost of its full-size sibling.',
+  pros:[
+    "66 g gel, the smallest and lightest of the four Nrgy-line gels in this batch.",
+    "0 g salt on the label, useful if you don't want any added sodium from your gel.",
+    "22.5 g carbohydrate is a lighter dose without swallowing a full 45 g gel."],
+  cons:[
+    "No glucose:fructose ratio disclosed, unlike the Nrgy Gel 45 and 45 Electrolyte-Free, which both state 1:0.8.",
+    "{{money:0.059}} a gram of carbohydrate is roughly double the Nrgy Gel 45's {{money:0.030}}, though still cheaper than GU Roctane's {{money:0.143}}.",
+    "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
+  yes:["You want a smaller, lower-carb 4Endurance gel for lighter efforts.","You don't want any added sodium in your gel."],
+  no:["You want the ratio disclosure the rest of the Nrgy 45 line provides.","You need guaranteed US retail availability."]
+},
+{
+  category:"gel", servingWord:"gel",
+  id:"4endurance-bcaa-gel", code:"4BCAA", short:"BCAA Gel", name:"Energy Gel With BCAA", brand:"4Endurance",
+  reviewed:"2026-09-03",
+  photo:"img/products/4endurance-bcaa-gel.webp",
+  serving:"70 g gel", kcal:122, carbs:30, sugars:11.5, sodium:191, caffeine:0,
+  price:1.62, boxPrice:16.19, boxQty:10,
+  ratio:"n/d", ratioProv:"Not disclosed", ratioScore:null,
+  ingredients:"Water, Maltodextrin, Fructose, Gelling Agent (Pectin), Acidity Regulator (Citric Acid), Fermented Branched Chain Amino Acid Blend (L-Leucine, L-Isoleucine, L-Valine, Emulsifier (Sunflower Lecithin)), Stabilizer (Trisodium Citrate), Sodium Chloride, Natural Flavoring, Preservative (Potassium Sorbate), Calcium Lactate",
+  thesis:'The only 4Endurance gel with added BCAAs (500 mg of leucine, isoleucine, and valine per gel) alongside 30 g of carbohydrate and 191 mg sodium, at <b>{{money:0.054}} a gram of carbohydrate</b>.',
+  pros:[
+    "500 mg of fermented BCAA (leucine, isoleucine, valine) per gel, the only 4Endurance gel in this batch that adds them.",
+    "191 mg sodium a gel, more than GU Original's or Honey Stinger Organic's 60 mg at a similar 30 g carb dose.",
+    "30 g carbohydrate matches SiS Beta Fuel's per-serving carb load."],
+  cons:[
+    "No glucose:fructose ratio disclosed.",
+    "{{money:0.054}} a gram of carbohydrate is close to double the standard Nrgy Gel 45's {{money:0.030}}.",
+    "Not sold through US retailers; pricing here is converted from EUR and availability will vary."],
+  yes:["You specifically want BCAA content alongside carbs and sodium in one gel.","You're comparison-shopping within the 4Endurance range and want the added amino acids."],
+  no:["You don't value added BCAA in a gel and just want carbs and sodium as cheaply as possible.","You need guaranteed US retail availability."]
 }
 ];
 
