@@ -647,12 +647,12 @@ function render(p){
     <div class="sb-layout-left">
       <div class="sb">
         <div class="sb-tile tier-${scoreTier(p.overallScore)}">
-          <div class="sb-num">${p.overallScore}</div>
+          <div class="sb-num">${p.overallScore}<span class="denom">/100</span></div>
           <div class="sb-label">${scoreTierLabel(p.overallScore)}</div>
           ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures ${infoTip("A dimension a product doesn't declare is left out of its average rather than counted against it -- so this score reflects fewer measures than a product with a full panel.")}</div>` : ""}
         </div>
         <div class="sb-rows">${p.scoreBreakdown.map(d => `
-          <div class="sb-row"><span class="sb-row-label">${esc(d.label)} ${infoTip(renderMoney(d.what))}</span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
+          <div class="sb-row"><span class="sb-row-label">${esc(d.label)} ${infoTip(renderMoney(d.what))}</span><span class="sb-bar"><i style="--v:${d.score}"></i></span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
         </div>
       </div>
     </div>
