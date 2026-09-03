@@ -154,6 +154,11 @@ async function renderRoute(page, port, route){
      the real deployed domain. Fix that up before it ever gets written to
      a file: swap the captured origin for the real one, globally. */
   html = html.split(`http://localhost:${port}`).join(SITE_URL);
+  /* One canonical per route, keyed off the route itself rather than
+     anything runtime (query strings included) -- this is what tells
+     Google that e.g. every /search/?q=... variant is the same page as
+     plain /search/, instead of indexing each query as a near-duplicate. */
+  html = html.replace("</head>", `<link rel="canonical" href="${SITE_URL}${route.urlPath}">\n</head>`);
   return rewriteRelativePaths(html, route.depth);
 }
 
