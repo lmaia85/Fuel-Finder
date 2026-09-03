@@ -556,7 +556,7 @@ function reviewSchema(p){
       brand: {"@type": "Organization", name: p.brand},
       ...(p.photo ? {image: location.origin + sitePath(p.photo)} : {})
     },
-    author: {"@type": "Organization", name: "Fuel Finder"},
+    author: {"@type": "Person", name: "Lourenço Faria e Maia", url: location.origin + sitePath("/about/")},
     ...(p.reviewed ? {datePublished: p.reviewed} : {}),
     ...(p.overallScore === null ? {} : {
       reviewRating: {
@@ -1862,6 +1862,12 @@ function renderAbout(){
       <li><b>Ingredient count.</b> A shorter label tends to sit easier on the stomach a few hours in. It's not a guarantee, but it's the reasoning behind the gut-comfort figure on every gel page.</li>
     </ul>
     <p class="thesis">Every product page breaks these out on their own instead of folding them into one number, so you can weigh whichever ones matter for your race.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Who's behind this</h2><span class="rule"></span></div>
+    <p class="thesis">I'm Lourenço Faria e Maia, an amateur endurance athlete with a background in cell biology. I've raced an Ironman 70.3 and more half marathons than I've bothered to count, and spent most of that time restocking a gear bag from whatever brand's marketing had gotten to me most recently.</p>
+    <p class="thesis">What actually got this built was noticing how little of that marketing agreed with itself: one brand's gel is "optimally absorbed," and so is the next one's, at a different ratio, for different reasons, neither citing anything you could check. A background in cell biology made the gap between the claim and the label hard to ignore, so I started pulling the numbers directly off the packet instead of trusting the front of it. This site is that same exercise, done for the whole catalog instead of just my own gear bag.</p>
   </section>
 
   <section>
