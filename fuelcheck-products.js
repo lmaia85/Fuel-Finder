@@ -1048,7 +1048,7 @@ const PRODUCTS = [
 },
 {
   category:"gel", servingWord:"gel",
-  id:"honey-stinger-salted-caramel-latte", code:"HSSC", short:"Salted Caramel Latte", name:"Honey Stinger Salted Caramel Latte Caffeinated Organic Energy Gel", brand:"Honey Stinger",
+  id:"honey-stinger-salted-caramel-latte", code:"HSSC", short:"Caffeinated Energy Gel", name:"Honey Stinger Caffeinated Organic Energy Gel", brand:"Honey Stinger",
   reviewed:"2026-09-03",
   buy:[{retailer:"Honey Stinger", url:"https://honeystinger.com/products/salted-caramel-latte-caffeinated-energy-gel-pack-of-24", price:39.98, pack:"Box of 24"}],
   serving:"31 g packet", kcal:100, carbs:24, sugars:11, sodium:60, caffeine:70,
@@ -1065,8 +1065,7 @@ const PRODUCTS = [
   cons:[
     "11 g of the 24 g of carbohydrate is sugar -- a steep, honey-driven glycemic profile compared with Maurten's more controlled blend.",
     "60 mg of sodium is on the low side; NEVERSECOND C30 carries 200 mg at a similar price.",
-    "No glucose:fructose ratio disclosed, the same gap as Honey Stinger's base gel.",
-    "On honeystinger.com this flavor is currently only sold in a mixed 24-count box paired with Strawberry Kiwi, not as a single-flavor box."],
+    "No glucose:fructose ratio disclosed, the same gap as Honey Stinger's base gel."],
   yes:["You want caffeine and are optimizing purely for cost per mg.",
        "You already like Honey Stinger's texture and want more caffeine than the 32 mg base gel offers without switching brands."],
   no:["You are sensitive to added sugars; 11 g of sugar in one gel is high for the category.",
@@ -1074,20 +1073,22 @@ const PRODUCTS = [
 },
 {
   category:"gel", servingWord:"pouch",
-  id:"powerbar-powergel-hydro-cola", code:"PBHC", short:"PowerGel Hydro Cola", name:"PowerBar PowerGel Hydro Cola", brand:"PowerBar",
+  id:"powerbar-powergel-hydro-cola", code:"PBHC", short:"PowerGel Hydro", name:"PowerBar PowerGel Hydro", brand:"PowerBar",
   reviewed:"2026-09-03",
   serving:"67 ml pouch", kcal:103, carbs:25, sugars:11, sodium:204, caffeine:100,
   price:2.91, boxPrice:2.91, boxQty:1,
   ratio:"1 : 0.5", ratioProv:"Stated", ratioScore:72,
   photo:"img/products/powerbar-powergel-hydro-cola.webp",
+  cafNote:"Caffeine varies by flavor: Cola carries 100 mg, Cherry and Mojito carry 51 mg each, and Orange has none. The 100 mg figure here is Cola's -- check the flavor before counting on a specific dose.",
   ingredients:"Water, Maltodextrin, Fructose, Salt, Natural Flavourings, Acidifier (Citric Acid), Sodium Citrate, Caffeine (0.1%), Preservatives (Potassium Sorbate, Sodium Benzoate), Stabiliser (Xanthan Gum)",
-  thesis:"PowerBar's liquid, water-free isotonic format -- {{money:0.116}} a gram of carbohydrate, roughly 55% more than PowerGel Original's {{money:0.075}} -- with 100 mg of caffeine and 204 mg of sodium built in.",
+  thesis:"PowerBar's liquid, water-free isotonic format -- {{money:0.116}} a gram of carbohydrate, roughly 55% more than PowerGel Original's {{money:0.075}} -- with up to 100 mg of caffeine (Cola flavor; 51 mg in Cherry/Mojito, none in Orange) and 204 mg of sodium built in.",
   pros:[
-    "100 mg of caffeine built in, versus zero in PowerBar's own PowerGel Original already in this catalog.",
+    "Up to 100 mg of caffeine built in depending on flavor, versus zero in PowerBar's own PowerGel Original already in this catalog.",
     "Isotonic liquid gel -- 25 g of carbohydrate in a thinner, water-mixed consistency designed to go down without a chaser.",
     "204 mg of sodium, essentially matching PowerGel Original's 200 mg, so sodium isn't traded away for the caffeine and format change.",
     "C2Max dual-carb source at a brand-stated 2:1 glucose:fructose ratio, the same blend PowerBar uses across its gel range."],
   cons:[
+    "Caffeine isn't uniform across the range: 100 mg in Cola, 51 mg in Cherry and Mojito, none in Orange -- check the flavor before counting on a specific dose.",
     "{{money:0.116}} a gram of carbohydrate, about 55% more than PowerGel Original's {{money:0.075}} for the same brand's non-caffeinated gel.",
     "11 g of the 25 g of carbohydrate is sugar.",
     "Pricing here is converted from EUR (Running Warehouse Europe, EUR2.69 per pouch); a confirmed, currently-priced US retail listing could not be found -- an Amazon.com listing exists but its live price could not be verified, and at least one US retailer (AllStarHealth) lists the line as discontinued.",
@@ -1125,7 +1126,7 @@ const PRODUCTS = [
 },
 {
   category:"gel", servingWord:"tube",
-  id:"torq-cola-caffeine-gel", code:"TRQC", short:"Cola Caffeine Gel", name:"TORQ Cola Caffeine Energy Gel", brand:"TORQ",
+  id:"torq-cola-caffeine-gel", code:"TRQC", short:"Energy Gel with Caffeine", name:"TORQ Energy Gel with Caffeine", brand:"TORQ",
   reviewed:"2026-09-03",
   buy:[{retailer:"TORQ", url:"https://www.torqfitness.co.uk/product/cola-gel", price:45.72, pack:"Box of 15"}],
   serving:"45 g tube", kcal:114, carbs:29, sugars:11, sodium:49, caffeine:89,
@@ -1135,13 +1136,13 @@ const PRODUCTS = [
   ingredients:"Maltodextrin (43%), Water, Fructose (22%), Guarana Extract (0.9%), Electrolytes (Sodium Chloride, Calcium Lactate, Potassium Chloride, Magnesium Carbonate), Natural Flavouring (0.4%), Acid (Citric Acid), Preservative (Potassium Sorbate)",
   thesis:"The same 2:1 maltodextrin:fructose blend and 49 mg of sodium as TORQ's standard Energy Gel, plus 89 mg of caffeine from guarana, for about <b>5% more per gram of carbohydrate</b> ({{money:0.105}} vs {{money:0.100}}).",
   pros:[
-    "89 mg of caffeine from guarana at only a 5% premium over TORQ's caffeine-free Energy Gel on a per-gram-of-carb basis.",
+    "89 mg of caffeine from guarana at only a 5% premium over TORQ's caffeine-free Energy Gel on a per-gram-of-carb basis, consistent across every flavor in the line (Cola Caffeine, Banoffee, Forest Fruits, Caramel Latte).",
     "Same declared 2:1 maltodextrin:fructose ratio and full five-electrolyte blend as the rest of the TORQ gel range.",
     "45 g tube, the largest single-serving format among the caffeinated gels in this catalog.",
-    "TORQ sells the same guarana-caffeine formulation domestically via TORQ USA under other flavor names (Banoffee, Forest Fruits, Caramel Latte), so the recipe isn't UK-exclusive even if this specific Cola flavor currently is."],
+    "TORQ sells the same guarana-caffeine formulation domestically via TORQ USA under other flavor names, so the recipe isn't UK-exclusive."],
   cons:[
     "11 g of the 29 g of carbohydrate is sugar.",
-    "Pricing and the buy link here are from TORQ's UK site in GBP (GBP36.00 for a box of 15), converted to USD; this specific Cola Caffeine flavor was not found listed on TORQ USA at review time.",
+    "Pricing and the buy link here are from TORQ's UK site in GBP (GBP36.00 for a box of 15), converted to USD; the Cola Caffeine flavor specifically was not found listed on TORQ USA at review time (other flavors in the line are).",
     "49 mg of sodium is low; NEVERSECOND C30+ carries 200 mg alongside its 75 mg of caffeine at a similar price.",
     "114 kcal for 29 g of carbohydrate -- slightly less carb-dense per calorie than some competitors."],
   yes:["You already use TORQ's standard gel and want the same formulation with caffeine added at minimal extra cost.",
@@ -1151,7 +1152,7 @@ const PRODUCTS = [
 },
 {
   category:"gel", servingWord:"sachet",
-  id:"high5-energy-gel-aqua", code:"H5AQ", short:"Energy Gel Aqua", name:"High5 Energy Gel Aqua (Berry)", brand:"High5",
+  id:"high5-energy-gel-aqua", code:"H5AQ", short:"Energy Gel Aqua", name:"High5 Energy Gel Aqua", brand:"High5",
   reviewed:"2026-09-03",
   buy:[{retailer:"British Essentials", url:"https://us.britishessentials.com/products/high5-aqua-berry-energy-gel-66g", price:6.79}],
   serving:"66 g sachet", kcal:94, carbs:23, sugars:3.3, sodium:70, caffeine:0,
@@ -1177,7 +1178,7 @@ const PRODUCTS = [
 },
 {
   category:"drink", servingWord:"scoop",
-  id:"nuun-endurance-lemon-lime", code:"NUEN", short:"Nuun Endurance", name:"Nuun Endurance Lemon Lime", brand:"Nuun",
+  id:"nuun-endurance-lemon-lime", code:"NUEN", short:"Nuun Endurance", name:"Nuun Endurance", brand:"Nuun",
   reviewed:"2026-09-03",
   buy:[{retailer:"Vitacost", url:"https://www.vitacost.com/nuun-endurance-informed-sport-certified-canister", price:18.03, pack:"16-serving canister"}],
   serving:"1 scoop in 16 oz water", kcal:60, carbs:16, sugars:15, sodium:380, caffeine:0,
