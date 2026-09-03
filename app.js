@@ -449,14 +449,14 @@ function table(cur){
      "Involved in muscle contraction; lost in far smaller amounts than sodium."],
     ["Magnesium", p=>p.magnesium==null?"not declared":`${p.magnesium} mg`, p=>p.magnesium, "hi",
      "Supports muscle and nerve function; some evidence it blunts cramping."],
-    ["Carbohydrate", p=>`${p.carbs} g`, null, null,
+    ["Carbohydrate", p=>p.carbs==null?"not declared":`${p.carbs} g`, null, null,
      "Minimal by design. This is a hydration product, not a fuel source."],
     [`Price per ${unit}`, p=>money(p.price), p=>p.price, "lo",
      `What one ${unit} costs.`],
     ["Cost per 1000mg sodium", p=>p.costPer1000Na==null?"not declared":moneyPrecise(p.costPer1000Na, 2), p=>p.costPer1000Na, "lo",
      "The only price that compares across different sodium concentrations."]
   ] : [
-    ["Carbohydrate", p=>`${p.carbs} g`, p=>p.carbs, "hi",
+    ["Carbohydrate", p=>p.carbs==null?"not declared":`${p.carbs} g`, p=>p.carbs ?? -1, "hi",
      `How much fuel one ${unit} carries.`],
     ["Glucose : fructose", p=>p.ratio, p=>p.ratioScore, "hi",
      "Governs how fast you absorb it. More fructose, higher ceiling."],
@@ -1353,14 +1353,14 @@ function categoryTableCols(cat){
       ["Potassium", p => p.potassium==null ? "not declared" : `${p.potassium} mg`, p => p.potassium ?? -1, "hi"],
       ["Calcium", p => p.calcium==null ? "not declared" : `${p.calcium} mg`, p => p.calcium ?? -1, "hi"],
       ["Magnesium", p => p.magnesium==null ? "not declared" : `${p.magnesium} mg`, p => p.magnesium ?? -1, "hi"],
-      ["Carbohydrate", p => `${p.carbs} g`, p => p.carbs, "lo"],
+      ["Carbohydrate", p => p.carbs==null ? "not declared" : `${p.carbs} g`, p => p.carbs ?? -1, "lo"],
       ["Price", p => money(p.price), p => p.price, "lo"],
       ["Cost / 1000mg Na", p => p.costPer1000Na==null ? "n/d" : moneyPrecise(p.costPer1000Na, 2), p => p.costPer1000Na ?? Infinity, "lo"],
       ["Score", p => p.overallScore==null ? "n/d" : p.overallScore, p => p.overallScore ?? -1, "hi"]
     ];
   }
   return [
-    ["Carbohydrate", p => `${p.carbs} g`, p => p.carbs, "hi"],
+    ["Carbohydrate", p => p.carbs==null ? "not declared" : `${p.carbs} g`, p => p.carbs ?? -1, "hi"],
     ["Ratio", p => p.ratio, p => p.ratioScore, "hi"],
     ["Provenance", p => p.ratioProv, null, null],
     ["Sodium", p => p.sodium===null ? "not declared" : `${p.sodium} mg`, p => p.sodium ?? -1, "hi"],

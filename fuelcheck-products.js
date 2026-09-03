@@ -964,6 +964,84 @@ const PRODUCTS = [
        "You're specifically interested in the nootropic stack, not just caffeine."],
   no:["You want caffeine without the added nootropic ingredients; SiS doesn't currently sell that combination as a separate Beta Fuel SKU.",
       "You want the cheapest way to 40 g of carbohydrate; the plain Beta Fuel Gel is 40% cheaper per gram."]
+},
+{
+  category:"gel", servingWord:"pouch",
+  id:"precision-pf-300-flow-gel", code:"PF300", short:"PF 300 Flow Gel", name:"PF 300 Flow Gel", brand:"Precision Fuel & Hydration",
+  reviewed:"2026-09-03",
+  buy:[{retailer:"Running Warehouse", url:"https://www.runningwarehouse.com/Precision_Fuel__Hydration_PF_300_Flow_Gel/descpage-PHPF300.html", price:21.99}],
+  serving:"510 g pouch (300 g carb)", kcal:1200, carbs:300, sugars:null, sodium:0, caffeine:0,
+  price:21.99, boxPrice:21.99, boxQty:1,
+  ratio:"1 : 0.5", ratioProv:"Stated", ratioScore:72,
+  photo:"img/products/precision-pf-300-flow-gel.webp",
+  ingredients:"Maltodextrin, Water, Fructose, Pectin, Acidity Regulator (Citric Acid), Preservatives (Potassium Sorbate, Calcium Lactate)",
+  thesis:"300 g of carbohydrate in one 510 g pouch meant to be poured into a bottle or flask rather than squeezed neat -- at <b>{{money:0.073}} a gram</b>, almost exactly what Precision already charges per gram for its own PF 90 Gel, just scaled into a format built for a whole ride instead of one 90 g hit.",
+  pros:[
+    "300 g of carbohydrate from a single pouch, over 3x a PF 90 Gel and 10x a PF 30 Gel, meaning fewer individual gels to carry, open, and pack out.",
+    "States a 2:1 glucose-to-fructose ratio (1:0.5), the same blend Precision uses across PF 30 and PF 90, rather than leaving it undisclosed.",
+    "Six-ingredient label: maltodextrin, water, fructose, pectin, citric acid, two preservatives. Nothing beyond what's needed to move the carbohydrate.",
+    "{{money:0.073}} a gram lands almost exactly on PF 90 Gel's {{money:0.074}}, so the jump to a 300 g format doesn't carry a size premium."],
+  cons:[
+    "Zero sodium. Precision's own product copy says the gel carries no electrolytes and is meant to be paired with the PH tablet range, same gap as PF 90 Gel, just at 3x the volume.",
+    "No sugars breakdown on the label, only total carbohydrate (300 g); we can't say how much of that is fructose versus maltodextrin beyond the stated 2:1 ratio.",
+    "{{money:21.99}} for a single pouch is a real one-time spend, and it's sold as an individual unit; no box/multi-pack discount was listed at any retailer checked.",
+    "Nearly twice the per-gram cost of SiS Beta Fuel gel ({{money:0.063}}/g), even though it undercuts Maurten Gel 100 ({{money:0.15}}/g) by half."],
+  yes:["You want to pre-load a flask or soft bottle with a whole ride's worth of carbohydrate instead of managing a stack of small gels.",
+       "You already use PF 90 Gel and want the same ratio and cost per gram scaled into one big format.",
+       "You already carry sodium separately (PH tabs, a drink mix) and don't need this gel to cover it."],
+  no:["You want a gel you can eat neat without decanting it into a bottle first.",
+      "You need sodium built into your carbohydrate source.",
+      "You're fueling short enough that 300 g is far more than you'll use in one session."]
+},
+{
+  category:"electrolyte", servingWord:"tablet",
+  id:"precision-ph-250", code:"PH250", short:"PH 250", name:"PH 250", brand:"Precision Fuel & Hydration",
+  reviewed:"2026-09-03",
+  photo:"img/products/precision-ph-250.webp",
+  serving:"1 tablet in 500 ml water", kcal:null, carbs:null, sodium:125, potassium:125, calcium:24, magnesium:12, caffeine:0,
+  price:0.67, boxPrice:9.99, boxQty:15,
+  ingredients:"Not independently verified for this SKU. No source checked (official product page, Running Warehouse, The Feed, FITSTUFF, sportsnutritionadvice.eu) published a PH 250-specific ingredients list; sibling PH 500 tablets (same tube/effervescent format) list Glucose, Citric Acid, Mineral Salts (Sodium Hydrogen Carbonate, Calcium Carbonate, Magnesium Carbonate), Potassium Hydrogen Carbonate, Flavourings, Sweetener (Sucralose), Maltodextrin, Bulking Agent (Sorbitol), but that is PH 500's confirmed list, not PH 250's.",
+  thesis:"Half PH 500's sodium per tablet (125 mg vs 250 mg) but priced about the same per tube, which makes it the most expensive tablet in Precision's own range per dose: <b>{{money:5.36}} per 1000mg of sodium</b>, against {{money:3.2}} for PH 500 and {{money:1.6}} for PH 1500.",
+  pros:[
+    "The lowest sodium dose in Precision's tablet range, useful for cool-weather or day-to-day hydration rather than a heat-training dose.",
+    "Potassium matches sodium 1:1 at 125mg, plus 24mg calcium and 12mg magnesium per tablet, a broader mineral spread relative to sodium than the brand's higher-strength tiers.",
+    "Same effervescent tablet format and independent WADA-list batch testing as the rest of the PH range.",
+    "Mild citrus flavor and near-zero calories; positioned by the brand as a daily hydration tablet rather than a race product."],
+  cons:[
+    "{{money:5.36}} per 1000mg of sodium is the worst value of any Precision tablet in this catalog: PH 500 is {{money:3.2}}, PH 1000 is {{money:2.4}}, PH 1500 is {{money:1.6}}. The lower dose doesn't come with a proportionally lower price.",
+    "Not carried by Running Warehouse or The Feed, the two US retailers that stock PH 500/1000/1500. Pricing here is converted from Precision's EUR listing (a tube of 15 for EUR9.99) and US availability is unconfirmed.",
+    "Exact calories and total carbohydrate per tablet aren't published for this specific SKU. PH 500 discloses 10 kcal / 3g carb per tablet on its US Nutrition Facts panel; PH 250's own page and every retailer checked list only the electrolyte minerals.",
+    "A PH 250-specific ingredients list could not be independently verified; see the ingredients note above."],
+  yes:["You want the lowest sodium dose Precision sells, for cool-weather sessions or everyday hydration rather than heavy sweat loss.",
+       "You already buy PH 500/1000/1500 and want a lighter tier for easy days, and don't mind ordering from Precision's international site."],
+  no:["You want the best cost per 1000mg of sodium in Precision's range; PH 1500 beats this tablet by more than 3x on that measure.",
+      "You need guaranteed US retail availability and pricing."]
+},
+{
+  category:"drink", servingWord:"scoop",
+  id:"neversecond-c30-drink", code:"NS30", short:"C30 Drink Mix", name:"C30 Sports Drink", brand:"NEVERSECOND",
+  reviewed:"2026-09-03",
+  buy:[{retailer:"NEVERSECOND", url:"https://never2.com/products/c30-sports-drink-640g", price:1.70, pack:"640 g bag, 20 servings, {{money:34.00}}"}],
+  serving:"32 g scoop in 500-750 ml water", kcal:120, carbs:30, sugars:12, sodium:200, caffeine:0,
+  price:1.70, boxPrice:34.00, boxQty:20,
+  ratio:"1 : 0.5", ratioProv:"Stated", ratioScore:72,
+  photo:"img/products/neversecond-c30-drink.webp",
+  ingredients:"Maltodextrin, Fructose, Acidity Regulator (Trisodium Citrate), Natural Flavor",
+  thesis:"The same 200mg sodium per 30g of carbohydrate as every other product in NEVERSECOND's C-Series, just packaged as a scoop-your-own drink mix below the C90 Drink Mix tier already in this catalog -- at <b>{{money:0.057}} a gram</b>, essentially matching C90's {{money:0.053}}.",
+  pros:[
+    "30g carbohydrate and 200mg sodium per scoop, the same carb-to-sodium ratio NEVERSECOND uses across C30 Gel, C30+ Gel, and C90 Drink Mix, so it slots into the same math without changing your sodium target.",
+    "States a 2:1 maltodextrin-to-fructose ratio, the same blend disclosed for C30 Gel and C90 Drink Mix.",
+    "Four-ingredient label: maltodextrin, fructose, trisodium citrate, natural flavor.",
+    "{{money:0.057}} a gram is close to C90 Drink Mix's {{money:0.053}}, so the lower-carb tier doesn't carry a real cost penalty per gram."],
+  cons:[
+    "At 30g carb per scoop you need three scoops an hour to hit 90g/hr, versus one sachet of C90 Drink Mix -- more measuring and mixing for the same total carbohydrate.",
+    "12g of the 30g carbohydrate is sugars per the US Nutrition Facts panel, more sugar-forward than some higher-carb competitor blends.",
+    "Sold as a 640g bulk bag ({{money:34.00}}, 20 scoops) or a 6-count trial pack ({{money:20.00}} for 6, {{money:3.33}} a serving); the trial pack costs nearly twice as much per scoop as the bulk bag.",
+    "No single-sachet SKU at the bulk bag's per-serving price was found; you're either scooping from a bag or paying the trial-pack premium."],
+  yes:["You already run NEVERSECOND's C-Series and want a lower-carb drink option than C90 without switching sodium ratios.",
+       "You want to mix your own concentration by scooping from a bag rather than using a fixed single-serve sachet."],
+  no:["You want single-serve packets at bulk-bag pricing; the trial pack nearly doubles the per-scoop cost.",
+      "You want a bigger single dose per serving; C90 Drink Mix delivers 3x the carbohydrate per sachet."]
 }
 ];
 
