@@ -1839,6 +1839,29 @@ function renderAbout(){
   document.title = "About - Fuel Finder";
   clearNavHighlights();
   document.getElementById("toc").style.display = "none";
+
+  const sections = [
+    { title: "The problem", body: `
+      <p class="thesis">Read enough gel packaging and you start seeing the same words everywhere: "fast-absorbing," "optimal," "engineered for performance." None of it means anything you can actually measure, and none of it helps when you're standing in front of two products trying to decide between them. What you can measure is already printed on the label: carbs per serving, sodium, the glucose to fructose ratio, caffeine, cost. We take that and score it the same way for every product, so the packaging stops being the thing making the decision for you.</p>` },
+    { title: "What actually differs between products", body: `
+      <p class="thesis">Once you get past the marketing, most gels and drink mixes really only differ on a handful of things:</p>
+      <ul class="thesis" style="padding-left:1.2em">
+        <li><b>Carb density.</b> How many grams of carbohydrate you're getting per serving. It's what decides whether you need four gels an hour or six to hit your target.</li>
+        <li><b>Glucose to fructose ratio.</b> A single carb source, usually just maltodextrin, caps out lower than a blend does. Glucose and fructose use two different transporters in your gut, so a blended product can move more carbohydrate per hour than a single-source one can. That's why almost everything built for really high intake is a blend.</li>
+        <li><b>Sodium.</b> Some products build in a real dose of sodium every serving. Others carry almost none and assume you're getting it elsewhere. Neither way is wrong, it just changes what else you need to be carrying with you.</li>
+        <li><b>Caffeine.</b> In some products by design, left out of others by design. Handy in the back half of a long race, unwelcome if you're already wired or running at 4am.</li>
+        <li><b>Ingredient count.</b> A shorter label tends to sit easier on the stomach a few hours in. It's not a guarantee, but it's the reasoning behind the gut-comfort figure on every gel page.</li>
+      </ul>
+      <p class="thesis">Every product page breaks these out on their own instead of folding them into one number, so you can weigh whichever ones matter for your race.</p>` },
+    { title: "Who's behind this", body: `
+      <p class="thesis">I'm Lourenço Faria e Maia, an amateur endurance athlete with a background in cell biology. I've raced an Ironman 70.3 and more half marathons than I've bothered to count, and spent most of that time restocking a gear bag from whatever brand's marketing had gotten to me most recently.</p>
+      <p class="thesis">What actually got this built was noticing how little of that marketing agreed with itself: one brand's gel is "optimally absorbed," and so is the next one's, at a different ratio, for different reasons, neither citing anything you could check. A background in cell biology made the gap between the claim and the label hard to ignore, so I started pulling the numbers directly off the packet instead of trusting the front of it. This site is that same exercise, done for the whole catalog instead of just my own gear bag.</p>` },
+    { title: "How we stay unbiased", body: `
+      <p class="thesis">Nobody paid to be listed here, and nothing ranks higher for being a bigger name. We don't run affiliate links either, so there's no reason for us to point you toward whatever pays best. Scores are set against a fixed scale we decided on ahead of time, not against whatever else happens to be in the catalog that week, so adding a new product never quietly moves anyone else's number. If you want the full mechanics of how a score actually gets built, that's on the <a href="${sitePath("/methodology/")}" data-page="methodology">Methodology</a> page.</p>` },
+    { title: "Not sure where to start?", body: `
+      <p class="thesis">Answer a few questions in the <a href="${sitePath("/find/")}" data-page="find">Find Your Fuel</a> quiz about how you're actually planning to use it, and it'll rank the catalog against your answers instead of a flat average.</p>` }
+  ];
+
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
     <p class="eye">Why this site exists</p>
@@ -1846,39 +1869,20 @@ function renderAbout(){
     <p class="thesis">Pick up any gel or drink mix and the packaging tells you it's the best one. We got tired of trying to compare those claims to each other, so we started pulling the numbers straight off the label instead. That's really the whole idea behind this site.</p>
   </div>
 
-  <section>
-    <div class="sh"><h2>The problem</h2><span class="rule"></span></div>
-    <p class="thesis">Read enough gel packaging and you start seeing the same words everywhere: "fast-absorbing," "optimal," "engineered for performance." None of it means anything you can actually measure, and none of it helps when you're standing in front of two products trying to decide between them. What you can measure is already printed on the label: carbs per serving, sodium, the glucose to fructose ratio, caffeine, cost. We take that and score it the same way for every product, so the packaging stops being the thing making the decision for you.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>What actually differs between products</h2><span class="rule"></span></div>
-    <p class="thesis">Once you get past the marketing, most gels and drink mixes really only differ on a handful of things:</p>
-    <ul class="thesis" style="padding-left:1.2em">
-      <li><b>Carb density.</b> How many grams of carbohydrate you're getting per serving. It's what decides whether you need four gels an hour or six to hit your target.</li>
-      <li><b>Glucose to fructose ratio.</b> A single carb source, usually just maltodextrin, caps out lower than a blend does. Glucose and fructose use two different transporters in your gut, so a blended product can move more carbohydrate per hour than a single-source one can. That's why almost everything built for really high intake is a blend.</li>
-      <li><b>Sodium.</b> Some products build in a real dose of sodium every serving. Others carry almost none and assume you're getting it elsewhere. Neither way is wrong, it just changes what else you need to be carrying with you.</li>
-      <li><b>Caffeine.</b> In some products by design, left out of others by design. Handy in the back half of a long race, unwelcome if you're already wired or running at 4am.</li>
-      <li><b>Ingredient count.</b> A shorter label tends to sit easier on the stomach a few hours in. It's not a guarantee, but it's the reasoning behind the gut-comfort figure on every gel page.</li>
-    </ul>
-    <p class="thesis">Every product page breaks these out on their own instead of folding them into one number, so you can weigh whichever ones matter for your race.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>Who's behind this</h2><span class="rule"></span></div>
-    <p class="thesis">I'm Lourenço Faria e Maia, an amateur endurance athlete with a background in cell biology. I've raced an Ironman 70.3 and more half marathons than I've bothered to count, and spent most of that time restocking a gear bag from whatever brand's marketing had gotten to me most recently.</p>
-    <p class="thesis">What actually got this built was noticing how little of that marketing agreed with itself: one brand's gel is "optimally absorbed," and so is the next one's, at a different ratio, for different reasons, neither citing anything you could check. A background in cell biology made the gap between the claim and the label hard to ignore, so I started pulling the numbers directly off the packet instead of trusting the front of it. This site is that same exercise, done for the whole catalog instead of just my own gear bag.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>How we stay unbiased</h2><span class="rule"></span></div>
-    <p class="thesis">Nobody paid to be listed here, and nothing ranks higher for being a bigger name. We don't run affiliate links either, so there's no reason for us to point you toward whatever pays best. Scores are set against a fixed scale we decided on ahead of time, not against whatever else happens to be in the catalog that week, so adding a new product never quietly moves anyone else's number. If you want the full mechanics of how a score actually gets built, that's on the <a href="${sitePath("/methodology/")}" data-page="methodology">Methodology</a> page.</p>
-  </section>
-
-  <section>
-    <div class="sh"><h2>Not sure where to start?</h2><span class="rule"></span></div>
-    <p class="thesis">Answer a few questions in the <a href="${sitePath("/find/")}" data-page="find">Find Your Fuel</a> quiz about how you're actually planning to use it, and it'll rank the catalog against your answers instead of a flat average.</p>
-  </section>`;
+  <div class="accordion">
+    ${sections.map((s, i) => `
+    <div class="acc-item">
+      <h2 class="acc-item-heading">
+        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="false" aria-controls="acc-panel-${i}" id="acc-head-${i}">
+          <span class="acc-title">${esc(s.title)}</span>
+          <span class="acc-toggle" aria-hidden="true"></span>
+        </button>
+      </h2>
+      <div class="acc-panel" id="acc-panel-${i}" role="region" aria-labelledby="acc-head-${i}">
+        <div class="acc-panel-in">${s.body}</div>
+      </div>
+    </div>`).join("")}
+  </div>`;
   window.scrollTo(0,0);
 }
 
