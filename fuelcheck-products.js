@@ -680,21 +680,6 @@ const PRODUCTS = [
   yes:["You want the highest magnesium dose of any tablet here without LMNT's full 1000 mg of sodium.","You want a zero-calorie, zero-sugar tablet with vitamin C built in."],
   no:["You're comparison-shopping strictly in US dollars; this line is priced in GBP with no confirmed US listing.","You need a large single-tablet sodium dose; 250 mg is modest next to LMNT or Precision."]
 },
-{
-  category:"electrolyte", servingWord:"stick", 
-  id:"lmnt-raspberry-salt", code:"LMR", short:"Raspberry Salt", name:"LMNT Raspberry Salt", brand:"LMNT",
-  reviewed:"2026-08-28",
-  buy:[{retailer:"LMNT", url:"https://drinklmnt.com/products/lmnt-recharge-electrolyte-drink?variant=29460998651938", price:45.0, pack:"box of 30"}],
-  photo:"img/products/lmnt-raspberry-salt.webp",
-  serving:"1 stick pack (6 g) in 16\u201324 oz water", kcal:5, carbs:1, sodium:1000, potassium:200, calcium:0, magnesium:60, caffeine:0,
-  price:1.5, boxPrice:45.0, boxQty:30,
-  ingredients:"Salt (Sodium Chloride), Citric Acid, Magnesium Malate, Potassium Chloride, Natural Raspberry Flavor, Stevia Leaf Extract",
-  thesis:"The same 1000 mg of sodium as LMNT's own Citrus Salt, but Raspberry Salt's panel declares <b>1 g of total carbohydrate against Citrus Salt's zero</b> -- a small, real difference in an otherwise identical formula.",
-  pros:["1000 mg of sodium, matching every other LMNT flavor for the highest single-serving dose in this set.","200 mg of potassium and 60 mg of magnesium, unchanged from Citrus Salt.","Six-ingredient label, differing from Citrus Salt only in the flavoring."],
-  cons:["Zero calcium, the same gap shared by every LMNT flavor here.","{{money:1.50}} a stick for 1000 mg of sodium is mid-pack cost; 4Endurance reaches 1000 mg at roughly {{money:1.08}} for the equivalent dose across four tablets.","1000 mg in a single stick may be more sodium than some athletes want in one dose."],
-  yes:["You already use LMNT Citrus Salt and want flavor variety at the same sodium dose.","You want a large single dose of sodium with next to no carbohydrate."],
-  no:["You want calcium in the same product.","You'd rather titrate sodium in smaller doses across the day."]
-},
 
 /* ---- third wave (catalog expansion, research-verified 2026-09-03) ---- */
 {
