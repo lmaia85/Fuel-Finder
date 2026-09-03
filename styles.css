@@ -407,10 +407,14 @@ footer b{color:var(--dim);font-weight:500}
    its own rule next to the heading, and the two lines sat close enough
    together to read as one broken divider instead of two intentional ones. */
 .home-hero{padding:40px 0 28px}
-.home-search-label{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.6vw,26px);
-  line-height:1.15;letter-spacing:-.015em;margin:0;color:var(--ink)}
+/* Small and muted on purpose -- the hero's own <h1> above now carries
+   the page's thesis, so this only needs to identify the input for
+   accessibility, not repeat itself as a second headline. */
+.home-search-label{display:block;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 8px}
 .home-hero .thesis{margin:22px 0 0;max-width:60ch}
-.home-search{position:relative;margin:18px 0 0}
+.home-proof{color:var(--dim)}
+.home-search{position:relative;margin:26px 0 0}
 .home-search input{width:100%;background:var(--panel);border:1px solid var(--rule-2);color:var(--ink);
   font-family:var(--mono);font-size:15px;padding:18px 20px;outline:none}
 .home-search input:focus{border-color:var(--me)}
