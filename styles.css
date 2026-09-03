@@ -497,6 +497,10 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me)}
 .bc-hero-note{font-family:var(--body);font-size:13px;color:var(--dim);margin:12px 0 0;line-height:1.55}
 
 .bc-hero{background:var(--band);border-color:var(--me)}
+/* Pinned to the card's corner rather than sitting inline after the name --
+   inline made long product names wrap awkwardly around the pill instead
+   of just running past it. */
+.bc-rated .score-pill{position:absolute;top:22px;right:24px}
 .bc-hero-brand{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 /* Inside the three flagship cells the stat/price line sits right after
    the name and brand (not pushed to the bottom the way it is in the
