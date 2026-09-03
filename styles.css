@@ -249,6 +249,10 @@ section{padding:36px 0;border-bottom:1px solid var(--rule)}
 .acc-panel-in{overflow:hidden;min-height:0}
 .acc-panel-in .thesis{margin:0 0 16px}
 .acc-panel-in .thesis:last-child{margin-bottom:26px}
+.bio{overflow:hidden}
+.bio-photo{float:left;width:160px;height:auto;margin:0 20px 12px 0;border-radius:10px;
+  border:1px solid var(--rule-2);object-fit:cover}
+@media(max-width:800px){.bio-photo{float:none;display:block;width:100%;max-width:260px;margin:0 auto 16px}}
 
 /* table */
 /* Category pages (/gels/, /drink-mixes/, /electrolytes/) -- a full,
