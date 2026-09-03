@@ -7,7 +7,7 @@ const { startServer } = require("./dev-server");
 const ROOT = path.join(__dirname, "..");
 const OUT = path.join(ROOT, "_site");
 
-const STATIC_FILES = ["index.html", "404.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png", "CNAME"];
+const STATIC_FILES = ["index.html", "404.html", "styles.css", "app.js", "fuelcheck-products.js", "og-image.png", "CNAME", "googlea7cf71d0f425b9ee.html"];
 const STATIC_DIRS = ["img"];
 
 /* Already-relative references (styles.css, img/products/x.webp): prefix
