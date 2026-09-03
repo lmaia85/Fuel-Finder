@@ -1370,6 +1370,61 @@ const PRODUCTS = [
        "You want a caffeine source lighter than a 100 mg gel, closer to half a cup of coffee."],
   no:["You need a bigger sodium dose per unit -- look at Precision Fuel & Hydration's PH 1500 or SiS GO Hydro instead.",
       "You don't want caffeine late in a session and would rather keep plain Nuun Sport in rotation."]
+},
+{
+  category:"drink", servingWord:"pouch",
+  id:"tailwind-high-carb-fuel", code:"THCF", short:"High Carb Fuel", name:"Tailwind High Carb Fuel", brand:"Tailwind Nutrition",
+  reviewed:"2026-09-03",
+  buy:[{retailer:"Tailwind Nutrition", url:"https://tailwindnutrition.com/products/highcarbfuel", price:58.99, pack:"16-serving bag"}],
+  serving:"1 pouch (or 3 scoops) in 16-24 oz water", kcal:360, carbs:90, sugars:61, sodium:680, caffeine:0,
+  price:3.69, boxPrice:58.99, boxQty:16,
+  ratio:"1 : 0.5", ratioProv:"Stated", ratioScore:72,
+  photo:"img/products/tailwind-high-carb-fuel.webp",
+  costWhy:"Tailwind Endurance Fuel is {{money:0.041}}/g too, so this higher-carb reformulation carries no per-gram premium. NEVERSECOND C90 Drink Mix is {{money:0.053}}/g for the same 90g carb dose.",
+  carbNote:"90g in one pouch is four times Endurance Fuel's 25g -- a high-intensity, higher-carb-density reformulation of the same brand, not a flavor of the original.",
+  ingredients:"Dextrose (Anhydrous), Maltodextrin, Fructose, Citric Acid, Sodium Citrate, Sea Salt, Organic Ginger Extract, Potassium Salt, Calcium Carbonate, Natural Flavor, Magnesium Oxide",
+  thesis:"Tailwind's own 90g-carb drink, landing at <b>{{money:0.041}} a gram of carbohydrate</b> -- identical to its own Endurance Fuel's per-gram cost despite carrying 90g of carbs instead of 25g and 680mg of sodium instead of 310mg.",
+  pros:[
+    "90g of carbohydrate a pouch in a brand-stated 2:1 glucose-to-fructose ratio.",
+    "680mg of sodium a pouch, more than double Endurance Fuel's 310mg, aimed at hot or high-intensity efforts.",
+    "{{money:0.041}} a gram of carbohydrate -- matches Endurance Fuel's own per-gram cost and beats NEVERSECOND C90 Drink Mix's {{money:0.053}}/g at the same 90g carb dose.",
+    "Same short, non-gimmick ingredient list style as the rest of the Tailwind line."],
+  cons:[
+    "61g of the 90g carbohydrate is sugars -- more simple sugar per serving than any other drink mix in this catalog.",
+    "360 kcal and 680mg sodium in a single pouch is concentrated; mixing at the full 16-24oz keeps it drinkable but it's still a big single dose.",
+    "Only two flavors (Ginger Lime, Lemonade) versus Endurance Fuel's much wider range.",
+    "Positioned by Tailwind for high-intensity, shorter efforts -- not marketed as a straight swap for Endurance Fuel across a full Ironman."],
+  yes:["You want a higher-carb Tailwind option for shorter, harder efforts without switching brands.",
+       "You're shopping against NEVERSECOND C90 or Maurten Drink Mix 320 and want a similar 80-90g carb dose for less per gram."],
+  no:["You want Tailwind's original low-sugar profile -- Endurance Fuel carries a fraction of the sugar per serving.",
+      "You're fueling an ultra-distance event where 360 kcal and 680mg sodium per pouch is too concentrated to sustain hour after hour."]
+},
+{
+  category:"electrolyte", servingWord:"sachet",
+  id:"tailwind-rapid-hydration", code:"TRHY", short:"Rapid Hydration", name:"Tailwind Rapid Hydration", brand:"Tailwind Nutrition",
+  reviewed:"2026-09-03",
+  buy:[{retailer:"Tailwind Nutrition", url:"https://tailwindnutrition.com/products/rapid-hydration", price:29.99, pack:"25-serving bag"}],
+  serving:"1 sachet (or 1 scoop) in 16-24 oz water", kcal:45, carbs:12, sodium:320, potassium:90, calcium:30, magnesium:10, caffeine:0,
+  price:1.20, boxPrice:29.99, boxQty:25,
+  photo:"img/products/tailwind-rapid-hydration.webp",
+  costWhy:"GU Hydration Tabs are {{money:2.09}} per 1000mg, Nuun Sport {{money:2.5}}, Precision Fuel & Hydration PH 500 {{money:3.2}}, and LMNT {{money:1.5}} -- only SiS GO Electrolyte at {{money:6.25}} costs more per 1000mg than this.",
+  sodiumNote:"320mg a sachet is under a third of LMNT's 1000mg single-stick dose -- built for lighter sessions, not as a standalone hot-weather sodium plan.",
+  ingredients:"Cane Sugar, Natural Flavors, Sea Salt, Citric Acid, Sodium Citrate, Potassium Salt, Vitamin C, Calcium Carbonate, Magnesium Oxide",
+  thesis:"Tailwind's light-hydration line, priced at <b>{{money:3.75}} per 1000mg of sodium</b> -- pricier than GU Hydration Tabs' {{money:2.09}} or LMNT's {{money:1.5}}, but the only electrolyte product in this catalog sweetened with real cane sugar and carrying 12mg of vitamin C.",
+  pros:[
+    "320mg sodium and 90mg potassium a sachet, dosed for shorter or lighter sessions rather than Endurance Fuel's longer-effort 310mg-per-serving target.",
+    "12mg of vitamin C -- not found in any other electrolyte product in this catalog.",
+    "Sweetened with cane sugar rather than a non-nutritive sweetener: 10g of its 12g carbohydrate is sugars, a genuinely different formulation than the zero-carb LMNT or High5 Zero tablets.",
+    "45 kcal a sachet, enough to matter for short recovery use without approaching drink-mix calorie territory."],
+  cons:[
+    "{{money:3.75}} per 1000mg of sodium is pricier than GU Hydration Tabs, Nuun Sport, Precision Fuel & Hydration PH 500, and LMNT.",
+    "12g of carbohydrate a sachet (10g sugars) means this isn't a zero-calorie option the way LMNT or High5 Zero are.",
+    "320mg of sodium a sachet is low for hot-weather, long-session use -- three sachets are needed to approach LMNT's single-stick 1000mg dose.",
+    "Calcium and magnesium are present (30mg/10mg) but secondary to the sodium/potassium/vitamin-C positioning."],
+  yes:["You want light hydration for short or easy sessions and don't mind some sugar and calories.",
+       "You're already on Tailwind Endurance Fuel or High Carb Fuel and want a matching lower-dose option for easy days."],
+  no:["You want the lowest cost per 1000mg of sodium -- GU Hydration Tabs, Nuun Sport, and LMNT all beat it on price.",
+      "You want a zero-carb, zero-calorie electrolyte tablet."]
 }
 ];
 
