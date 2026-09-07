@@ -1942,9 +1942,9 @@ function renderAbout(){
 
   <div class="accordion">
     ${sections.map((s, i) => `
-    <div class="acc-item">
+    <div class="acc-item${i === 0 ? " open" : ""}">
       <h2 class="acc-item-heading">
-        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="false" aria-controls="acc-panel-${i}" id="acc-head-${i}">
+        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="${i === 0}" aria-controls="acc-panel-${i}" id="acc-head-${i}">
           <span class="acc-title">${esc(s.title)}</span>
           <span class="acc-toggle" aria-hidden="true"></span>
         </button>
@@ -2005,9 +2005,9 @@ function renderMethodology(){
 
   <div class="accordion">
     ${sections.map((s, i) => `
-    <div class="acc-item">
+    <div class="acc-item${i === 0 ? " open" : ""}">
       <h2 class="acc-item-heading">
-        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="false" aria-controls="acc-panel-${i}" id="acc-head-${i}">
+        <button type="button" class="acc-head" data-acc="${i}" aria-expanded="${i === 0}" aria-controls="acc-panel-${i}" id="acc-head-${i}">
           <span class="acc-title">${esc(s.title)}</span>
           <span class="acc-toggle" aria-hidden="true"></span>
         </button>
