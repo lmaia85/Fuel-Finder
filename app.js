@@ -1105,12 +1105,16 @@ page.addEventListener("click", e => {
   const fc = e.target.closest("[data-fc]");
   if(fc){ renderFinder(fc.dataset.fc); return; }
 
+  const jump = e.target.closest("#frJump");
+  if(jump){ e.preventDefault(); document.getElementById("finder-results").scrollIntoView({behavior: "smooth", block: "start"}); return; }
+
   const fq = e.target.closest("[data-fq]");
   if(fq){ const key = fq.dataset.fq, val = fq.dataset.fv;
           finderAnswers[key] = finderAnswers[key] === val ? null : val;
           document.querySelectorAll(`.fq-opt[data-fq="${key}"]`).forEach(b =>
             b.classList.toggle("on", b.dataset.fv === finderAnswers[key]));
           document.getElementById("finderResultsBody").innerHTML = finderResultsHTML();
+          syncFinderJump();
           return; }
 
   const share = e.target.closest("#calcShare");
@@ -1536,8 +1540,27 @@ function renderFinder(cat){
   <section id="finder-results">
     <div class="sh"><h2>The right ${esc(CATEGORY_LABEL[finderAnswers.category])} for you</h2><span class="rule"></span></div>
     <div id="finderResultsBody">${finderResultsHTML()}</div>
-  </section>`;
+  </section>
+  <a class="fr-jump" id="frJump" href="#finder-results" hidden>See your results &darr;</a>`;
   window.scrollTo(0,0);
+  initFinderJump();
+}
+
+/* Floating "See your results" pill. Shown once the reader has picked an
+   answer and the results section is off screen; hidden again when it
+   scrolls into view. IntersectionObserver does the visibility tracking. */
+let frResultsVisible = true, frObserver = null;
+function syncFinderJump(){
+  const j = document.getElementById("frJump");
+  if(j) j.hidden = frResultsVisible || !finderHasAnswer();
+}
+function initFinderJump(){
+  if(frObserver) frObserver.disconnect();
+  frResultsVisible = true;
+  const results = document.getElementById("finder-results");
+  if(!results || !("IntersectionObserver" in window)) return;
+  frObserver = new IntersectionObserver(([en]) => { frResultsVisible = en.isIntersecting; syncFinderJump(); }, {rootMargin: "0px 0px -20% 0px"});
+  frObserver.observe(results);
 }
 
 /* Race fueling calculator. Two inputs -- carb tolerance (mapped to a target
