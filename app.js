@@ -1,5 +1,5 @@
 
-/* Where this site is mounted, derived at runtime — never configured, because
+/* Where this site is mounted, derived at runtime -- never configured, because
    the hosting location isn't fixed: "/" on a root domain (and on the local
    dev server), "/Fuel-Finder/" under a GitHub Pages *project* subpath.
 
@@ -10,8 +10,8 @@
    ../../app.js), so they always resolve back to the same site root. Strip
    the filename off that resolved path and what's left is the base path.
 
-   Everything that reads or writes the URL — routeFromPath() and every
-   pushState — goes through this, so the app never assumes root hosting. */
+   Everything that reads or writes the URL -- routeFromPath() and every
+   pushState -- goes through this, so the app never assumes root hosting. */
 const BASE_PATH = (() => {
   try{
     const src = document.currentScript && document.currentScript.src;
@@ -24,7 +24,7 @@ const BASE_PATH = (() => {
    thinks in and returns the real one for wherever the site actually lives. */
 const sitePath = p => BASE_PATH + String(p).replace(/^\//, "");
 
-/* p.reviewed is an ISO date ("2026-08-26") — when that product's review
+/* p.reviewed is an ISO date ("2026-08-26") -- when that product's review
    text (thesis/pros/cons) was last actually written or verified, taken
    from git history rather than typed by hand. Formatted here rather than
    stored pre-formatted so the stored value stays sortable/machine-usable. */
@@ -37,17 +37,17 @@ function formatReviewDate(iso){
 const CATEGORY_LABEL = {gel:"gel", drink:"drink mix", electrolyte:"electrolyte"};
 const CATEGORY_PLURAL = {gel:"gels", drink:"drink mixes", electrolyte:"electrolytes"};
 const CATEGORY_PAGE_SLUG = {gel: "gels", drink: "drink-mixes", electrolyte: "electrolytes"};
-/* Past six columns the table gets cramped and hard to actually compare —
+/* Past six columns the table gets cramped and hard to actually compare --
    cap it here rather than let it grow unbounded. */
 const MAX_COMPARE = 6;
 
 /* Logs searches that didn't match anything in the catalog, so whoever runs
    the site can see what people are actually looking for and go write that
-   review next. Backed by localStorage for now — this only sees requests
+   review next. Backed by localStorage for now -- this only sees requests
    made in the same browser, which is fine while the site is local-only.
    When this moves onto a live server, swap the bodies of save()/list()/
    remove()/clear() for real network calls (e.g. POST/GET/DELETE against an
-   API) — every caller elsewhere in the file goes through this object, so
+   API) -- every caller elsewhere in the file goes through this object, so
    nothing outside these four functions needs to change. */
 const RequestLog = (() => {
   const KEY = "fuelfinder_requests";
@@ -80,8 +80,8 @@ const TARGET_RATE = 90;
 const MARATHON_G  = 300;
 
 /* Gels and drink mixes are carb-fuel products, scored by cost per gram of
-   carbohydrate. Electrolyte products are near-zero-carb by design — the
-   same math would divide by ~0 — so they're scored by cost per 1000mg of
+   carbohydrate. Electrolyte products are near-zero-carb by design -- the
+   same math would divide by ~0 -- so they're scored by cost per 1000mg of
    sodium instead, the number that actually varies between them. */
 function derive(p){
   if(p.category === "electrolyte"){
@@ -112,19 +112,19 @@ function ingredientGutScore(p){
 }
 PRODUCTS.forEach(p => { if(p.category === "gel") p.gut = ingredientGutScore(p); });
 
-/* Overall score. Each category scores its own dimensions — gels and drinks
+/* Overall score. Each category scores its own dimensions -- gels and drinks
    share rate/density/sodium/cost, gels alone add gut tolerance (the only
    category where it's judged), electrolytes get a wholly different set
    built from their own fields. Every dimension is scored against a FIXED
    scale (worst, best below), not against whatever else happens to be in
-   the catalog — a 90 here means the same thing regardless of what's added
+   the catalog -- a 90 here means the same thing regardless of what's added
    or removed later. Anchors are grounded in real sports-nutrition
-   reference points where they exist (carb density, sodium, potassium) —
+   reference points where they exist (carb density, sodium, potassium) --
    see the Methodology page for what each is based on and where the
    grounding is weaker (calcium, magnesium, both cost dimensions, gut
-   comfort — those are pragmatic anchors, not physiological ones). A
+   comfort -- those are pragmatic anchors, not physiological ones). A
    product's score is the plain average of whichever dimensions it has a
-   real value for — missing data is dropped, not counted against it, and
+   real value for -- missing data is dropped, not counted against it, and
    the "Based on N of X measures" note on the page says when that's
    happened. */
 const SCORE_DIMS = {
@@ -150,7 +150,7 @@ const SCORE_DIMS = {
 };
 
 /* Computes the overall score AND keeps the per-dimension breakdown that
-   produced it — the score badge shows just the number, but the "Score
+   produced it -- the score badge shows just the number, but the "Score
    breakdown" section on each product page shows its work, same reasoning
    as making gut comfort transparent rather than an unexplained figure. */
 function computeScore(p){
@@ -251,13 +251,13 @@ const pluralize = (word, count = 2) => {
    a hover, since the tooltip span itself is visually hidden until then. */
 const infoTip = text => `<span class="info-ic" tabindex="0" aria-label="${esc(text)}">?<span class="info-tip">${esc(text)}</span></span>`;
 
-/* Currency display. Every price in the catalog is stored in USD — this
+/* Currency display. Every price in the catalog is stored in USD -- this
    only affects how it's *shown*. Rates come from Frankfurter (ECB data,
    free, no API key or account needed), fetched at most once a day and
    cached in localStorage; if the fetch fails for any reason (offline,
    API down), everything just silently stays in USD rather than showing
-   a broken or stale conversion. Prose in a product's thesis/pros/cons —
-   editorial copy written once, not live data — always stays in the
+   a broken or stale conversion. Prose in a product's thesis/pros/cons --
+   editorial copy written once, not live data -- always stays in the
    dollar figures it was written with; only the structured price fields
    (buy links, the comparison table, cost-per-gram, the calculator)
    convert. */
@@ -313,7 +313,7 @@ function renderMoney(str){
   return str.replace(/\{\{money:(\d+(?:\.\d+)?)\}\}/g, (_, n) => moneyPrecise(Number(n), 2));
 }
 
-/* Re-paints whatever page the URL says we're on, preserving scroll —
+/* Re-paints whatever page the URL says we're on, preserving scroll --
    used after a currency change (user-driven) or the FX rates arriving
    late (network-driven), neither of which should jump the page to top
    the way a real navigation does. */
@@ -323,7 +323,7 @@ function refreshCurrentView(){
   window.scrollTo(0, y);
 }
 
-/* GoatCounter's script only auto-counts the very first pageload — it has
+/* GoatCounter's script only auto-counts the very first pageload -- it has
    no way to know this is a client-routed SPA. Wrapping pushState once,
    here, makes every in-app navigation register as a real pageview too,
    without having to remember to call this at each of the many places
@@ -346,7 +346,7 @@ function refreshCurrentView(){
 
 const ord = n => n + (["th","st","nd","rd"][(n%100-20)%10] || ["th","st","nd","rd"][n%100] || "th");
 
-/* Turns catalog prose (which is HTML — tags and entities alike) into the
+/* Turns catalog prose (which is HTML -- tags and entities alike) into the
    plain text a meta description needs. Parsing it and reading textContent
    does both jobs at once: a regex that only strips tags leaves "&mdash;"
    sitting there as literal characters, and setting that as an attribute
@@ -361,7 +361,7 @@ const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from d
 
 /* Title/description for the tab, search snippets, and social previews.
    clearNavHighlights() calls this with null on every non-product render to
-   restore the site-wide defaults — this is a single hash-routed document,
+   restore the site-wide defaults -- this is a single hash-routed document,
    so nothing else clears a previous product's tags on the way out. */
 function setShareMeta(p){
   const title = p ? p.name + " - Fuel Finder" : "Fuel Finder - Endurance nutrition reviews";
@@ -411,7 +411,7 @@ function prov(p){
   return p.ratioProv === "Stated" ? "" : " &middot; " + esc(p.ratioProv.toLowerCase());
 }
 
-/* The comparison set is fully user-controlled — any product, including the
+/* The comparison set is fully user-controlled -- any product, including the
    one being reviewed, can be removed or searched for and added back.
    Whenever the product being reviewed IS in the set, it's pinned as the
    leftmost column; removing it takes it out like any other product rather
@@ -437,7 +437,7 @@ function table(cur){
   const unit = cur.servingWord || "sachet";
   /* 5th field is the definition. The numbers are useless to a reader who
      does not know what they measure. Electrolyte products get a different
-     row set entirely — carbs aren't the point, sodium/potassium/calcium/
+     row set entirely -- carbs aren't the point, sodium/potassium/calcium/
      magnesium are, so "cost per gram of carbohydrate" would be meaningless
      (often a divide-by-near-zero) for this category. */
   const rows = cur.category === "electrolyte" ? [
@@ -477,7 +477,7 @@ function table(cur){
   rows.unshift(["Overall score", p=>p.overallScore===null?"n/d":p.overallScore, p=>p.overallScore, "hi",
    "An average of the various variables measured."]);
 
-  /* At the cap there's nothing to add, so the column simply isn't there —
+  /* At the cap there's nothing to add, so the column simply isn't there --
      no button, no message, no dashed slot implying more room exists. */
   const atMax = set.length >= MAX_COMPARE;
   const addLabel = CATEGORY_LABEL[cur.category];
@@ -511,13 +511,13 @@ function table(cur){
   }).join("");
 
   /* Fixed per-column widths (via colgroup, with table-layout:fixed) so each
-     gel's column stays the same size whether it's one of two or one of five —
+     gel's column stays the same size whether it's one of two or one of five --
      removing or adding a column changes the table's total width, not how
      wide the surviving columns are. The trailing .addcol is a permanent
-     empty column — the "+ Add" control lives there instead of floating
+     empty column -- the "+ Add" control lives there instead of floating
      beside the section heading, so adding a gel is always in the same
      place the columns themselves are. Omitted entirely once the comparison
-     is at MAX_COMPARE — no slot, no option, nothing to click. */
+     is at MAX_COMPARE -- no slot, no option, nothing to click. */
   const cols = `<colgroup><col class="labelcol">${set.map(()=>'<col class="gelcol">').join("")}${atMax ? "" : '<col class="addcol">'}</colgroup>`;
 
   return `<div class="tw"><table>${cols}<thead>${head}</thead><tbody>${body}</tbody></table></div>`;
@@ -543,7 +543,7 @@ function drawResults(q){
 
 /* Per-product Review schema.org JSON-LD, one genuine single-author review
    per product page. reviewRating mirrors the same null-check the score
-   badge itself uses (p.overallScore===null, see render()) — some products
+   badge itself uses (p.overallScore===null, see render()) -- some products
    don't have enough declared data for a computed score, and this omits the
    whole rating block for those rather than emit a fake 0. Built as a plain
    object and serialized with JSON.stringify so product names/brands with
@@ -756,7 +756,7 @@ function headerOffset(){
 }
 
 /* A section near the end of the page can be shorter than one viewport height,
-   which caps how far the browser can scroll — jumping to its toc link then
+   which caps how far the browser can scroll -- jumping to its toc link then
    lands wherever that cap happens to be (often overlapping an earlier
    section) instead of at the target. Pad the bottom of the page by exactly
    the missing amount so every section can reach its resting scroll position. */
@@ -793,8 +793,8 @@ document.getElementById("toc").addEventListener("click", e => {
 /* ---- nav menus: one per category, each Brand > product, grouped from the
    data. Each category's menu is independent (its own .dd), but they share
    one open/close and brand-submenu behavior via delegation below. */
-/* Clears the "on" state from every top-level nav link — the category
-   dropdowns plus the plain hash-routed links (Find My Gel, Calculator) —
+/* Clears the "on" state from every top-level nav link -- the category
+   dropdowns plus the plain hash-routed links (Find My Gel, Calculator) --
    so each render*() function starts from a known state before lighting up
    whichever link matches where it's navigating to. */
 function clearNavHighlights(){
@@ -845,7 +845,7 @@ function closeMenu(){
   document.querySelectorAll(".nav [aria-expanded]").forEach(el => el.setAttribute("aria-expanded", "false"));
 }
 
-/* Mobile nav drawer: a separate open/close concern from closeMenu() above —
+/* Mobile nav drawer: a separate open/close concern from closeMenu() above --
    closeMenu() resets the Gels/Drink mixes/Electrolytes accordions, this
    toggles the whole drawer those accordions live inside on narrow screens. */
 function closeMobileNav(){
@@ -884,7 +884,7 @@ document.querySelectorAll(".nv > a[data-cat]").forEach(link => {
 
 /* These live as literal href="/find/", href="/calculator/" etc. in
    index.html, which isn't templated at build time and so can't know the
-   mount point. Point them at the real one now that it's known — this also
+   mount point. Point them at the real one now that it's known -- this also
    keeps middle-click / open-in-new-tab honest, not just the click handler. */
 document.getElementById("find-link").setAttribute("href", sitePath("/find/"));
 document.getElementById("calc-link").setAttribute("href", sitePath("/calculator/"));
@@ -944,7 +944,7 @@ document.addEventListener("keydown", e=>{
 document.querySelector(".nav").addEventListener("click", e=>{
   const tog = e.target.closest(".br-toggle");
   if(tog){
-    /* Close sibling brands within this category only — not the full
+    /* Close sibling brands within this category only -- not the full
        closeMenu(), which would also drop the parent .nv's own open state.
        On desktop that's masked by :hover keeping the flyout visible either
        way, but on a tap-only device there's no hover to fall back on, so
@@ -968,7 +968,7 @@ document.querySelector(".nav").addEventListener("click", e=>{
 });
 
 /* Adding/removing a comparison column only needs the table (and its count)
-   redrawn in place — not a full render(), which would also reset scroll
+   redrawn in place -- not a full render(), which would also reset scroll
    position and blow away the finder panel's open/search state. */
 function refreshComparison(){
   document.getElementById("tableWrap").innerHTML = table(CURRENT);
@@ -1017,7 +1017,7 @@ page.addEventListener("click", e => {
   }
 
   /* In-body links inside dynamically-rendered content (e.g. the About page's
-     prose linking to Methodology/Find Your Fuel) — unlike the header/footer
+     prose linking to Methodology/Find Your Fuel) -- unlike the header/footer
      nav, this markup is torn down and rebuilt on every render(), so it can't
      hold its own addEventListener the way footer-about-link etc. do. */
   const pageLink = e.target.closest("[data-page]");
@@ -1165,9 +1165,9 @@ page.addEventListener("keydown", e => {
    products against the reader's answers using the same min-max-against-
    peers approach as overallScore, with weights driven by what was picked
    instead of a fixed dimension list. Each category gets its own question
-   set — the gel questions don't all translate (drink mixes have no gut-
+   set -- the gel questions don't all translate (drink mixes have no gut-
    comfort data and are all caffeine-free; electrolytes aren't a duration-
-   scaled carb fuel at all) — but they share one mechanism and one visual
+   scaled carb fuel at all) -- but they share one mechanism and one visual
    language. Caffeine is a hard filter for gels (binary yes/no on the
    panel); everything else is a soft preference so an unusual combination
    of answers never produces zero results. */
@@ -1361,7 +1361,7 @@ function itemListSchema(cat){
   return JSON.stringify(obj).replace(/<\//g, "<\\/");
 }
 
-/* Category landing pages (/gels/, /drink-mixes/, /electrolytes/) — the
+/* Category landing pages (/gels/, /drink-mixes/, /electrolytes/) -- the
    pages that can actually rank for "best energy gel" and similar, since
    the 41 individual product pages target brand names, not the category.
    Distinct from /find/{cat}/: that page is the interactive quiz tool,
@@ -1540,9 +1540,9 @@ function renderFinder(cat){
   window.scrollTo(0,0);
 }
 
-/* Race fueling calculator. Two inputs — carb tolerance (mapped to a target
+/* Race fueling calculator. Two inputs -- carb tolerance (mapped to a target
    g/hr rate, since most readers don't know their own number) and effort
-   duration — give a total carb target, then every gel and drink mix in the
+   duration -- give a total carb target, then every gel and drink mix in the
    catalog is priced against that target so it's directly comparable to the
    existing product tables rather than a new interaction pattern. */
 const CALC_TOLERANCE = [
@@ -1682,7 +1682,7 @@ function highestRatedInCategory(cat){
   return items.reduce((best, p) => p.overallScore > best.overallScore ? p : best);
 }
 
-/* Small hand-drawn inline icons, not an icon-font or CDN library — this
+/* Small hand-drawn inline icons, not an icon-font or CDN library -- this
    site's only network calls are the ones documented at the top of
    index.html (fonts, GoatCounter, Frankfurter, product photos), and an
    icon CDN would be a fifth. currentColor so a cell just sets color. */
@@ -1704,7 +1704,7 @@ function icon(name){
 }
 
 /* Homepage leaderboard: top 5 by score within a category, switchable via
-   a tab strip. State lives here rather than in the URL — it's a lightweight
+   a tab strip. State lives here rather than in the URL -- it's a lightweight
    homepage toggle, not a distinct page, so it resets on navigation/reload
    the same way calcAnswers does for the calculator. */
 const LB_CATS = ["gel", "drink", "electrolyte"];
@@ -2020,7 +2020,7 @@ function renderMethodology(){
   window.scrollTo(0,0);
 }
 
-/* Shown when a search doesn't match anything in the catalog — a clean
+/* Shown when a search doesn't match anything in the catalog -- a clean
    dead end instead of no result at all, and a natural place to point
    people at what already exists while a new review gets written. */
 function renderWaiting(query){
@@ -2114,7 +2114,7 @@ function renderSearchResultsBody(q){
        <button class="request-btn" data-request="${esc(trimmed)}">Request this one &rarr;</button>`;
 }
 
-/* Owner-only view of what RequestLog has collected — not linked from the
+/* Owner-only view of what RequestLog has collected -- not linked from the
    nav, reached by putting #requests on the URL. Password-gated so a casual
    visitor who finds the URL doesn't see it, but this is a client-only site
    with no server: the password check runs in JS anyone can read, so this
@@ -2182,7 +2182,7 @@ function renderRequestsAdmin(){
 }
 
 /* Path routing. /category/product-id/ is a review permalink, /requests/ is
-   the owner view, and anything else — including bare / — is the landing
+   the owner view, and anything else -- including bare / -- is the landing
    page. select() pushes permalinks; Back/Forward arrive here via popstate. */
 function routeFromPath(){
   /* Strip the mount point first, so the patterns below only ever have to
