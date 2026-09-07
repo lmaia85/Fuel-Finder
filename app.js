@@ -1113,12 +1113,22 @@ page.addEventListener("click", e => {
           document.getElementById("finderResultsBody").innerHTML = finderResultsHTML();
           return; }
 
+  const share = e.target.closest("#calcShare");
+  if(share){
+    syncCalcURL();
+    navigator.clipboard.writeText(location.href)
+      .then(() => { share.textContent = "Link copied"; })
+      .catch(() => { share.textContent = "Copy the address bar to share"; });
+    return;
+  }
+
   const cf = e.target.closest("[data-cf]");
   if(cf){ const key = cf.dataset.cf, val = cf.dataset.cv;
           calcAnswers[key] = val;
           document.querySelectorAll(`.fq-opt[data-cf="${key}"]`).forEach(b =>
             b.classList.toggle("on", b.dataset.cv === calcAnswers[key]));
           document.getElementById("calcResultsBody").innerHTML = calcResultsHTML();
+          syncCalcURL();
           return; }
 
   if(!e.target.closest(".finder")){
@@ -1138,6 +1148,7 @@ page.addEventListener("input", e => {
     calcAnswers.hours = Number(document.getElementById("calcHoursSel").value);
     calcAnswers.minutes = Number(document.getElementById("calcMinsSel").value);
     document.getElementById("calcResultsBody").innerHTML = calcResultsHTML();
+    syncCalcURL();
   }
 });
 page.addEventListener("keydown", e => {
@@ -1514,6 +1525,26 @@ const CALC_HOURS = [...Array(16).keys()];       // 0–15 hr
 const CALC_MINS = [0, 15, 30, 45];
 let calcAnswers = {tolerance: "some", hours: 3, minutes: 0, category: "gel"};
 
+/* Inputs live in the query string (?t=some&h=3&m=0&c=gel) so a result can
+   be bookmarked or shared. Same replaceState pattern as /search. Anything
+   unrecognised falls back to the default rather than erroring. */
+function calcAnswersFromURL(){
+  const q = new URLSearchParams(location.search);
+  const pick = (v, list, dflt) => list.includes(v) ? v : dflt;
+  const num = k => q.has(k) ? Number(q.get(k)) : NaN;
+  return {
+    tolerance: pick(q.get("t"), CALC_TOLERANCE.map(t => t[0]), "some"),
+    hours: pick(num("h"), CALC_HOURS, 3),
+    minutes: pick(num("m"), CALC_MINS, 0),
+    category: pick(q.get("c"), ["gel", "drink"], "gel")
+  };
+}
+function syncCalcURL(){
+  const a = calcAnswers;
+  const dest = sitePath("/calculator/") + `?t=${a.tolerance}&h=${a.hours}&m=${a.minutes}&c=${a.category}`;
+  try{ history.replaceState(null, "", dest); }catch(err){}
+}
+
 function calcTargetRate(){
   const t = CALC_TOLERANCE.find(t => t[0] === calcAnswers.tolerance);
   return t ? t[2] : CALC_TOLERANCE[1][2];
@@ -1537,6 +1568,7 @@ function calcResultsHTML(){
     <div class="k">Carbohydrate needed for this effort</div>
     <div class="v num">${total}<small>g</small></div>
     <div class="calc-rate">${calcTargetRate()} g/hr &times; ${durLabel}</div>
+    <button type="button" class="home-go calc-share" id="calcShare">Copy link to this result &rarr;</button>
   </div>
   <p class="calc-note">This is a reference range from the sports-nutrition literature, not a personal prescription -- body mass, gut training and heat all shift what an individual can actually absorb. <a href="${sitePath("/methodology/")}" data-page="methodology">How these rates are set &rarr;</a></p>
   <div class="fq-opts calc-fueltype">
@@ -1560,7 +1592,7 @@ function renderCalculator(){
   clearNavHighlights();
   document.getElementById("calc-link").classList.add("on");
   document.getElementById("toc").style.display = "none";
-  calcAnswers = {tolerance: "some", hours: 3, minutes: 0, category: "gel"};
+  calcAnswers = calcAnswersFromURL();
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
     <p class="eye">Plan your race</p>
