@@ -1206,9 +1206,11 @@ function finderHasAnswer(){
   return Object.entries(finderAnswers).some(([k,v]) => k !== "category" && v);
 }
 
-function findMatches(answers){
+/* One entry per ranking dimension: [key, getter, better-direction, weight].
+   Split out of findMatches so the results page can print exactly what the
+   current answers are ranking on. */
+function finderDims(answers){
   const cat = answers.category;
-  const pool = PRODUCTS.filter(p => p.category === cat);
   const dims = [];
 
   if(cat === "gel"){
@@ -1243,6 +1245,12 @@ function findMatches(answers){
     dims.push(["cal", p=>p.calcium, "hi", profileW]);
     dims.push(["mag", p=>p.magnesium, "hi", profileW]);
   }
+  return dims;
+}
+
+function findMatches(answers){
+  const pool = PRODUCTS.filter(p => p.category === answers.category);
+  const dims = finderDims(answers);
 
   const scored = pool.map(p => {
     let total = 0, wsum = 0;
@@ -1294,6 +1302,26 @@ function finderStatsHTML(cat, p){
    everything else; that's gone too, per direct feedback -- one ranked
    list, same card treatment top to bottom, so nothing reads as
    arbitrarily cut off at 3. */
+const FINDER_DIM_LABEL = {
+  caf:  {hi: "more caffeine", lo: "less caffeine"},
+  gut:  {hi: "a shorter ingredient list"},
+  sod:  {hi: "more sodium", lo: "less sodium"},
+  cost: {lo: "lower cost per gram"},
+  dens: {hi: "more carbs per serving", lo: "fewer carbs per serving"},
+  rate: {hi: "a better glucose-to-fructose ratio"},
+  pot:  {hi: "more potassium"},
+  cal:  {hi: "more calcium"},
+  mag:  {hi: "more magnesium"}
+};
+function finderRankingNoteHTML(){
+  if(!finderHasAnswer()) return `<p class="calc-note">Sorted by overall score. Pick any answer above and the list re-ranks on what you chose.</p>`;
+  const parts = finderDims(finderAnswers).slice().sort((a,b) => b[3] - a[3]).map(([k,,dir,w]) => {
+    const label = k === "cost" && finderAnswers.category === "electrolyte" ? "lower cost per 1000 mg of sodium" : FINDER_DIM_LABEL[k][dir];
+    return `${label} <span class="num">&times;${+w.toFixed(1)}</span>`;
+  });
+  return `<p class="calc-note">Ranked on ${parts.join(", ")}. Each product is placed from 0 to 1 on every one of those against the rest of the category, the match is the weighted average, and ties go to the overall score. A product that doesn't declare a stat is scored on the ones it does.</p>`;
+}
+
 function finderResultsHTML(){
   const cat = finderAnswers.category;
   const ranked = finderHasAnswer()
@@ -1303,6 +1331,7 @@ function finderResultsHTML(){
         .map(p => ({p}));
 
   return `
+  ${finderRankingNoteHTML()}
   <div class="fr-grid">${ranked.map((m,i) => { const p = m.p; return `
     <div class="fr-card">
       <div class="fr-rank">${i+1}</div>
