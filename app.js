@@ -1894,7 +1894,8 @@ function renderHome(){
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
-    <h1>Every gel says it's the best one.</h1>
+    <h1>Endurance fuel, scored from the label.</h1>
+    <p class="thesis">${PRODUCTS.length} gels, drink mixes and electrolytes compared on the numbers their packaging declares. Nothing sponsored, no affiliate links.</p>
     <div class="home-search">
       <label for="siteSearch" class="home-search-label">Search the catalog</label>
       <input id="siteSearch" placeholder="e.g. Maurten, SiS Beta Fuel" autocomplete="off">
