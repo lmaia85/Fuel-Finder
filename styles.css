@@ -8,7 +8,7 @@
   --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box}
-/* Skips layout/paint for off-screen sections until they're scrolled near —
+/* Skips layout/paint for off-screen sections until they're scrolled near --
    the homepage has grown to five stacked sections (search, flagship picks,
    highest rated, leaderboard, recently reviewed), and without this the
    browser keeps all of it "live" during scroll even though most is never
@@ -17,14 +17,14 @@
    No-op in browsers that don't support it (Safari < 18). */
 .defer-render{content-visibility:auto;contain-intrinsic-size:auto 460px}
 /* Global keyboard-focus indicator. Several inputs/selects already set
-   outline:none and swap in a border-color change instead — this doesn't
+   outline:none and swap in a border-color change instead -- this doesn't
    fight that, it just makes sure every OTHER focusable element (nav
    links, TOC buttons, buy links, the menu toggle, brand-dropdown
    buttons) gets a visible ring too. :focus-visible rather than :focus
    so it only shows for keyboard/assistive-tech navigation, not every
    mouse click. */
 :focus-visible{outline:2px solid var(--me);outline-offset:2px}
-/* Plain in-content links (product-page thesis prose, About page copy) —
+/* Plain in-content links (product-page thesis prose, About page copy) --
    everything else on the site (nav, footer, cards, buttons) sets its own
    color via a class selector, which wins on specificity over this. Always
    white with an underline rather than the browser's default blue, so a
@@ -35,7 +35,7 @@ html{background:var(--ground)}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
   font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .num{font-variant-numeric:tabular-nums}
-/* .toc + .wrap sit as flex siblings, centered as a unit — this keeps the toc
+/* .toc + .wrap sit as flex siblings, centered as a unit -- this keeps the toc
    a real layout column with a guaranteed gap from content at any viewport
    width, instead of a viewport-relative fixed position that has to be
    recalculated (and can drift into content, or off-screen) per breakpoint. */
@@ -61,7 +61,7 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 .br{position:relative}
 /* A real button, not a span: the product list below is display:none until the
    brand row is hovered/focused/open, and display:none content is skipped by
-   Tab — so a non-focusable toggle would lock keyboard users out of the menus
+   Tab -- so a non-focusable toggle would lock keyboard users out of the menus
    entirely. font:inherit keeps it pixel-identical to the old span. */
 .br-toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;
   width:100%;appearance:none;background:none;border:0;cursor:pointer;text-align:left;
@@ -70,7 +70,7 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 .br:hover > .br-toggle,.br:focus-within > .br-toggle,.br.open > .br-toggle{background:var(--ground);color:var(--ink)}
 .br:hover > .br-toggle i,.br.open > .br-toggle i{color:var(--me)}
 .br-toggle[aria-expanded="true"] i{transform:rotate(90deg)}
-/* .submenu, not .sub — .sub is the section-subtitle <p> further down; sharing
+/* .submenu, not .sub -- .sub is the section-subtitle <p> further down; sharing
    the name leaked the subtitle's font/margins onto this panel. */
 .submenu{display:none;position:absolute;left:100%;top:-6px;min-width:200px;
   background:var(--panel);border:1px solid var(--rule-2);padding:5px 0}
@@ -86,7 +86,7 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--mono);
 
 /* mobile nav: a hamburger-toggled drawer that reuses the exact same
    Gels > brand > product open/aria-expanded state the desktop hover menu
-   sets (see the .nv/.dd/.br/.submenu rules above) — only the positioning
+   sets (see the .nv/.dd/.br/.submenu rules above) -- only the positioning
    changes here, from an absolute flyout to a stacked accordion. */
 .menu-toggle{display:none;appearance:none;background:none;border:1px solid var(--rule-2);
   color:var(--dim);cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
@@ -179,7 +179,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5.6vw,54px);l
   letter-spacing:normal;text-transform:none;font-weight:400;
   box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .info-ic:hover .info-tip,.info-ic:focus .info-tip{display:block}
-/* Fixed-height stage so every product (pouch, tube, flat sachet — all different
+/* Fixed-height stage so every product (pouch, tube, flat sachet -- all different
    native aspect ratios) reads at the same visual size, on a common backdrop
    with one soft contact shadow, rather than each photo floating at its own
    scale straight on the page background. The radial highlight is the part
@@ -226,7 +226,7 @@ section{padding:36px 0;border-bottom:1px solid var(--rule)}
 .sh .n{font-size:12px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase}
 .sub{font-family:var(--body);font-size:13px;color:var(--dim);margin:0 0 26px;max-width:64ch}
 
-/* Collapsible accordion (Methodology page) — single-open: expanding one
+/* Collapsible accordion (Methodology page) -- single-open: expanding one
    section closes whichever other one was open, so the page stays as
    short as a plain list of headings most of the time. */
 .acc-item{border-bottom:1px solid var(--rule)}
@@ -293,14 +293,14 @@ section{padding:36px 0;border-bottom:1px solid var(--rule)}
 
 .tw{overflow-x:auto;border:1px solid var(--rule-2)}
 /* table-layout:fixed + explicit col widths (see .labelcol/.gelcol below) so a
-   column's width never depends on how many others are in the table — adding
+   column's width never depends on how many others are in the table -- adding
    or removing a gel changes the table's total width, not its neighbors'. */
 table{border-collapse:collapse;table-layout:fixed;font-size:12.5px}
 .labelcol{width:230px}
 .gelcol{width:150px}
 .addcol{width:150px}
 /* A permanent empty column at the right of the table, not a button off to
-   the side — a dashed border runs the full height so it reads as one open
+   the side -- a dashed border runs the full height so it reads as one open
    slot the whole way down, with the actual control sitting in the header. */
 .addcol-cell{border-left:1px dashed var(--rule-2);padding:0}
 .add-trigger{appearance:none;background:none;border:0;cursor:pointer;width:100%;height:100%;min-height:66px;
@@ -336,7 +336,7 @@ thead th.pcol{position:relative;white-space:normal;vertical-align:bottom;padding
 .thname{display:block;color:var(--dim);font-family:var(--display);font-weight:700;font-size:12.5px;
   letter-spacing:-.01em;text-transform:none;line-height:1.22;margin-top:3px}
 thead th.this .thname{color:var(--me)}
-/* A real corner button — visible border/background by default, not just on
+/* A real corner button -- visible border/background by default, not just on
    hover, with a large enough hit target to find without hunting for it. */
 .rm{position:absolute;top:8px;right:8px;appearance:none;cursor:pointer;
   width:22px;height:22px;display:flex;align-items:center;justify-content:center;
@@ -392,7 +392,7 @@ thead th.this .thname{color:var(--me)}
 footer{padding:30px 0 70px;color:var(--faint);font-family:var(--body);font-size:12px;line-height:1.6}
 footer b{color:var(--dim);font-weight:500}
 
-/* site-wide footer (About/Methodology + tagline), a sibling of .layout —
+/* site-wide footer (About/Methodology + tagline), a sibling of .layout --
    present on every page, unlike the plain <footer> above which is a
    per-product-page ingredients note inside #page. */
 .site-footer{padding:0;border-top:1px solid var(--rule-2);margin-top:60px}
@@ -407,7 +407,7 @@ footer b{color:var(--dim);font-weight:500}
 .sf-links a{color:var(--faint);text-decoration:none}
 .sf-links a:hover{color:var(--me)}
 
-/* in-page section nav — a real flex column (see .layout above), sticky within
+/* in-page section nav -- a real flex column (see .layout above), sticky within
    normal document flow, so it's always exactly `gap` away from content with
    no viewport-relative math to get wrong. Hidden below 1400px, where there
    isn't room for a left column beside the 1180px content anyway. */
@@ -485,7 +485,7 @@ footer b{color:var(--dim);font-weight:500}
 .home-soon{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--faint);margin-top:10px}
 
-/* homepage discovery grid ("From the catalog") — three equal-width
+/* homepage discovery grid ("From the catalog") -- three equal-width
    flagship cells (one curated pick, two computed value picks, same size
    and same photo height as each other) plus the category/quiz links in
    their own row below. Single border-radius across every cell. */
@@ -535,7 +535,7 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me)}
 
 .bc-cta{background:var(--ground)}
 
-/* homepage leaderboard — top 5 by score, switchable by category via a
+/* homepage leaderboard -- top 5 by score, switchable by category via a
    sliding-pill toggle. The indicator's overshoot and the row stagger both
    reuse curves already established elsewhere on the site (.cell-icon's
    hover bounce, .bc's entrance stagger) rather than inventing new motion
@@ -569,7 +569,7 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me)}
 .lb-meta{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:2px}
 @media(max-width:800px){.lb-tabs{max-width:none}}
 
-/* homepage "Recently reviewed" strip — a horizontally-scrolling track
+/* homepage "Recently reviewed" strip -- a horizontally-scrolling track
    (native touch/trackpad swipe) with click-to-page arrow buttons, rather
    than a static grid, so it scales past however many cards fit on one
    screen without adding more grid breakpoints. */
