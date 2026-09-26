@@ -1007,6 +1007,14 @@ page.addEventListener("click", e => {
   const go = e.target.closest(".home-go");
   if(go && go.dataset.i !== undefined){ select(+go.dataset.i); return; }
 
+  const race = e.target.closest("[data-race]");
+  if(race){
+    e.preventDefault();
+    try{ history.pushState(null, "", race.getAttribute("href")); }catch(err){}
+    renderFinder(race.dataset.race);
+    return;
+  }
+
   const fcLink = e.target.closest("[data-fc-link]");
   if(fcLink){
     e.preventDefault();
@@ -1521,6 +1529,11 @@ function renderCategoryPage(cat){
 
 function renderFinder(cat){
   finderAnswers = {category: FINDER_QUESTIONS[cat] ? cat : "gel"};
+  /* ?duration= pre-answers the duration question (the homepage race
+     chips link here). Only accepted if it's a real option for this quiz. */
+  const dur = new URLSearchParams(location.search).get("duration");
+  const durQ = FINDER_QUESTIONS[finderAnswers.category].find(q => q.key === "duration");
+  if(durQ && durQ.opts.some(([v]) => v === dur)) finderAnswers.duration = dur;
   document.title = "Find your fuel - Fuel Finder";
   clearNavHighlights();
   document.getElementById("find-link").classList.add("on");
@@ -1699,12 +1712,6 @@ function bestValueInCategory(cat){
   return items.reduce((best, p) => p.perGram < best.perGram ? p : best);
 }
 
-function highestRatedInCategory(cat){
-  const items = PRODUCTS.filter(p => p.category === cat && p.overallScore !== null);
-  if(!items.length) return null;
-  return items.reduce((best, p) => p.overallScore > best.overallScore ? p : best);
-}
-
 /* Small hand-drawn inline icons, not an icon-font or CDN library -- this
    site's only network calls are the ones documented at the top of
    index.html (fonts, GoatCounter, Frankfurter, product photos), and an
@@ -1715,7 +1722,6 @@ const ICON = {
   zap: '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>',
   sachet: '<path d="M8.5 3c-1 0-1.5 1-1.5 2v2c-1.2.8-2 2.2-2 4v7c0 1.9 1.3 2.9 3 3.1 2.6.3 5.4.3 8 0 1.7-.2 3-1.2 3-3.1v-7c0-1.8-.8-3.2-2-4V5c0-1-.5-2-1.5-2-.7 0-1.3.4-1.7 1-.4-.6-1-1-1.7-1s-1.3.4-1.6 1c-.4-.6-1-1-1.7-1z"/><path d="M9 18.3c1.3.4 2.7.4 4 0" stroke-width="1.3"/><path d="M13 8.2 10 13h2l-1 3.8 3.5-5.3H12z" fill="currentColor" stroke="none"/>',
   droplet: '<path d="M12 3c4 5 7 8.5 7 12a7 7 0 0 1-14 0c0-3.5 3-7 7-12z"/>',
-  flask: '<path d="M9 3h6M10 3v6L4.6 18.4A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-3.1L14 9V3"/>',
   bottle: '<rect x="10.3" y="2.2" width="3.4" height="2.2" rx="0.6"/><path d="M10.3 4.6h3.4c0 .9 0 1.4.9 2 1.1.8 1.4 2 1.4 3.4v8.5c0 1.5-1.2 2.4-3 2.5-1.4.1-2.6.1-4 0-1.8-.1-3-1-3-2.5V10c0-1.4.3-2.6 1.4-3.4.9-.6.9-1.1.9-2z"/><path d="M7.6 14.6c1.1.6 2.2-.6 3.3 0s2.2.6 3.3 0" stroke-width="1.3"/>',
   glass: '<path d="M8 4h8l-1.2 14.6c-.1 1.3-1.3 2.4-2.8 2.4s-2.7-1.1-2.8-2.4z"/><path d="M12 8.8v4.4M9.9 11h4.2" stroke-width="1.4"/><circle cx="9.6" cy="6.6" r=".5" fill="currentColor" stroke="none"/><circle cx="14.3" cy="7.2" r=".4" fill="currentColor" stroke="none"/>',
   compass: '<circle cx="12" cy="12" r="9"/><path d="M15.3 8.7l-1.8 4.8-4.8 1.8 1.8-4.8z"/>',
@@ -1734,15 +1740,26 @@ const LB_CATS = ["gel", "drink", "electrolyte"];
 const LB_LABEL = {gel: "gels", drink: "drink mixes", electrolyte: "electrolytes"};
 let leaderboardCat = "gel";
 
-function topScoredInCategory(cat, n){
+function scoredInCategory(cat){
   return PRODUCTS.filter(p => p.category === cat && p.overallScore !== null)
-    .slice().sort((a, b) => b.overallScore - a.overallScore).slice(0, n);
+    .slice().sort((a, b) => b.overallScore - a.overallScore);
 }
 
-function productRowsHTML(products){
+/* Homepage modules show at most `max` products per brand. One brand can
+   legitimately top every ranking, but a front page that's half one brand
+   reads as bias on a site whose whole claim is brand-blind scoring. The
+   cap only thins what's featured; the full rankings stay untouched. */
+function capPerBrand(list, max){
+  const seen = {};
+  return list.filter(p => (seen[p.brand] = (seen[p.brand] || 0) + 1) <= max);
+}
+
+/* ranks: optional true positions to print instead of 1..n, so a
+   brand-capped list shows the gaps honestly (1, 2, 5, 6...). */
+function productRowsHTML(products, ranks){
   return products.map((p, i) => `
     <a class="lb-row bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
-      <span class="lb-rank">${i + 1}</span>
+      <span class="lb-rank">${ranks ? ranks[i] : i + 1}</span>
       <img class="lb-thumb" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
       <span class="lb-mid">
         <span class="lb-name">${esc(p.name)}</span>
@@ -1753,7 +1770,13 @@ function productRowsHTML(products){
 }
 
 function leaderboardRowsHTML(cat){
-  return productRowsHTML(topScoredInCategory(cat, 5));
+  const all = scoredInCategory(cat);
+  const top = capPerBrand(all, 2).slice(0, 5);
+  return productRowsHTML(top, top.map(p => all.indexOf(p) + 1)) + `
+    <a class="lb-all" href="${sitePath(`/${CATEGORY_PAGE_SLUG[cat]}/`)}" data-page="${CATEGORY_PAGE_SLUG[cat]}">
+      <span>Top five, two per brand at most</span>
+      <span>All ${PRODUCTS.filter(p => p.category === cat).length} ${CATEGORY_PLURAL[cat]}, ranked &rarr;</span>
+    </a>`;
 }
 
 function leaderboardHTML(){
@@ -1782,20 +1805,6 @@ function homeBentoHTML(){
   const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
   const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
   const electrolyteCount = PRODUCTS.filter(p => p.category === "electrolyte").length;
-
-  const topGel = highestRatedInCategory("gel");
-  const topDrink = highestRatedInCategory("drink");
-  const topElectrolyte = highestRatedInCategory("electrolyte");
-  const RATED_KIND = {gel: "gel", drink: "drink mix", electrolyte: "electrolyte"};
-  const rated = [topGel, topDrink, topElectrolyte].filter(Boolean).map(p => `
-    <a class="bc bc-rated bc-link" href="${sitePath(`/${p.category}/${p.id}/`)}" data-i="${PRODUCTS.indexOf(p)}">
-      ${icon("flask")}
-      <span class="score-pill tier-${scoreTier(p.overallScore)}">${p.overallScore}</span>
-      <span class="bc-kind">Highest rated ${RATED_KIND[p.category]}</span>
-      <img class="bc-photo" src="${sitePath(p.photo)}" alt="${esc(p.name)} package" loading="lazy">
-      <span class="bc-name">${esc(p.name)}</span>
-      <span class="bc-hero-brand">${esc(p.brand)}</span>
-    </a>`);
 
   const flagships = [`
     <a class="bc bc-hero bc-link" href="${sitePath(`/${hero.category}/${hero.id}/`)}" data-i="${PRODUCTS.indexOf(hero)}">
@@ -1856,20 +1865,20 @@ function homeBentoHTML(){
     <div class="bento-flagship">${flagships.join("")}</div>
     <div class="bento">${categories.join("")}</div>
   </section>
-  ${rated.length ? `
-  <section class="defer-render">
-    <div class="sh"><h2>Highest rated</h2><span class="rule"></span></div>
-    <div class="bento-flagship">${rated.join("")}</div>
-  </section>` : ""}
   ${leaderboardHTML()}`;
 }
 
 function recentlyReviewedHTML(){
-  const recent = PRODUCTS.filter(p => p.reviewed).slice().sort((a, b) => b.reviewed.localeCompare(a.reviewed)).slice(0, 12);
+  /* Many reviews share a date (a batch lands at once), so ties go to the
+     higher score rather than catalog order. When every card shown shares
+     one date it's stated once in the heading instead of on each card. */
+  const recent = capPerBrand(PRODUCTS.filter(p => p.reviewed).slice()
+    .sort((a, b) => b.reviewed.localeCompare(a.reviewed) || (b.overallScore ?? -1) - (a.overallScore ?? -1)), 2).slice(0, 12);
   if(!recent.length) return "";
+  const oneDate = recent.every(p => p.reviewed === recent[0].reviewed);
   return `
   <section class="defer-render">
-    <div class="sh"><h2>Recently reviewed</h2><span class="rule"></span></div>
+    <div class="sh"><h2>Recently reviewed</h2><span class="rule"></span>${oneDate ? `<span class="n">${formatReviewDate(recent[0].reviewed)}</span>` : ""}</div>
     <div class="recent-slider">
       <button type="button" class="recent-nav recent-prev" aria-label="Scroll left">${icon("chevronLeft")}</button>
       <div class="recent-track">
@@ -1880,13 +1889,23 @@ function recentlyReviewedHTML(){
           <span class="recent-kind">${CATEGORY_LABEL[p.category]}</span>
           <span class="recent-name">${esc(p.name)}</span>
           <span class="recent-brand">${esc(p.brand)}</span>
-          <span class="recent-date">${formatReviewDate(p.reviewed)}</span>
+          ${oneDate ? "" : `<span class="recent-date">${formatReviewDate(p.reviewed)}</span>`}
         </a>`).join("")}
       </div>
       <button type="button" class="recent-nav recent-next" aria-label="Scroll right">${icon("chevronRight")}</button>
     </div>
   </section>`;
 }
+
+/* Homepage race entry: [quiz category, preset duration answer, label,
+   example events]. Each chip opens Find Your Fuel with the duration
+   already answered, via ?duration= so the link also works when shared. */
+const RACE_CHIPS = [
+  ["gel", "under90", "Under 90 min", "10K, sprint tri"],
+  ["gel", "90to3h", "90 min to 3 hrs", "Half marathon, olympic tri"],
+  ["gel", "over3h", "Over 3 hrs", "Marathon, 70.3, Ironman, gran fondo"],
+  ["electrolyte", "", "Just electrolytes", "Salt and fluid, no carbs"]
+];
 
 function renderHome(){
   document.title = "Fuel Finder - Endurance nutrition reviews";
@@ -1896,6 +1915,13 @@ function renderHome(){
   <div class="home-hero">
     <h1>Endurance fuel, scored from the label.</h1>
     <p class="thesis">${PRODUCTS.length} gels, drink mixes and electrolytes compared on the numbers their packaging declares. Nothing sponsored, no affiliate links.</p>
+    <div class="home-race" role="group" aria-labelledby="homeRaceLabel">
+      <p class="home-search-label" id="homeRaceLabel">How long is your race?</p>
+      <div class="home-race-opts">${RACE_CHIPS.map(([cat, dur, label, eg]) => `
+        <a class="race-chip" href="${sitePath(`/find/${cat}/${dur ? `?duration=${dur}` : ""}`)}" data-race="${cat}">
+          <b>${label}</b><span>${eg}</span>
+        </a>`).join("")}</div>
+    </div>
     <div class="home-search">
       <label for="siteSearch" class="home-search-label">Search the catalog</label>
       <input id="siteSearch" placeholder="e.g. Maurten, SiS Beta Fuel" autocomplete="off">
@@ -2084,8 +2110,9 @@ function drawSiteSearch(q){
   const hits = searchMatches(q).slice(0, 8);
   box.innerHTML = hits.length
     ? hits.map(p => `<button data-i="${PRODUCTS.indexOf(p)}">${esc(p.name)}<span>${esc(p.brand)} &middot; ${CATEGORY_LABEL[p.category]}</span></button>`).join("")
-    : `<p>No review of &ldquo;${esc(q.trim())}&rdquo; yet.<br>
-         <button class="request-btn" data-request="${esc(q.trim())}">Request this one &rarr;</button></p>`;
+    : `<p>No product called &ldquo;${esc(q.trim())}&rdquo; yet. Search matches names and brands.<br>
+         Choosing for a race? <a href="${sitePath("/find/")}" data-page="find">Answer a few questions instead &rarr;</a><br>
+         <button class="request-btn" data-request="${esc(q.trim())}">Request this product &rarr;</button></p>`;
 }
 
 /* A real, shareable/bookmarkable URL for a search -- previously the
@@ -2134,8 +2161,8 @@ function renderSearchResultsBody(q){
   heading.textContent = `${hits.length} result${hits.length === 1 ? "" : "s"} for “${trimmed}”`;
   body.innerHTML = hits.length
     ? `<div class="lb-list">${productRowsHTML(hits)}</div>`
-    : `<p class="buy-empty">No review of &ldquo;${esc(trimmed)}&rdquo; yet.</p>
-       <button class="request-btn" data-request="${esc(trimmed)}">Request this one &rarr;</button>`;
+    : `<p class="buy-empty">No product called &ldquo;${esc(trimmed)}&rdquo; yet. Search matches names and brands. Choosing for a race? <a href="${sitePath("/find/")}" data-page="find">Answer a few questions instead &rarr;</a></p>
+       <button class="request-btn" data-request="${esc(trimmed)}">Request this product &rarr;</button>`;
 }
 
 /* Owner-only view of what RequestLog has collected -- not linked from the
