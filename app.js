@@ -429,18 +429,19 @@ function prov(p){
   return p.ratioProv === "Stated" ? "" : " &middot; " + esc(p.ratioProv.toLowerCase());
 }
 
-/* The comparison set is fully user-controlled -- any product, including the
-   one being reviewed, can be removed or searched for and added back.
-   Whenever the product being reviewed IS in the set, it's pinned as the
-   leftmost column; removing it takes it out like any other product rather
-   than forcing it back. Kept per-category so switching between Gels, Drink
-   mixes and Electrolytes doesn't mix incompatible products into one table
-   or clobber the comparison you built in another category. */
-let compareIds = {
-  gel: PRODUCTS.filter(p => p.category === "gel").slice(0,5).map(p => p.id),
-  drink: PRODUCTS.filter(p => p.category === "drink").slice(0,5).map(p => p.id),
-  electrolyte: PRODUCTS.filter(p => p.category === "electrolyte").slice(0,5).map(p => p.id)
+/* Every review opens on the same standard comparison: the product being
+   reviewed (pinned leftmost) plus the category's first catalog entries,
+   DEFAULT_COMPARE columns in all. The reader can remove any column or add
+   products up to MAX_COMPARE. Opening another review resets to the
+   standard set, so the table can't keep growing as you browse. Kept per
+   category so drink mixes and gels never mix in one table. */
+const DEFAULT_COMPARE = 5;
+const STANDARD_COMPARE = {
+  gel: PRODUCTS.filter(p => p.category === "gel").slice(0, DEFAULT_COMPARE).map(p => p.id),
+  drink: PRODUCTS.filter(p => p.category === "drink").slice(0, DEFAULT_COMPARE).map(p => p.id),
+  electrolyte: PRODUCTS.filter(p => p.category === "electrolyte").slice(0, DEFAULT_COMPARE).map(p => p.id)
 };
+let compareIds = {gel: [...STANDARD_COMPARE.gel], drink: [...STANDARD_COMPARE.drink], electrolyte: [...STANDARD_COMPARE.electrolyte]};
 let CURRENT = PRODUCTS[0];
 
 function compareSet(cur){
@@ -845,8 +846,7 @@ function select(i){
   document.querySelectorAll(".dd a[data-i]").forEach(b => b.setAttribute("aria-current", +b.dataset.i === i));
   clearNavHighlights();
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.toggle("on", a.dataset.cat === p.category));
-  const ids = compareIds[p.category];
-  if(!ids.includes(p.id)) ids.unshift(p.id);
+  compareIds[p.category] = [p.id, ...STANDARD_COMPARE[p.category].filter(id => id !== p.id)].slice(0, DEFAULT_COMPARE);
   /* Permalink: /category/id/, pushed so Back/Forward walk reviews. Skipped
      when the path already matches (we were called FROM the router) so
      routing in never stacks a duplicate history entry. */
