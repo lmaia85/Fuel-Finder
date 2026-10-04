@@ -16,15 +16,31 @@ import glob
 import os
 import sys
 
+import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 MARGIN = 0.03      # padding on every side, as a share of the product's long edge
 MAX_EDGE = 640
 ALPHA_MIN = 128    # the solid product, not a faint baked-in drop shadow
+SPECK = 0.01       # detached bits under 1% of the product's area are cutout debris
+
+
+def drop_specks(im):
+    """Clear stray pixels left floating beside the product by a sloppy
+    background removal; they'd also skew the centering."""
+    px = np.array(im)
+    labels, n = ndimage.label(px[:, :, 3] > 16)
+    if n < 2:
+        return im
+    sizes = ndimage.sum(np.ones(labels.shape), labels, range(1, n + 1))
+    specks = [i + 1 for i, size in enumerate(sizes) if size < sizes.max() * SPECK]
+    px[np.isin(labels, specks), 3] = 0
+    return Image.fromarray(px)
 
 
 def frame(path):
-    im = Image.open(path).convert("RGBA")
+    im = drop_specks(Image.open(path).convert("RGBA"))
     box = im.getchannel("A").point(lambda v: 255 if v > ALPHA_MIN else 0).getbbox()
     if not box:
         return f"skip (empty): {path}"
