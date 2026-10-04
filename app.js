@@ -1501,7 +1501,7 @@ function categoryTableHTML(cat){
 }
 
 function categoryCalloutsHTML(cat){
-  const items = PRODUCTS.filter(p => p.category === cat);
+  const items = categoryItems(cat, categoryFacet);
   if(cat === "electrolyte"){
     const cheapest = items.filter(p => p.costPer1000Na!=null).reduce((b,p) => p.costPer1000Na < b.costPer1000Na ? p : b);
     const highestNa = items.reduce((b,p) => p.sodium > b.sodium ? p : b);
@@ -1519,18 +1519,21 @@ function categoryCalloutsHTML(cat){
     </div>`;
   }
   const cheapest = items.reduce((b,p) => p.perGram < b.perGram ? p : b);
-  const highestRatio = items.reduce((b,p) => p.ratioScore > b.ratioScore ? p : b);
+  /* Only gels that publish a ratio compete; most real-food gels don't, and
+     a "Highest ratio: n/d" card would be worse than no card. */
+  const withRatio = items.filter(p => p.ratio !== "n/d");
+  const highestRatio = withRatio.length ? withRatio.reduce((b,p) => p.ratioScore > b.ratioScore ? p : b) : null;
   return `<div class="cat-callouts">
     <a class="cat-callout bc-link" href="${sitePath(`/${cat}/${cheapest.id}/`)}" data-i="${PRODUCTS.indexOf(cheapest)}">
       <span class="cat-callout-label">Cheapest per gram</span>
       <span class="cat-callout-name">${esc(cheapest.name)}</span>
       <span class="cat-callout-stat">${moneyPrecise(cheapest.perGram, 3)}</span>
     </a>
-    <a class="cat-callout bc-link" href="${sitePath(`/${cat}/${highestRatio.id}/`)}" data-i="${PRODUCTS.indexOf(highestRatio)}">
+    ${highestRatio ? `<a class="cat-callout bc-link" href="${sitePath(`/${cat}/${highestRatio.id}/`)}" data-i="${PRODUCTS.indexOf(highestRatio)}">
       <span class="cat-callout-label">Highest ratio</span>
       <span class="cat-callout-name">${esc(highestRatio.name)}</span>
       <span class="cat-callout-stat">${highestRatio.ratio}</span>
-    </a>
+    </a>` : ""}
   </div>`;
 }
 
@@ -1666,7 +1669,7 @@ function renderCategoryPage(cat, facet){
     <p class="thesis cat-intro">${f ? f.rule(items) : CATEGORY_PAGE_INTRO[cat]}</p>
     ${cat === "gel" ? gelFacetNavHTML(categoryFacet) : ""}
   </div>
-  ${f ? "" : categoryCalloutsHTML(cat)}
+  ${categoryCalloutsHTML(cat)}
   <section id="cat-table-section">
     <div class="sh"><h2>${f ? "Compared" : "Full comparison"}</h2><span class="rule"></span></div>
     ${categoryTableHTML(cat)}
