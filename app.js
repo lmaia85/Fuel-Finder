@@ -131,20 +131,20 @@ const SCORE_DIMS = {
   gel: [
     ["rate", "Absorption rate", p=>p.ratioScore, 0, 100, "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio (1:0.8 tops out this scale); an Estimated ratio counts the same as a Stated one here."],
     ["dens", "Carb density", p=>p.carbs, 0, 90, "How much fuel one sachet carries. 90 g is the ceiling here, matching the top of the range cited for multi-transportable-carb intake."],
-    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from {{money:0.15}}/g (0) to {{money:0.02}}/g (100)."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological: a market-based scale from {{money:0.15}}/g (0) to {{money:0.02}}/g (100)."],
     ["gut",  "Gut comfort", p=>p.gut, 0, 100, "A proxy, not a taste or tolerance test: shorter ingredient lists score higher, from 15 ingredients (0) to 1 (100). Nobody has actually run these through anyone's gut for this score."]
   ],
   drink: [
     ["rate", "Absorption rate", p=>p.ratioScore, 0, 100, "How much carbohydrate an hour the glucose-to-fructose blend can move. Scored from the stated or derived ratio (1:0.8 tops out this scale); an Estimated ratio counts the same as a Stated one here."],
     ["dens", "Carb density", p=>p.carbs, 0, 90, "How much fuel one scoop or sachet carries. 90 g is the ceiling here, matching the top of the range cited for multi-transportable-carb intake."],
-    ["sod",  "Sodium", p=>p.sodium, 0, 1000, "Sodium carried by the mix itself, on a scale topping out at 1000 mg -- the upper end of what's typically lost to sweat in an hour."],
-    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological -- a market-based scale from {{money:0.15}}/g (0) to {{money:0.02}}/g (100)."]
+    ["sod",  "Sodium", p=>p.sodium, 0, 1000, "Sodium carried by the mix itself, on a scale topping out at 1000 mg, the upper end of what's typically lost to sweat in an hour."],
+    ["cost", "Value (cost/gram)", p=>p.perGram, 0.15, 0.02, "Price of one gram of carbohydrate. Not physiological: a market-based scale from {{money:0.15}}/g (0) to {{money:0.02}}/g (100)."]
   ],
   electrolyte: [
-    ["sod",  "Sodium dose", p=>p.sodium, 0, 1000, "Sodium per serving, on a scale topping out at 1000 mg -- a single dose covering the top of what's typically lost to sweat in an hour."],
-    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, 3.00, 1.00, "What it costs to get 1000 mg of sodium from this product. Not physiological -- a market-based scale from {{money:3.00}} (0) to {{money:1.00}} (100)."],
-    ["pot",  "Potassium", p=>p.potassium, 0, 200, "Potassium per serving, on a scale topping out at 200 mg -- roughly the upper end of typical hourly sweat loss."],
-    ["cal",  "Calcium", p=>p.calcium, 0, 100, "Calcium per serving. Weaker grounding than sodium/potassium -- sweat calcium loss is minor and not really a primary target during exercise; the 100 mg ceiling is this catalog's practical high end, not a physiological one."],
+    ["sod",  "Sodium dose", p=>p.sodium, 0, 1000, "Sodium per serving, on a scale topping out at 1000 mg, a single dose covering the top of what's typically lost to sweat in an hour."],
+    ["cost", "Value (cost/1000mg Na)", p=>p.costPer1000Na, 3.00, 1.00, "What it costs to get 1000 mg of sodium from this product. Not physiological: a market-based scale from {{money:3.00}} (0) to {{money:1.00}} (100)."],
+    ["pot",  "Potassium", p=>p.potassium, 0, 200, "Potassium per serving, on a scale topping out at 200 mg, roughly the upper end of typical hourly sweat loss."],
+    ["cal",  "Calcium", p=>p.calcium, 0, 100, "Calcium per serving. Weaker grounding than sodium/potassium: sweat calcium loss is minor and not really a primary target during exercise; the 100 mg ceiling is this catalog's practical high end, not a physiological one."],
     ["mag",  "Magnesium", p=>p.magnesium, 0, 60, "Magnesium per serving, on a scale topping out at 60 mg, roughly matching cited hourly sweat-loss ranges."]
   ]
 };
@@ -671,7 +671,7 @@ function render(p){
         <div class="sb-tile tier-${scoreTier(p.overallScore)}">
           <div class="sb-num">${p.overallScore}<span class="denom">/100</span></div>
           <div class="sb-label">${scoreTierLabel(p.overallScore)}</div>
-          ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures ${infoTip("A dimension a product doesn't declare is left out of its average rather than counted against it -- so this score reflects fewer measures than a product with a full panel.")}</div>` : ""}
+          ${p.scoreBreakdown.length < p.scorePossible ? `<div class="sb-basis">Based on ${p.scoreBreakdown.length} of ${p.scorePossible} measures ${infoTip("A dimension a product doesn't declare is left out of its average rather than counted against it, so this score reflects fewer measures than a product with a full panel.")}</div>` : ""}
         </div>
         <div class="sb-rows">${p.scoreBreakdown.map(d => `
           <div class="sb-row"><span class="sb-row-label">${esc(d.label)} ${infoTip(renderMoney(d.what))}</span><span class="sb-bar"><i style="--v:${d.score}"></i></span><span class="sb-row-score num">${d.score}</span></div>`).join("")}
@@ -718,7 +718,7 @@ function render(p){
 
   <section id="buy">
     <div class="sh"><h2>Where to buy</h2><span class="rule"></span></div>
-    <p class="sub">Prices and links as last checked. The price next to the name above is per unit at the cheapest box size we track -- a single-unit price below may run higher.</p>
+    <p class="sub">Prices and links as last checked. The price next to the name above is per unit at the cheapest box size we track; a single-unit price below may run higher.</p>
     ${p.buy && p.buy.length ? `<div class="buy">${p.buy.map(b => `
       <a class="buy-row" href="${esc(b.url)}" target="_blank" rel="noopener">
         <span class="buy-retailer">${esc(b.retailer)}</span>
@@ -1665,7 +1665,7 @@ function calcResultsHTML(){
     <div class="calc-rate">${calcTargetRate()} g/hr &times; ${durLabel}</div>
     <button type="button" class="home-go calc-share" id="calcShare">Copy link to this result &rarr;</button>
   </div>
-  <p class="calc-note">This is a reference range from the sports-nutrition literature, not a personal prescription -- body mass, gut training and heat all shift what an individual can actually absorb. <a href="${sitePath("/methodology/")}" data-page="methodology">How these rates are set &rarr;</a></p>
+  <p class="calc-note">This is a reference range from the sports-nutrition literature, not a personal prescription: body mass, gut training and heat all shift what an individual can actually absorb. <a href="${sitePath("/methodology/")}" data-page="methodology">How these rates are set &rarr;</a></p>
   <div class="fq-opts calc-fueltype">
     <button type="button" class="fq-opt${calcAnswers.category==="gel"?" on":""}" data-cf="category" data-cv="gel">Gels</button>
     <button type="button" class="fq-opt${calcAnswers.category==="drink"?" on":""}" data-cf="category" data-cv="drink">Isotonic drinks</button>
@@ -1692,7 +1692,7 @@ function renderCalculator(){
   <div class="home-hero">
     <p class="eye">Plan your race</p>
     <h1>How much fuel do you need?</h1>
-    <p class="thesis">Two quick inputs, and we'll show how many sachets or scoops of every gel and drink mix in the catalog gets you there -- and what it costs.</p>
+    <p class="thesis">Two quick inputs, and we'll show how many sachets or scoops of every gel and drink mix in the catalog gets you there, and what it costs.</p>
   </div>
   <section id="calc-inputs">
     <div class="fq">
@@ -2031,33 +2031,33 @@ function renderMethodology(){
 
   const sections = [
     { title: "Where the data comes from", body: `
-      <p class="thesis">Carbohydrate, sodium, calories and every other figure is read directly off the product's own label -- the same panel you'd read on the packet. We don't estimate a number because a competitor discloses it and this product doesn't.</p>
+      <p class="thesis">Carbohydrate, sodium, calories and every other figure is read directly off the product's own label, the same panel you'd read on the packet. We don't estimate a number because a competitor discloses it and this product doesn't.</p>
       <p class="thesis">The one figure that sometimes needs interpretation is the glucose:fructose ratio, since not every brand states it outright. Each product's ratio is tagged with where it actually came from:</p>
       <ul class="thesis" style="padding-left:1.2em">
-        <li><b>Stated</b> -- the brand publishes the ratio directly.</li>
-        <li><b>Derived</b> -- computed from ingredient percentages the brand does disclose.</li>
-        <li><b>Estimated</b> -- inferred from what's on the panel when neither of the above is available. It's marked as an estimate everywhere it appears, but it scores the same as a Stated ratio -- there's no confidence discount built into the number itself.</li>
-        <li><b>Not disclosed</b> -- the brand doesn't say, and we don't guess.</li>
+        <li><b>Stated</b>: the brand publishes the ratio directly.</li>
+        <li><b>Derived</b>: computed from ingredient percentages the brand does disclose.</li>
+        <li><b>Estimated</b>: inferred from what's on the panel when neither of the above is available. It's marked as an estimate everywhere it appears, but it scores the same as a Stated ratio; there's no confidence discount built into the number itself.</li>
+        <li><b>Not disclosed</b>: the brand doesn't say, and we don't guess.</li>
       </ul>` },
     { title: "How scores are calculated", body: `
-      <p class="thesis">Every score on this site is absolute, not relative -- each dimension (absorption rate, carb density, cost per gram and gut comfort for gels; those plus sodium for drink mixes; sodium, potassium, calcium and magnesium for electrolytes) is scored against a fixed scale, not against whatever else happens to be in the catalog. A 90 means the same thing today as it will after the next product is added; scores only change when a product's own declared data changes.</p>
+      <p class="thesis">Every score on this site is absolute, not relative: each dimension (absorption rate, carb density, cost per gram and gut comfort for gels; those plus sodium for drink mixes; sodium, potassium, calcium and magnesium for electrolytes) is scored against a fixed scale, not against whatever else happens to be in the catalog. A 90 means the same thing today as it will after the next product is added; scores only change when a product's own declared data changes.</p>
       <p class="thesis">Where real sports-nutrition reference points exist, the fixed scale is anchored to them: carb density tops out at 90 g, matching the upper end of the range cited for multi-transportable-carb intake; sodium scales top out at 1000 mg, the upper end of what's typically lost to sweat in an hour; potassium and magnesium follow the same logic at smaller scales. Hover any dimension label on a product page for its specific scale and reasoning.</p>
       <p class="thesis">Some dimensions don't have a physiological anchor to reach for and say so plainly: both cost dimensions are scored against a market-based price range, not a nutrition benchmark, and calcium's scale is anchored to this catalog's practical ceiling rather than sweat-loss research, since calcium loss during exercise is minor and isn't really a target most products are optimizing for.</p>
-      <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it -- a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose. Whenever that's happened, the product page says so directly: "Based on N of X measures" next to the score.</p>
-      <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's scored from ingredient count on a fixed 1-to-15 scale, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is -- an inference from the label, same as everything else here -- not a stand-in for someone actually racing on it.</p>
+      <p class="thesis">A product's overall score is the plain average of whichever dimensions it has real data for. Missing data is left out of the average, not counted against it; a product that doesn't disclose sodium isn't penalized for the gap, it's just scored on what it does disclose. Whenever that's happened, the product page says so directly: "Based on N of X measures" next to the score.</p>
+      <p class="thesis">Gut comfort (gels only) is a proxy, not a taste or tolerance test: it's scored from ingredient count on a fixed 1-to-15 scale, on the reasoning that a shorter, simpler label is generally easier on the stomach. It's disclosed as what it is: an inference from the label, same as everything else here, not a stand-in for someone actually racing on it.</p>
       <p class="thesis">Sodium isn't part of a gel's overall score, though every gel page still shows what it carries. Gels are built to be a carbohydrate source first; sodium is usually left to a dedicated electrolyte product, and scoring gels on the same 0&ndash;1000 mg scale as an electrolyte tablet would mark down a gel for doing its job rather than someone else's. It's still worth knowing before you buy, which is why it stays on the page as a fact, not a mark.</p>` },
     { title: "The fueling calculator", body: `
-      <p class="thesis">The calculator's three experience tiers map to 45, 75 and 90 g/hr of carbohydrate -- the same 90 g/hr ceiling the carb-density score is anchored to above, so nothing here recommends a rate the scoring scale treats as out of range.</p>
+      <p class="thesis">The calculator's three experience tiers map to 45, 75 and 90 g/hr of carbohydrate, the same 90 g/hr ceiling the carb-density score is anchored to above, so nothing here recommends a rate the scoring scale treats as out of range.</p>
       <p class="thesis">These are reference points from the sports-nutrition literature on gut-trained athletes, not a personal prescription: body mass, gut training, heat and individual tolerance all shift what any one person can actually absorb, and the calculator doesn't ask about any of them. Treat the total it gives you as a starting point to test in training, not a number to hit on race day the first time you try it.</p>` },
     { title: "Pricing", body: `
       <p class="thesis">Prices are tracked from a specific retailer, linked directly on every product page, and reflect what that retailer listed as of the review date shown at the top of the page. Prices move; we don't re-check every listing daily, so treat the number as a recent snapshot and the link as the source of truth.</p>
-      <p class="thesis">None of the links on this site are affiliate links. We don't earn anything when you click through or buy, and that's on purpose -- it removes any incentive to rank a product higher because it pays better.</p>` },
+      <p class="thesis">None of the links on this site are affiliate links. We don't earn anything when you click through or buy, and that's on purpose: it removes any incentive to rank a product higher because it pays better.</p>` },
     { title: "Photos", body: `
-      <p class="thesis">Product photos are sourced only from the official brand site or an authorized retailer -- never stock photography, never a competitor's marketing image. Where a brand's own photography wasn't clean enough to use as-is, we've edited the background, never the product itself.</p>` },
+      <p class="thesis">Product photos are sourced only from the official brand site or an authorized retailer: never stock photography, never a competitor's marketing image. Where a brand's own photography wasn't clean enough to use as-is, we've edited the background, never the product itself.</p>` },
     { title: "Review dates", body: `
-      <p class="thesis">The date on each product page reflects when that product's written review -- its verdict, pros, cons and data -- was last actually verified or revised, not when the page was last deployed. A photo swap or a copy-editing pass elsewhere on the site doesn't move a product's review date; a change to what the review actually claims does.</p>` },
+      <p class="thesis">The date on each product page reflects when that product's written review (its verdict, pros, cons and data) was last actually verified or revised, not when the page was last deployed. A photo swap or a copy-editing pass elsewhere on the site doesn't move a product's review date; a change to what the review actually claims does.</p>` },
     { title: "The catalog today", body: `
-      <p class="thesis">${gelCount} gels, ${drinkCount} drink mixes and ${electrolyteCount} electrolyte products, and growing. Don't see something you use? Search for it -- if it's not here yet, that tells us it should be.</p>` }
+      <p class="thesis">${gelCount} gels, ${drinkCount} drink mixes and ${electrolyteCount} electrolyte products, and growing. Don't see something you use? Search for it: if it's not here yet, that tells us it should be.</p>` }
   ];
 
   document.getElementById("page").innerHTML = `
@@ -2096,7 +2096,7 @@ function renderWaiting(query){
   <div class="home-hero">
     <p class="eye">Not reviewed yet</p>
     <h1>${esc(query)}</h1>
-    <p class="thesis">We hold every review to the same bar: checked against the declared nutrition panel, no marketing copy taken at face value. That takes a bit of time, so this one isn't live yet -- but it's on the list.</p>
+    <p class="thesis">We hold every review to the same bar: checked against the declared nutrition panel, no marketing copy taken at face value. That takes a bit of time, so this one isn't live yet, but it's on the list.</p>
   </div>
   ${categoryCardsHTML()}`;
   window.scrollTo(0,0);
