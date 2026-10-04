@@ -724,7 +724,7 @@ function render(p){
         <span class="buy-retailer">${esc(b.retailer)}</span>
         <span class="buy-price num">${money(b.price)}${b.pack ? ` <small>${renderMoney(esc(b.pack))}</small>` : ""}</span>
         <span class="buy-go">Visit &rarr;</span>
-      </a>`).join("")}</div>` : `<p class="buy-empty">Not yet checked at retail.</p>`}
+      </a>`).join("")}</div>` : `<p class="buy-empty">${esc(p.buyNote || "Not yet checked at retail.")}</p>`}
   </section>
 
   <section id="who">
