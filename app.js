@@ -640,7 +640,7 @@ function render(p){
     </div>
     <div class="shot-stage">
     ${p.photo
-      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} ${esc(p.servingWord || "sachet")} package" loading="eager" fetchpriority="high" decoding="async">`
+      ? `<img class="shot" src="${sitePath(p.photo)}" alt="${esc(p.name)} ${esc(p.servingWord || "sachet")} package" loading="eager" fetchpriority="high">`
       : `<div class="shot-ph" role="img" aria-label="Photo not yet available for ${esc(p.name)}">
            <svg viewBox="0 0 537 1030" xmlns="http://www.w3.org/2000/svg">
              <defs>
@@ -939,6 +939,20 @@ currencySel.addEventListener("change", () => {
   try{ localStorage.setItem(CURRENCY_KEY, currentCurrency); }catch(err){}
   refreshCurrentView();
 });
+
+/* Start downloading a review's photo as soon as a pointer, finger or
+   keyboard focus lands on a link to it. Reviews open without a page load,
+   so without this the photo request only starts after the click, and the
+   page showed up about half a second before its photo. Once per photo. */
+const warmedPhotos = new Set();
+function warmPhoto(e){
+  const a = e.target.closest && e.target.closest("[data-i]");
+  const p = a && PRODUCTS[+a.dataset.i];
+  if(!p || !p.photo || warmedPhotos.has(p.photo)) return;
+  warmedPhotos.add(p.photo);
+  new Image().src = sitePath(p.photo);
+}
+["pointerover", "focusin", "touchstart"].forEach(t => document.addEventListener(t, warmPhoto, {passive: true}));
 
 document.addEventListener("click", e=>{
   if(!e.target.closest(".nv")) closeMenu();
