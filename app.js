@@ -1039,6 +1039,14 @@ page.addEventListener("click", e => {
   const go = e.target.closest(".home-go");
   if(go && go.dataset.i !== undefined){ select(+go.dataset.i); return; }
 
+  const facetLink = e.target.closest("[data-facet]");
+  if(facetLink){
+    e.preventDefault();
+    try{ history.pushState(null, "", facetLink.getAttribute("href")); }catch(err){}
+    renderCategoryPage("gel", facetLink.dataset.facet || null);
+    return;
+  }
+
   const fcLink = e.target.closest("[data-fc-link]");
   if(fcLink){
     e.preventDefault();
@@ -1384,8 +1392,8 @@ function finderResultsHTML(){
    -- ItemList should describe the whole collection this page represents,
    same as a category page's product grid would, regardless of which
    quiz answers happen to be selected right now. */
-function itemListSchema(cat){
-  const items = PRODUCTS.filter(p => p.category === cat);
+function itemListSchema(cat, facet){
+  const items = categoryItems(cat, facet);
   const obj = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -1449,6 +1457,7 @@ function categoryTableCols(cat){
     ["Carbohydrate", p => p.carbs==null ? "not declared" : `${p.carbs} g`, p => p.carbs ?? -1, "hi"],
     ["Ratio", p => p.ratio, p => p.ratioScore, "hi"],
     ["Sodium", p => p.sodium===null ? "not declared" : `${p.sodium} mg`, p => p.sodium ?? -1, "hi"],
+    ...(cat === "gel" ? [["Caffeine", p => p.caffeine ? `${p.caffeine} mg` : "none", p => p.caffeine ?? 0, null]] : []),
     ["Cost / gram", p => moneyPrecise(p.perGram, 3), p => p.perGram, "lo"],
     ["For 90 g/hr", p => `${p.perHour.toFixed(1)} ${pluralize(p.servingWord || "sachet", p.perHour)}`, p => p.perHour, "lo"],
     ["Score", p => p.overallScore==null ? "n/d" : p.overallScore, p => p.overallScore ?? -1, "hi"]
@@ -1460,7 +1469,7 @@ let categoryPageCat = null;
 
 function categoryTableRowsHTML(cat){
   const cols = categoryTableCols(cat);
-  const items = PRODUCTS.filter(p => p.category === cat);
+  const items = categoryItems(cat, categoryFacet);
   const {colIndex, dir} = categorySort;
   const sorted = colIndex === -1
     ? items.slice().sort((a,b) => (b.overallScore ?? -1) - (a.overallScore ?? -1))
@@ -1535,26 +1544,134 @@ function setPageMeta(title, desc){
   ].forEach(([sel,attr,val]) => { const el = document.querySelector(sel); if(el) el.setAttribute(attr, val); });
 }
 
-function renderCategoryPage(cat){
+/* Gel attribute pages (/gels/caffeinated/ etc.): filtered views of the
+   gel table for the ways people actually search ("caffeinated energy
+   gels", "high sodium gels"). Every rule is read off the label and stated
+   on the page, so membership is never an editorial call. */
+const REAL_FOOD_EXCLUDES = /maltodextrin|dextrin|glucose|fructose|dextrose|isomaltulose/i;
+const GEL_FACETS = {
+  "caffeinated": {
+    label: "Caffeinated", h1: "Caffeinated energy gels",
+    title: "Caffeinated Energy Gels Compared: Caffeine, Carbs & Price",
+    test: p => p.caffeine > 0,
+    rule: items => `Every gel here declares caffeine on its label, from ${Math.min(...items.map(p => p.caffeine))} mg to ${Math.max(...items.map(p => p.caffeine))} mg a gel. Sort by caffeine to compare doses; some lines vary it by flavor, which each review notes.`
+  },
+  "high-carb": {
+    label: "High carb", h1: "High-carb energy gels",
+    title: "High-Carb Energy Gels (40 g+) Compared: Carbs, Ratio & Price",
+    test: p => p.carbs >= 40,
+    rule: () => `40 g of carbohydrate or more in a single gel, so fewer gels an hour to hit a high intake target. Check the ratio column: at higher rates, a glucose-to-fructose blend matters more.`
+  },
+  "high-sodium": {
+    label: "High sodium", h1: "High-sodium energy gels",
+    title: "High-Sodium Energy Gels (100 mg+) Compared: Sodium, Carbs & Price",
+    test: p => p.sodium >= 100,
+    rule: () => `100 mg of sodium or more per gel. Even the highest is well short of a dedicated electrolyte product, so treat this as a top-up in heat, not a sodium plan.`
+  },
+  "real-food": {
+    label: "Real food", h1: "Real-food energy gels",
+    title: "Real-Food Energy Gels Compared: Ingredients, Carbs & Price",
+    test: p => !REAL_FOOD_EXCLUDES.test(p.ingredients),
+    rule: () => `No maltodextrin, glucose, fructose or dextrose on the ingredient list: the carbohydrate comes from foods like fruit, rice, honey or maple syrup. Usually fewer carbs per gram and a higher price per gram than a standard gel.`
+  }
+};
+
+function categoryItems(cat, facet){
+  const f = cat === "gel" && GEL_FACETS[facet];
+  return PRODUCTS.filter(p => p.category === cat && (!f || f.test(p)));
+}
+
+/* Gel page chip row: the category plus each attribute page, so the
+   filtered pages are reachable (and crawlable) from the category. */
+function gelFacetNavHTML(active){
+  const chip = (href, label, facet, on) => `<a class="fq-opt${on ? " on" : ""}" href="${sitePath(href)}" data-facet="${facet}"${on ? ' aria-current="page"' : ""}>${esc(label)}</a>`;
+  return `<nav class="fq-opts facet-nav" aria-label="Filter gels">
+    ${chip("/gels/", "All gels", "", !active)}
+    ${Object.entries(GEL_FACETS).map(([k, f]) => chip(`/gels/${k}/`, f.label, k, active === k)).join("")}
+  </nav>`;
+}
+
+/* Short answers to the questions people search alongside each category.
+   Answers stay general and point at the calculator rather than prescribe;
+   FAQPage schema makes them eligible for Google's expandable results. */
+const CATEGORY_FAQ = {
+  gel: [
+    ["How many energy gels do I need for a marathon?",
+     `Multiply your carbohydrate target per hour by your expected finishing time, then divide by the carbs in one gel. At 75 g an hour (the calculator's middle tier), a 3.5-hour marathon is about 260 g: roughly 11 gels at 25 g each, or 7 at 40 g. The <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a> does this for every gel here. Practise your number in training first.`],
+    ["Do I need to drink water with an energy gel?",
+     `Most standard gels are concentrated, and their makers recommend taking them with water. Isotonic gels, like SiS GO Isotonic, are pre-diluted and designed to be taken without it, as are Maurten's hydrogel gels. Each review notes which kind a gel is.`],
+    ["What's the difference between isotonic and regular gels?",
+     `An isotonic gel is already mixed with water, so it goes down without a drink but carries fewer carbs for its size: SiS GO Isotonic is a 60 ml sachet with 22 g of carbs. A regular gel packs more carbohydrate into less weight but usually wants water alongside.`]
+  ],
+  drink: [
+    ["Can a drink mix replace energy gels?",
+     `Yes, if it carries enough carbohydrate. High-carb mixes deliver 80 to 90 g a bottle; the "For 90 g/hr" column shows how many servings an hour each mix takes. You can also combine the two, and the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a> counts both.`],
+    ["Why does sodium count toward drink mix scores but not gels?",
+     `A drink mix carries fluid, and most formulas include real sodium alongside the carbohydrate, so replacing sweat losses is part of its job. A gel's job is carbohydrate; its sodium is shown but not scored. <a href="${sitePath("/methodology/")}" data-page="methodology">How scores work</a>.`]
+  ],
+  electrolyte: [
+    ["How much sodium do I lose in sweat?",
+     `It varies a lot between people and with heat. The scoring here treats 1000 mg an hour as the upper end of typical sweat loss; a sweat test is the only way to know your own number.`],
+    ["Electrolyte tablet or drink mix?",
+     `Electrolyte products replace sodium without the carbohydrate, so they suit anyone getting carbs from gels, or anyone who wants fuel and hydration in separate bottles. A drink mix does both in one bottle.`]
+  ]
+};
+
+function categoryFaqHTML(cat){
+  const qs = CATEGORY_FAQ[cat];
+  if(!qs) return "";
+  const schema = JSON.stringify({
+    "@context": "https://schema.org", "@type": "FAQPage",
+    mainEntity: qs.map(([q, a]) => ({"@type": "Question", name: q, acceptedAnswer: {"@type": "Answer", text: stripHtml(a)}}))
+  }).replace(/<\//g, "<\\/");
+  return `
+  <section class="cat-faq">
+    <script type="application/ld+json">${schema}<\/script>
+    <div class="sh"><h2>Questions</h2><span class="rule"></span></div>
+    <div class="accordion">${qs.map(([q, a], i) => `
+      <div class="acc-item">
+        <h3 class="acc-item-heading">
+          <button type="button" class="acc-head" aria-expanded="false" aria-controls="faq-panel-${i}" id="faq-head-${i}">
+            <span class="acc-title">${esc(q)}</span>
+            <span class="acc-toggle" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div class="acc-panel" id="faq-panel-${i}" role="region" aria-labelledby="faq-head-${i}">
+          <div class="acc-panel-in"><p class="thesis">${a}</p></div>
+        </div>
+      </div>`).join("")}
+    </div>
+  </section>`;
+}
+
+let categoryFacet = null;
+
+function renderCategoryPage(cat, facet){
+  const f = cat === "gel" && GEL_FACETS[facet] ? GEL_FACETS[facet] : null;
   categorySort = {colIndex: -1, dir: "desc"};
   categoryPageCat = cat;
+  categoryFacet = f ? facet : null;
   clearNavHighlights();
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.toggle("on", a.dataset.cat === cat));
-  setPageMeta(`${CATEGORY_PAGE_TITLE[cat]} - Fuel Finder`, categoryPageDesc(cat));
-  document.getElementById("toc").style.display = "none";
   const count = PRODUCTS.filter(p => p.category === cat).length;
+  const items = categoryItems(cat, categoryFacet);
+  setPageMeta(`${f ? f.title : CATEGORY_PAGE_TITLE[cat]} - Fuel Finder`,
+    f ? `${items.length} ${f.h1.toLowerCase()} compared on carbs, sodium, caffeine and cost per gram. Scored from the label, no affiliate links.` : categoryPageDesc(cat));
+  document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
-  <script type="application/ld+json">${itemListSchema(cat)}<\/script>
+  <script type="application/ld+json">${itemListSchema(cat, categoryFacet)}<\/script>
   <div class="home-hero">
-    <p class="eye">${count} ${esc(CATEGORY_PLURAL[cat])} reviewed</p>
-    <h1>${esc(CATEGORY_PAGE_H1[cat])}</h1>
-    <p class="thesis cat-intro">${CATEGORY_PAGE_INTRO[cat]}</p>
+    <p class="eye">${f ? `${items.length} of ${count} gels` : `${count} ${esc(CATEGORY_PLURAL[cat])} reviewed`}</p>
+    <h1>${esc(f ? f.h1 : CATEGORY_PAGE_H1[cat])}</h1>
+    <p class="thesis cat-intro">${f ? f.rule(items) : CATEGORY_PAGE_INTRO[cat]}</p>
+    ${cat === "gel" ? gelFacetNavHTML(categoryFacet) : ""}
   </div>
-  ${categoryCalloutsHTML(cat)}
+  ${f ? "" : categoryCalloutsHTML(cat)}
   <section id="cat-table-section">
-    <div class="sh"><h2>Full comparison</h2><span class="rule"></span></div>
+    <div class="sh"><h2>${f ? "Compared" : "Full comparison"}</h2><span class="rule"></span></div>
     ${categoryTableHTML(cat)}
   </section>
+  ${f ? "" : categoryFaqHTML(cat)}
   <p class="thesis cat-outro">Not sure which of these fits? <a href="${sitePath(`/find/${cat}/`)}" data-fc-link="${cat}">Answer a few questions</a> and we'll rank the catalog for your race instead of just the numbers.</p>`;
   window.scrollTo(0,0);
 }
@@ -2260,6 +2377,8 @@ function routeFromPath(){
   if(h === "calculator"){ renderCalculator(); return; }
   if(h === "search"){ renderSearchResults(); return; }
   if(h === "methodology"){ renderMethodology(); return; }
+  const gf = h.match(/^gels\/([a-z-]+)$/);
+  if(gf && GEL_FACETS[gf[1]]){ renderCategoryPage("gel", gf[1]); return; }
   const catBySlug = Object.entries(CATEGORY_PAGE_SLUG).find(([,slug]) => slug === h);
   if(catBySlug){ renderCategoryPage(catBySlug[0]); return; }
   if(h === "about"){ renderAbout(); return; }

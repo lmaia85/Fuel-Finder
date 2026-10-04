@@ -667,3 +667,10 @@ a.bc:hover{transform:translateY(-3px);border-color:var(--me)}
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;
     transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* Gel attribute chips (All / Caffeinated / High carb / ...) under the
+   category headline: links styled as the quiz's option chips. */
+.facet-nav{margin-top:24px}
+.facet-nav .fq-opt{text-decoration:none}
+/* Category FAQ: the About page's accordion, under its own section rule. */
+.cat-faq{margin-top:12px}

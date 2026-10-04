@@ -95,6 +95,7 @@ async function discoverRoutes(page, port){
   const products = await page.evaluate(() =>
     PRODUCTS.map(p => ({ category: p.category, id: p.id }))
   );
+  const gelFacets = await page.evaluate(() => Object.keys(GEL_FACETS));
 
   /* The real safety check: a partial or broken catalog file can leave
      PRODUCTS parsed but empty. Bail here, before the fixed routes below are
@@ -129,6 +130,7 @@ async function discoverRoutes(page, port){
     { urlPath: "/about/", filePath: "about/index.html", depth: 1 },
     { urlPath: "/requests/", filePath: "requests/index.html", depth: 1 },
     { urlPath: "/gels/", filePath: "gels/index.html", depth: 1 },
+    ...gelFacets.map(f => ({ urlPath: `/gels/${f}/`, filePath: `gels/${f}/index.html`, depth: 2 })),
     { urlPath: "/drink-mixes/", filePath: "drink-mixes/index.html", depth: 1 },
     { urlPath: "/electrolytes/", filePath: "electrolytes/index.html", depth: 1 }
   ];
