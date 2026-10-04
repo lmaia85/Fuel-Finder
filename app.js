@@ -722,7 +722,7 @@ function render(p){
     ${p.buy && p.buy.length ? `<div class="buy">${p.buy.map(b => `
       <a class="buy-row" href="${esc(b.url)}" target="_blank" rel="noopener">
         <span class="buy-retailer">${esc(b.retailer)}</span>
-        <span class="buy-price num">${money(b.price)}${b.pack ? ` <small>${esc(b.pack)}</small>` : ""}</span>
+        <span class="buy-price num">${money(b.price)}${b.pack ? ` <small>${renderMoney(esc(b.pack))}</small>` : ""}</span>
         <span class="buy-go">Visit &rarr;</span>
       </a>`).join("")}</div>` : `<p class="buy-empty">Not yet checked at retail.</p>`}
   </section>
@@ -1436,7 +1436,7 @@ const categoryPageDesc = cat => {
   }[cat];
 };
 const CATEGORY_PAGE_INTRO = {
-  gel: `Two numbers explain most of the difference here: the glucose-to-fructose ratio, which sets how much carbohydrate your gut can absorb an hour, and cost per gram, the only price comparable across 22&nbsp;g to 90&nbsp;g sachets. Sodium is shown but not scored; that's an electrolyte product's job. Sort any column, or run a duration through the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a>.`,
+  gel: `Two numbers explain most of the difference here: the glucose-to-fructose ratio, which sets how much carbohydrate your gut can absorb an hour, and cost per gram, the only price comparable across servings from ${Math.min(...PRODUCTS.filter(p => p.category === "gel").map(p => p.carbs))}&nbsp;g to ${Math.max(...PRODUCTS.filter(p => p.category === "gel").map(p => p.carbs))}&nbsp;g of carbohydrate. Sodium is shown but not scored; that's an electrolyte product's job. Sort any column, or run a duration through the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a>.`,
   drink: `A drink mix carries fluid and, in most formulas, real sodium alongside the carbohydrate, so sodium counts toward the score here where it doesn't for gels. Cost per gram is still the price that travels across serving sizes, and the glucose-to-fructose ratio still caps how much your gut can move an hour. Sort any column, or run a duration through the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a>.`,
   electrolyte: `These replace sodium, not carbohydrate, so the price that matters is cost per 1000&nbsp;mg of sodium. It varies more than the marketing suggests: some tablets carry triple the sodium of others at a similar price. Potassium, calcium and magnesium are shown when a product declares them. Sort by dose, cost or score.`
 };
@@ -1681,8 +1681,15 @@ function renderCategoryPage(cat, facet){
 
 function renderFinder(cat){
   finderAnswers = {category: FINDER_QUESTIONS[cat] ? cat : "gel"};
-  document.title = "Find your fuel - Fuel Finder";
   clearNavHighlights();
+  /* Distinct title and description per quiz page, or Google sees four
+     near-identical pages (they were all "Find your fuel"). */
+  const fcat = FINDER_QUESTIONS[cat] ? cat : null;
+  const fn = fcat ? PRODUCTS.filter(p => p.category === fcat).length : PRODUCTS.length;
+  setPageMeta(
+    fcat ? `Which ${CATEGORY_LABEL[fcat] === "drink mix" ? "Drink Mix" : CATEGORY_LABEL[fcat] === "gel" ? "Energy Gel" : "Electrolyte"} Should I Use? Quiz - Fuel Finder`
+         : "Find Your Fuel: Energy Gel, Drink Mix & Electrolyte Quiz - Fuel Finder",
+    `Answer a few questions about your race and we'll rank ${fn} ${fcat ? CATEGORY_PLURAL[fcat] : "gels, drink mixes and electrolytes"} against your answers, scored from the label. No affiliate links.`);
   document.getElementById("find-link").classList.add("on");
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
@@ -1800,8 +1807,9 @@ function calcResultsHTML(){
 }
 
 function renderCalculator(){
-  document.title = "Race Fueling Calculator - Fuel Finder";
   clearNavHighlights();
+  setPageMeta("Race Fueling Calculator: How Many Gels Do I Need? - Fuel Finder",
+    "How many gels or scoops you need for your race, and what it costs: every gel and drink mix in the catalog at 45, 75 or 90 g of carbohydrate an hour.");
   document.getElementById("calc-link").classList.add("on");
   document.getElementById("toc").style.display = "none";
   calcAnswers = calcAnswersFromURL();
@@ -2085,8 +2093,9 @@ function initRecentSlider(){
 }
 
 function renderAbout(){
-  document.title = "About - Fuel Finder";
   clearNavHighlights();
+  setPageMeta("About Fuel Finder - Independent Endurance Fuel Reviews",
+    "Why Fuel Finder exists: independent reviews of energy gels, drink mixes and electrolytes, built from the label with no affiliate links or sponsorships.");
   document.getElementById("toc").style.display = "none";
 
   const sections = [
@@ -2139,8 +2148,9 @@ function renderAbout(){
 }
 
 function renderMethodology(){
-  document.title = "Methodology - Fuel Finder";
   clearNavHighlights();
+  setPageMeta("Methodology: How We Score Energy Gels and Drink Mixes - Fuel Finder",
+    "How Fuel Finder scores endurance fuel: every number from the declared nutrition label, fixed scales set in advance, no sponsorships or affiliate links.");
   document.getElementById("toc").style.display = "none";
   const gelCount = PRODUCTS.filter(p => p.category === "gel").length;
   const drinkCount = PRODUCTS.filter(p => p.category === "drink").length;
