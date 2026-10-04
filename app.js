@@ -1790,7 +1790,6 @@ function leaderboardRowsHTML(cat){
   const top = capPerBrand(all, 2).slice(0, 5);
   return productRowsHTML(top, top.map(p => all.indexOf(p) + 1)) + `
     <a class="lb-all" href="${sitePath(`/${CATEGORY_PAGE_SLUG[cat]}/`)}" data-page="${CATEGORY_PAGE_SLUG[cat]}">
-      <span>Top five, two per brand at most</span>
       <span>All ${PRODUCTS.filter(p => p.category === cat).length} ${CATEGORY_PLURAL[cat]}, ranked &rarr;</span>
     </a>`;
 }
