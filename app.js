@@ -357,15 +357,33 @@ function stripHtml(s){
   return d.textContent;
 }
 
-const DEFAULT_DESCRIPTION = "Gel, drink mix and electrolyte reviews built from declared nutrition panels -- cost per gram, sodium and absorption rate compared, not marketing copy.";
+const HOME_TITLE = "Energy Gel, Drink Mix & Electrolyte Reviews - Fuel Finder";
+const DEFAULT_DESCRIPTION = "Independent reviews of energy gels, drink mixes and electrolytes for runners, cyclists and triathletes, compared on carbs, sodium and price per gram from the label. No affiliate links.";
 
 /* Title/description for the tab, search snippets, and social previews.
    clearNavHighlights() calls this with null on every non-product render to
    restore the site-wide defaults -- this is a single hash-routed document,
    so nothing else clears a previous product's tags on the way out. */
+/* Search-facing title and description for a review. The title carries
+   "review" because that's how people search for a product; the
+   description leads with label facts (the search-result snippet is often
+   all a searcher reads) and then the verdict. */
+function productTitle(p){
+  return `${p.name} Review: ${p.category === "electrolyte" ? "Sodium" : "Carbs"}, Price & Score - Fuel Finder`;
+}
+function productDescription(p){
+  const facts = [
+    `${p.category === "electrolyte" ? `${p.sodium} mg sodium` : `${p.carbs} g carbs`} per ${p.serving}`,
+    p.category !== "electrolyte" && p.ratio !== "n/d" ? `${p.ratio.replace(/^~\s*/, "")} glucose:fructose` : "",
+    p.overallScore === null ? "" : `scored ${p.overallScore}/100`
+  ].filter(Boolean).join(", ");
+  const brand = p.name.toLowerCase().startsWith(p.brand.split(" ")[0].toLowerCase()) ? "" : ` (${p.brand})`;
+  return `${p.name}${brand} review: ${facts}. ${stripHtml(renderMoney(p.thesis))}`;
+}
+
 function setShareMeta(p){
-  const title = p ? p.name + " - Fuel Finder" : "Fuel Finder - Endurance nutrition reviews";
-  const desc = p ? stripHtml(renderMoney(p.thesis)) : DEFAULT_DESCRIPTION;
+  const title = p ? productTitle(p) : HOME_TITLE;
+  const desc = p ? productDescription(p) : DEFAULT_DESCRIPTION;
   [["meta[name='description']","content",desc],
    ["meta[property='og:title']","content",title],
    ["meta[property='og:description']","content",desc],
@@ -834,7 +852,7 @@ function select(i){
      routing in never stacks a duplicate history entry. */
   const want = sitePath(p.category + "/" + p.id + "/");
   if(location.pathname !== want){ try{ history.pushState(null, "", want); }catch(err){} }
-  document.title = p.name + " - Fuel Finder";
+  document.title = productTitle(p);
   setShareMeta(p);
   render(p);
 }
@@ -1382,15 +1400,26 @@ function itemListSchema(cat){
    CATEGORY_PAGE_SLUG lives up with CATEGORY_LABEL/CATEGORY_PLURAL near
    the top of the file since the nav-link setup code below runs at
    module load, before this block would otherwise be defined. */
-const CATEGORY_PAGE_TITLE = {
+/* Visible headline (site voice) vs. <title> (what people search for). */
+const CATEGORY_PAGE_H1 = {
   gel: "Energy gels, compared on the numbers",
   drink: "Drink mixes, compared on the numbers",
   electrolyte: "Electrolyte products, compared on the numbers"
 };
-const CATEGORY_PAGE_DESC = {
-  gel: "19 energy gels compared on glucose:fructose ratio, cost per gram of carbohydrate, and score -- sortable, no affiliate links.",
-  drink: "12 endurance drink mixes compared on ratio, sodium, cost per gram, and score -- sortable, no affiliate links.",
-  electrolyte: "10 electrolyte products compared on sodium dose, cost per 1000mg sodium, and score -- sortable, no affiliate links."
+const CATEGORY_PAGE_TITLE = {
+  gel: "Best Energy Gels Compared: Carbs, Ratio & Price per Gram",
+  drink: "Best Endurance Drink Mixes Compared: Carbs, Sodium & Price",
+  electrolyte: "Best Electrolyte Drinks & Tablets Compared: Sodium & Price"
+};
+/* Counts come from the catalog, never typed: these once said 19/12/10
+   long after the catalog had grown past that. */
+const categoryPageDesc = cat => {
+  const n = PRODUCTS.filter(p => p.category === cat).length;
+  return {
+    gel: `${n} energy gels for running and cycling compared on carbs per gel, glucose:fructose ratio, caffeine and cost per gram. Sortable, scored from the label, no affiliate links.`,
+    drink: `${n} endurance drink mixes compared on carbs per serving, sodium, glucose:fructose ratio and cost per gram. Sortable, scored from the label, no affiliate links.`,
+    electrolyte: `${n} electrolyte drinks, tablets and powders compared on sodium per serving and cost per 1000 mg of sodium. Sortable, scored from the label, no affiliate links.`
+  }[cat];
 };
 const CATEGORY_PAGE_INTRO = {
   gel: `Two numbers explain most of the difference here: the glucose-to-fructose ratio, which sets how much carbohydrate your gut can absorb an hour, and cost per gram, the only price comparable across 22&nbsp;g to 90&nbsp;g sachets. Sodium is shown but not scored; that's an electrolyte product's job. Sort any column, or run a duration through the <a href="${sitePath("/calculator/")}" data-page="calculator">calculator</a>.`,
@@ -1508,14 +1537,14 @@ function renderCategoryPage(cat){
   categoryPageCat = cat;
   clearNavHighlights();
   document.querySelectorAll(".nav > .nv > a").forEach(a => a.classList.toggle("on", a.dataset.cat === cat));
-  setPageMeta(`${CATEGORY_PAGE_TITLE[cat]} - Fuel Finder`, CATEGORY_PAGE_DESC[cat]);
+  setPageMeta(`${CATEGORY_PAGE_TITLE[cat]} - Fuel Finder`, categoryPageDesc(cat));
   document.getElementById("toc").style.display = "none";
   const count = PRODUCTS.filter(p => p.category === cat).length;
   document.getElementById("page").innerHTML = `
   <script type="application/ld+json">${itemListSchema(cat)}<\/script>
   <div class="home-hero">
     <p class="eye">${count} ${esc(CATEGORY_PLURAL[cat])} reviewed</p>
-    <h1>${esc(CATEGORY_PAGE_TITLE[cat])}</h1>
+    <h1>${esc(CATEGORY_PAGE_H1[cat])}</h1>
     <p class="thesis cat-intro">${CATEGORY_PAGE_INTRO[cat]}</p>
   </div>
   ${categoryCalloutsHTML(cat)}
@@ -1908,7 +1937,7 @@ const RACE_CHIPS = [
 ];
 
 function renderHome(){
-  document.title = "Fuel Finder - Endurance nutrition reviews";
+  document.title = HOME_TITLE;
   clearNavHighlights();
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
