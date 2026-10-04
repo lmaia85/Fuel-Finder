@@ -1922,6 +1922,7 @@ function renderHome(){
     <!-- Visually hidden: the page keeps one h1 for screen readers and
          search engines, without a visible headline above the search. -->
     <h1 class="sr-only">Endurance fuel, scored from the label</h1>
+    <p class="home-intro">Find your next endurance fuel here. A simple, complete guide to the most popular gels, drink mixes and electrolytes on the market.</p>
     <div class="home-search">
       <label for="siteSearch" class="home-search-label">Search the catalog</label>
       <input id="siteSearch" placeholder="e.g. Maurten, SiS Beta Fuel" autocomplete="off">

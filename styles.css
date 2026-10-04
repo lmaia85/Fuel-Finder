@@ -437,6 +437,7 @@ footer b{color:var(--dim);font-weight:500}
 .home-search-label{display:block;font-family:var(--mono);font-size:13px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 8px}
 .home-hero .thesis{margin:22px 0 0;max-width:60ch}
+.home-intro{font-family:var(--body);font-size:15px;line-height:1.5;color:var(--dim);margin:0 0 22px;max-width:60ch}
 .home-search{position:relative;margin:0}
 .home-search input::placeholder{color:var(--faint)}
 .home-search input{width:100%;background:var(--panel);border:1px solid var(--rule-2);color:var(--ink);
