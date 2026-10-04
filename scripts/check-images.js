@@ -44,7 +44,8 @@ const MAX_OFFSET = 0.02;   // allowed drift of the content center, as a share of
 (async () => {
   const puppeteer = require("puppeteer");
   const dir = path.join(__dirname, "..", "img", "products");
-  const browser = await puppeteer.launch();
+  // Same flags as build.js: the CI runner has no usable Chrome sandbox.
+  const browser = await puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
   const page = await browser.newPage();
   const off = [];
   for(const name of fs.readdirSync(dir).filter(n => n.endsWith(".webp"))){
