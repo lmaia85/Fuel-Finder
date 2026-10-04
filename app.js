@@ -1025,14 +1025,6 @@ page.addEventListener("click", e => {
   const go = e.target.closest(".home-go");
   if(go && go.dataset.i !== undefined){ select(+go.dataset.i); return; }
 
-  const race = e.target.closest("[data-race]");
-  if(race){
-    e.preventDefault();
-    try{ history.pushState(null, "", race.getAttribute("href")); }catch(err){}
-    renderFinder(race.dataset.race);
-    return;
-  }
-
   const fcLink = e.target.closest("[data-fc-link]");
   if(fcLink){
     e.preventDefault();
@@ -1558,11 +1550,6 @@ function renderCategoryPage(cat){
 
 function renderFinder(cat){
   finderAnswers = {category: FINDER_QUESTIONS[cat] ? cat : "gel"};
-  /* ?duration= pre-answers the duration question (the homepage race
-     chips link here). Only accepted if it's a real option for this quiz. */
-  const dur = new URLSearchParams(location.search).get("duration");
-  const durQ = FINDER_QUESTIONS[finderAnswers.category].find(q => q.key === "duration");
-  if(durQ && durQ.opts.some(([v]) => v === dur)) finderAnswers.duration = dur;
   document.title = "Find your fuel - Fuel Finder";
   clearNavHighlights();
   document.getElementById("find-link").classList.add("on");
@@ -1926,31 +1913,15 @@ function recentlyReviewedHTML(){
   </section>`;
 }
 
-/* Homepage race entry: [quiz category, preset duration answer, label,
-   example events]. Each chip opens Find Your Fuel with the duration
-   already answered, via ?duration= so the link also works when shared. */
-const RACE_CHIPS = [
-  ["gel", "under90", "Under 90 min", "10K, sprint tri"],
-  ["gel", "90to3h", "90 min to 3 hrs", "Half marathon, olympic tri"],
-  ["gel", "over3h", "Over 3 hrs", "Marathon, 70.3, Ironman, gran fondo"],
-  ["electrolyte", "", "Just electrolytes", "Salt and fluid, no carbs"]
-];
-
 function renderHome(){
   document.title = HOME_TITLE;
   clearNavHighlights();
   document.getElementById("toc").style.display = "none";
   document.getElementById("page").innerHTML = `
   <div class="home-hero">
-    <h1>Endurance fuel, scored from the label.</h1>
-    <p class="thesis">${PRODUCTS.length} gels, drink mixes and electrolytes compared on the numbers their packaging declares. Nothing sponsored, no affiliate links.</p>
-    <div class="home-race" role="group" aria-labelledby="homeRaceLabel">
-      <p class="home-search-label" id="homeRaceLabel">How long is your race?</p>
-      <div class="home-race-opts">${RACE_CHIPS.map(([cat, dur, label, eg]) => `
-        <a class="race-chip" href="${sitePath(`/find/${cat}/${dur ? `?duration=${dur}` : ""}`)}" data-race="${cat}">
-          <b>${label}</b><span>${eg}</span>
-        </a>`).join("")}</div>
-    </div>
+    <!-- Visually hidden: the page keeps one h1 for screen readers and
+         search engines, without a visible headline above the search. -->
+    <h1 class="sr-only">Endurance fuel, scored from the label</h1>
     <div class="home-search">
       <label for="siteSearch" class="home-search-label">Search the catalog</label>
       <input id="siteSearch" placeholder="e.g. Maurten, SiS Beta Fuel" autocomplete="off">
