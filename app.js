@@ -1441,7 +1441,6 @@ function categoryTableCols(cat){
       ["Calcium", p => p.calcium==null ? "not declared" : `${p.calcium} mg`, p => p.calcium ?? -1, "hi"],
       ["Magnesium", p => p.magnesium==null ? "not declared" : `${p.magnesium} mg`, p => p.magnesium ?? -1, "hi"],
       ["Carbohydrate", p => p.carbs==null ? "not declared" : `${p.carbs} g`, p => p.carbs ?? -1, "lo"],
-      ["Price", p => money(p.price), p => p.price, "lo"],
       ["Cost / 1000mg Na", p => p.costPer1000Na==null ? "n/d" : moneyPrecise(p.costPer1000Na, 2), p => p.costPer1000Na ?? Infinity, "lo"],
       ["Score", p => p.overallScore==null ? "n/d" : p.overallScore, p => p.overallScore ?? -1, "hi"]
     ];
@@ -1449,9 +1448,7 @@ function categoryTableCols(cat){
   return [
     ["Carbohydrate", p => p.carbs==null ? "not declared" : `${p.carbs} g`, p => p.carbs ?? -1, "hi"],
     ["Ratio", p => p.ratio, p => p.ratioScore, "hi"],
-    ["Provenance", p => p.ratioProv, null, null],
     ["Sodium", p => p.sodium===null ? "not declared" : `${p.sodium} mg`, p => p.sodium ?? -1, "hi"],
-    ["Price", p => money(p.price), p => p.price, "lo"],
     ["Cost / gram", p => moneyPrecise(p.perGram, 3), p => p.perGram, "lo"],
     ["For 90 g/hr", p => `${p.perHour.toFixed(1)} ${pluralize(p.servingWord || "sachet", p.perHour)}`, p => p.perHour, "lo"],
     ["Score", p => p.overallScore==null ? "n/d" : p.overallScore, p => p.overallScore ?? -1, "hi"]
